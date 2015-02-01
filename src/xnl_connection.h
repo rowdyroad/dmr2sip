@@ -105,8 +105,8 @@ class CXNLConnection
     pthread_t  m_hThread;
     int  m_socket;
   //    bool    m_bIsDisplayRadio;
-    bool    m_bWaitForAck;
-    bool    m_bCloseSocket;
+    volatile bool    m_bWaitForAck;
+    volatile bool    m_bCloseSocket;
     pthread_cond_t m_event;
     pthread_mutex_t m_mutex;
     int conn_retry;

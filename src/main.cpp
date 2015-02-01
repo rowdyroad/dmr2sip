@@ -24,7 +24,7 @@ class Connection : public CXNLConnectionHandler
 int main()
 {
 	Connection handler;
-	CXNLConnection connection("192.168.10.1", 8002, "", 0, &handler);
+	CXNLConnection connection("192.168.10.1", 8002, "0x112233440x556677880x99aabbcc0xddeeff00", 0x12345678, &handler);
 	sleep(1000);
 	return 0;
 }

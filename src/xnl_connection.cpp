@@ -12,6 +12,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <assert.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 uint32_t GetTickCount()
 {
     struct timespec ts;
@@ -35,23 +40,7 @@ uint32_t GetTickCount()
 
 CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler)
 {
-    struct hostent        *he;
-    struct sockaddr_in  server;
-
-    if ( (he = gethostbyname(host.c_str()) ) == NULL ) {
-        std::cout << "Could not get host by name" << std::endl;
-        exit(1); /* error */
-    }
-
-    memcpy(&server.sin_addr, he->h_addr_list[0], he->h_length);
-    server.sin_family = AF_INET;
-    server.sin_port = htons(port);
-
-    if (connect(m_socket, (struct sockaddr *)&server, sizeof(server))) {
-        std::cout << "Could not connect" << std::endl;
-        exit(1);
-    }
-
+    std::cout << "start" << std::endl;
     m_handler = handler;
     m_delta = delta;
     m_bConnected = false;
@@ -87,6 +76,19 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     m_pSendQueTail = NULL;
     m_pLastSendMsg = NULL;
     m_XCMP_ver = 0;
+
+
+     struct hostent *he = gethostbyname(host.c_str());
+    struct sockaddr_in  target;
+    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    assert(m_socket != -1);
+
+    target.sin_family = AF_INET;
+    target.sin_port = htons(port);
+    memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
+    assert(connect(m_socket, (struct sockaddr *)&target, sizeof(target)) == 0);
+
     pthread_cond_init(&m_event, NULL);
     pthread_create(&m_hThread, NULL, &runThread, (void*)this);
 }
@@ -125,6 +127,7 @@ void* CXNLConnection::runThread(void* connection)
 
 void CXNLConnection::run(void)
 {
+    std::cout << "run" << std::endl;
     MSG_QUEUE_T *p_send_msg_node = NULL;
     uint8_t *p_send_msg = NULL;
     uint8_t *p_rcv_msg = NULL;
@@ -133,12 +136,12 @@ void CXNLConnection::run(void)
     struct timeval read_timeval = {0, 10000};/* wait 10ms */
     uint32_t StartTime = GetTickCount();
     uint32_t CurTime = 0;
-    int retry = 0;
+    size_t retry = 0;
     int ret = 0;
 
     pthread_cond_signal(&m_event);
 
-    while (1)
+    while (!m_bCloseSocket)
     {
         /* Receive a Message first */
 
@@ -148,20 +151,18 @@ void CXNLConnection::run(void)
         FD_SET(m_socket, &fdread);
 
         /* Non-blocking operation */
-        if ((ret = select(0, &fdread, NULL, NULL, &read_timeval)) == -1)
-        {
+        ret = select(0, &fdread, NULL, NULL, &read_timeval);
+	if (ret == -1) {
             break;
-        }
-        else if (ret > 0)
-        {
+        } else if (ret > 0) {
+            std::cout << "ret:" << ret << std::endl;
             if (FD_ISSET(m_socket, &fdread))
             {
                 /* receive the xnl message */
                 bSocketErr = recv_xnl_message(&p_rcv_msg);
 
                 /* check whether there are errors occurred during the message receiving */
-                if (bSocketErr == false)
-                {
+                if (bSocketErr == false) {
                     break;
                 }
 
@@ -211,15 +212,12 @@ void CXNLConnection::run(void)
             {
                 bSocketErr = send_xnl_message(m_pLastSendMsg);
                 /* check whether there are errors occurred during the message sending */
-                if (bSocketErr == false)
-                {
+                if (bSocketErr == false) {
                     break;
                 }
 
                 StartTime = CurTime;
-                retry ++;
-
-                if (retry == 4) /* Discard the message after retry 4 times */
+                if (++retry == 4) /* Discard the message after retry 4 times */
                 {
                     /* reset m_bWaitForAck */
                     m_bWaitForAck = false;
@@ -240,11 +238,6 @@ void CXNLConnection::run(void)
 
         }
 
-        /* check whether the user manually disconnected the socket connection. */
-        if (m_bCloseSocket == true)
-        {
-            break;
-        }
     }
     shutdown(m_socket, SHUT_RDWR);
     close(m_socket);
@@ -365,7 +358,7 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
 
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
-
+    std::cout << xnl_opcode << std::endl;
     switch (xnl_opcode)
     {
         case XNL_MASTER_STATUS_BROADCAST:
