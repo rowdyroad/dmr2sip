@@ -42,7 +42,7 @@ typedef struct{
     uint16_t src_addr;
     uint16_t trans_id;
     uint16_t payload_len;
-}xnl_msg_hdr_t;
+} xnl_msg_hdr_t;
 
 typedef struct{
     xnl_msg_hdr_t msg_hdr;
@@ -50,17 +50,17 @@ typedef struct{
     uint16_t master_logical_id;
     uint8_t is_data_msg_sent;
 
-}xnl_master_status_broadcast_t;
+} xnl_master_status_broadcast_t;
 
 typedef struct{
     xnl_msg_hdr_t msg_hdr;
-}xnl_auth_key_request_t;
+} xnl_auth_key_request_t;
 
 typedef struct{
     xnl_msg_hdr_t msg_hdr;
     uint16_t tmp_xnl_addr;
     uint8_t auth_seed[8];
-}xnl_auth_key_reply_t;
+} xnl_auth_key_reply_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -68,7 +68,7 @@ typedef struct {
     uint8_t dev_type;
     uint8_t auth_index;
     uint8_t auth_key[8];
-}xnl_conn_request_t;
+} xnl_conn_request_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -77,17 +77,17 @@ typedef struct {
     uint16_t assigned_xnl_addr;
     uint16_t logical_addr;
     uint8_t encrypted_seed[8];
-}xnl_conn_reply_t;
+} xnl_conn_reply_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
     uint16_t size_of_sysmap;
     uint8_t sysmap_arry[1]; /* Place holder for the sysmap array */
-}xnl_sysmap_brdcst_t;
+} xnl_sysmap_brdcst_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
-}xnl_data_msg_ack_t;
+} xnl_data_msg_ack_t;
 
 
 

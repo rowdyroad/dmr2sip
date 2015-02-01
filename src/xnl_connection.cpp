@@ -96,22 +96,18 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
 CXNLConnection::~CXNLConnection(void)
 {
     MSG_QUEUE_T* p_tmp = NULL;
-
-    if (m_socket)
-    {
+    if (m_socket) {
         m_bCloseSocket = true;
         pthread_cond_wait(&m_event, &m_mutex);
 
-        for (; m_pSendQueHdr; )
-        {
+        for (; m_pSendQueHdr; ) {
             p_tmp = m_pSendQueHdr;
             m_pSendQueHdr = m_pSendQueHdr->next;
             free(p_tmp->p_msg);
             free(p_tmp);
         }
 
-        if (m_pLastSendMsg != NULL)
-        {
+        if (m_pLastSendMsg != NULL) {
             free(m_pLastSendMsg);
         }
     }
@@ -143,90 +139,53 @@ void CXNLConnection::run(void)
 
     while (!m_bCloseSocket)
     {
-        /* Receive a Message first */
-
-        /* Clear the read set before calling select */
         FD_ZERO(&fdread);
-        /* Add m_socket to the read set */
         FD_SET(m_socket, &fdread);
 
-        /* Non-blocking operation */
         ret = select(0, &fdread, NULL, NULL, &read_timeval);
-	if (ret == -1) {
+        if (ret == -1) {
             break;
         } else if (ret > 0) {
             std::cout << "ret:" << ret << std::endl;
-            if (FD_ISSET(m_socket, &fdread))
-            {
-                /* receive the xnl message */
-                bSocketErr = recv_xnl_message(&p_rcv_msg);
-
-                /* check whether there are errors occurred during the message receiving */
-                if (bSocketErr == false) {
+            if (FD_ISSET(m_socket, &fdread)) {
+                if (!recv_xnl_message(&p_rcv_msg)) {
                     break;
                 }
-
-                /* Process the received xnl message */
                 OnXnlMessageProcess(p_rcv_msg);
-
-                /* free the buffer */
                 free(p_rcv_msg);
             }
         }
 
-        /* The next is to send an xcmp message. First check whether there is a message need to resend. */
-        if (m_bWaitForAck == false) /* there is no message need to resend  */
-        {
-            p_send_msg_node = dequeue_msg(); /* Dequeue an XCMP message from the sending queue */
-            if (p_send_msg_node != NULL)
-            {
+        if (!m_bWaitForAck) {
+            p_send_msg_node = dequeue_msg();
+            if (!p_send_msg_node) {
                 p_send_msg = p_send_msg_node->p_msg;
-                /* Need to set the XNL flag and trans id */
+
                 ((xnl_msg_hdr_t *)p_send_msg)->xnl_flag = m_tx_xnl_flag;
                 *((uint8_t *)(&((xnl_msg_hdr_t *)p_send_msg)->trans_id)) = m_trans_id_base;
                 *((uint8_t *)(&((xnl_msg_hdr_t *)p_send_msg)->trans_id) + 1) = m_TxXCMPCount;
 
-                bSocketErr = send_xnl_message(p_send_msg);
-
-                /* check whether there are errors occurred during the message sending */
-                if (bSocketErr == false)
-                {
+                if (!send_xnl_message(p_send_msg)) {
                     break;
                 }
-
-                /* For each XCMP message, an ACK message shall be received. */
                 m_bWaitForAck = true;
-
-                /* Save the message for retry */
                 m_pLastSendMsg = p_send_msg;
                 StartTime = GetTickCount();
-
-                /* free the node */
                 free(p_send_msg_node);
             }
-        }
-        else  /* Re-send the xcmp message */
-        {
+        } else {
             CurTime = GetTickCount();
-            if ((CurTime - StartTime) >= 500) /* resend the message after 500ms */
-            {
-                bSocketErr = send_xnl_message(m_pLastSendMsg);
-                /* check whether there are errors occurred during the message sending */
-                if (bSocketErr == false) {
+            if ((CurTime - StartTime) >= 500) {
+                if (!send_xnl_message(m_pLastSendMsg)) {
                     break;
                 }
 
                 StartTime = CurTime;
-                if (++retry == 4) /* Discard the message after retry 4 times */
-                {
-                    /* reset m_bWaitForAck */
+                if (++retry == 4) {
                     m_bWaitForAck = false;
-                    if (m_tx_xnl_flag < 7)
-                    {
+                    if (m_tx_xnl_flag < 7) {
                         m_tx_xnl_flag ++;
-                    }
-                    else
-                    {
+                    } else {
                         m_tx_xnl_flag = 0;
                     }
                     m_TxXCMPCount ++;
@@ -235,29 +194,12 @@ void CXNLConnection::run(void)
                     retry = 0;
                 }
             }
-
         }
-
     }
     shutdown(m_socket, SHUT_RDWR);
     close(m_socket);
 }
 
-/*******************************************************************************
-*
-* FUNCTION NAME : recv_xnl_message
-*
-*---------------------------------- PURPOSE ------------------------------------
-* This function is to receive an XNL message through the socket.
-*---------------------------------- SYNOPSIS -----------------------------------
-*
-* PARAMETERS:   pp_rcv_msg - pointer to a buffer, it is used to return the
-                             received XNL message.
-*
-* RETURN VALUE: If the function successfully receives an XNL message, then return
-*               true, otherwise false.
-*
-*******************************************************************************/
 bool CXNLConnection::recv_xnl_message(uint8_t * * pp_rcv_msg)
 {
     int expected_size       = 0;
