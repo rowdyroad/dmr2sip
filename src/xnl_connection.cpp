@@ -58,7 +58,6 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     m_handler = handler;
     m_delta = delta;
     m_bConnected = false;
-    m_hThread = 0;
     m_XnlState = XNL_WAIT_MASTER_BRDCST;
 
     /* get the 16 bytes key from the string, now the auth_key format is similar as
@@ -101,8 +100,6 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
     auto error = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
     assert(!error);
-    pthread_cond_init(&m_event, NULL);
-    pthread_create(&m_hThread, NULL, &runThread, (void*)this);
 }
 
 CXNLConnection::~CXNLConnection(void)
@@ -112,7 +109,6 @@ CXNLConnection::~CXNLConnection(void)
     if (m_socket)
     {
         m_bCloseSocket = true;
-        pthread_cond_wait(&m_event, &m_mutex);
 
         for (; m_pSendQueHdr; )
         {
@@ -131,13 +127,7 @@ CXNLConnection::~CXNLConnection(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-void* CXNLConnection::runThread(void* connection)
-{
-    ((CXNLConnection*)connection)->run();
-    return 0;
-}
-
-void CXNLConnection::run(void)
+void CXNLConnection::run()
 {
     std::cout << "run" << std::endl;
     MSG_QUEUE_T *p_send_msg_node = NULL;
@@ -150,8 +140,6 @@ void CXNLConnection::run(void)
     uint32_t CurTime = 0;
     size_t retry = 0;
     int ret = 0;
-
-    pthread_cond_signal(&m_event);
 
     while (!m_bCloseSocket)
     {
@@ -370,7 +358,6 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
 
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
-    std::cout << "zzz:" << xnl_opcode << "  zzzz" << std::endl;
     switch (xnl_opcode)
     {
         case XNL_MASTER_STATUS_BROADCAST:
@@ -427,7 +414,6 @@ void CXNLConnection::decode_xnl_master_status_broadcast(uint8_t * p_msg_buf)
     xnl_master_status_broadcast_t * p_msg = (xnl_master_status_broadcast_t *)p_msg_buf;
     if ((p_msg) && (ntohs(p_msg->msg_hdr.xnl_opcode) == XNL_MASTER_STATUS_BROADCAST))
     {
-	std::cout << "status broadcast " << std::endl;
         /* Get the xnl address of the master device */
         m_xnl_dst_addr = ntohs(((xnl_msg_hdr_t *)p_msg)->src_addr);
         send_xnl_auth_key_request();
@@ -686,7 +672,6 @@ void CXNLConnection::decode_xnl_data_msg_ack(uint8_t * p_msg_buf)
 
 void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 {
-    std::cout << "zzz234234z" << std::endl;
     unsigned short xcmp_opcode = 0;
 
     if (pBuf == NULL)
@@ -703,11 +688,14 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
             break;
 	case XCMP_CALL_CTRL_BRDCST:
 	{
-        	std::cout << "aaaa" << std::endl;
 		xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
 		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
 		std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
+		dbg((uint8_t*)msg, sizeof(xcmp_call_ctrl_broadcast_t) + 10);
+		
+	    
 		switch (msg->call_state) {
+		    case XCMP_CALL_INITIATED:
 		    case XCMP_CALL_DECODED:
 			m_handler->OnCallInitiated(this, addr);
 		    break;
@@ -725,24 +713,7 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 
 void CXNLConnection::call(const std::string& addr)
 {
-    size_t size = sizeof(xcmp_call_ctrl_request_t) + 2;
-    xcmp_call_ctrl_request_t* msg = (xcmp_call_ctrl_request_t*)malloc(size);
-
-    int payload_len = size - sizeof(xnl_msg_hdr_t);
-
-    msg->xcmp_opcode = htons(XCMP_CALL_CTRL_REQ);
-    msg->function = 1;
-    msg->call_type = 0x06; //GROUP CALL
-    msg->rmt_addr.addr_type = 0x01;
-    msg->rmt_addr.addr_size = 0x03;
-    uint32_t d_addr = std::stoi(addr);
-    msg->rmt_addr.rmt_addr[0] = d_addr >> 16;
-    msg->rmt_addr.rmt_addr[1] = d_addr >> 8;
-    msg->rmt_addr.rmt_addr[2] = d_addr;
-
-    init_xnl_header_of_xcmp_msg((uint8_t *)msg, payload_len);
-
-    enqueue_msg((uint8_t *)msg);
+    this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
 }
 
 void CXNLConnection::decode_xcmp_dev_init_status(uint8_t * p_msg_buf)
@@ -1256,9 +1227,6 @@ void CXNLConnection::enqueue_msg(uint8_t * p_msg)
         p_new_node->p_msg = p_msg;
         p_new_node->next = NULL;
 
-	std::cout << "wait for enqueue" << std::endl;
-        pthread_cond_wait(&m_event, &m_mutex);
-	std::cout << "signal received" << std::endl;
         if (m_pSendQueHdr == NULL)
         {
             m_pSendQueHdr = p_new_node;
@@ -1269,7 +1237,6 @@ void CXNLConnection::enqueue_msg(uint8_t * p_msg)
             m_pSendQueTail->next = p_new_node;
             m_pSendQueTail = p_new_node;
         }
-        pthread_cond_signal(&m_event);
     }
 
 }
@@ -1279,7 +1246,6 @@ MSG_QUEUE_T * CXNLConnection::dequeue_msg()
 {
     MSG_QUEUE_T *p_cur_node = NULL;
 
-    pthread_cond_wait(&m_event, &m_mutex);
     if (m_pSendQueHdr != NULL)
     {
         /* Remove the first node of the list */
@@ -1291,7 +1257,6 @@ MSG_QUEUE_T * CXNLConnection::dequeue_msg()
             m_pSendQueTail = NULL;
         }
     }
-    pthread_cond_signal(&m_event);
 
     return (p_cur_node);
 }

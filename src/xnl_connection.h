@@ -76,9 +76,8 @@ class CXNLConnection
     bool send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode);
     bool send_xcmp_radio_status_request(uint8_t condition);
 
-  private:
-    static void* runThread(void*);
     void run(void);
+  private:
     void OnXnlMessageProcess(uint8_t* pBuf);
     void OnXCMPMessageProcess(uint8_t *pBuf);
 
@@ -107,13 +106,10 @@ class CXNLConnection
 
   private:
     CXNLConnectionHandler* m_handler;
-    pthread_t  m_hThread;
     int  m_socket;
   //    bool    m_bIsDisplayRadio;
     volatile bool    m_bWaitForAck;
     volatile bool    m_bCloseSocket;
-    pthread_cond_t m_event;
-    pthread_mutex_t m_mutex;
     int conn_retry;
     uint32_t m_delta;
     XNL_CONNECTION_STATE m_XnlState;
