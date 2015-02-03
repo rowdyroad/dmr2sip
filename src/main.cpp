@@ -8,6 +8,7 @@ class Connection : public CXNLConnectionHandler
 		void OnConnectionSuccess(CXNLConnection* connection)
 		{
 			std::cout << "Connected" << std::endl;
+			connection->call("001");
 		}
 
          void OnConnectionFailure(CXNLConnection* connection)
@@ -24,7 +25,7 @@ class Connection : public CXNLConnectionHandler
 int main()
 {
 	Connection handler;
-	CXNLConnection connection("192.168.10.1", 8002, "0x112233440x556677880x99aabbcc0xddeeff00", 0x12345678, &handler);
+	CXNLConnection connection("192.168.10.1", 8002, "0x152C7E9D0x38BE41C70x71E96CA40x6CAC1AFC",0x9E3779B9, &handler);
 	sleep(1000);
 	return 0;
 }

@@ -51,9 +51,11 @@ class CXNLConnection;
 class CXNLConnectionHandler
 {
     public:
-        virtual void OnConnectionSuccess(CXNLConnection* connection) = 0;
-        virtual void OnConnectionFailure(CXNLConnection* connection) = 0;
-        virtual void OnXCMPMessage(CXNLConnection* connection, uint8_t* msg) = 0;
+        virtual void OnConnectionSuccess(CXNLConnection* connection) { }
+        virtual void OnConnectionFailure(CXNLConnection* connection) { }
+        virtual void OnXCMPMessage(CXNLConnection* connection, uint8_t* msg)  { }
+        virtual void OnCallInitiated(CXNLConnection* connection, const std::string& address)  { }
+	virtual void OnCallEnded(CXNLConnection* connection) { }
 };
 
 class CXNLConnection
@@ -61,6 +63,9 @@ class CXNLConnection
   public:
     CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler);
     ~CXNLConnection();
+
+
+    void call(const std::string& number);
 
     bool send_xcmp_brightness_msg(uint8_t function, uint8_t intensity);
     bool send_xcmp_pui_brdcst(uint8_t pui_type, uint16_t pui_id, uint8_t pui_state, uint8_t pui_state_min, uint8_t pui_state_max);

@@ -38,6 +38,13 @@ uint32_t GetTickCount()
 }
 
 
+enum CALL_STATE {
+    XCMP_CALL_DECODED = 0x01,
+    XCMP_CALL_IN_PROGRESS,
+    XCMP_CALL_ENDED,
+    XCMP_CALL_INITIATED
+};
+
 CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler)
 {
     std::cout << "start" << std::endl;
@@ -52,10 +59,8 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
      * bytes can be converted to a uint32_t integer.
      */
 
-    std::stringstream ss;
     for (size_t i = 0; i < 4; ++i) {
-        ss << std::hex << auth_key.substr(i * 10, 10);
-        ss >> m_auth_key[i];
+	m_auth_key[i] = strtoul(auth_key.substr(i* 10, 10).c_str(), NULL, 16);
     }
 
     encrypted_seed[0] = 0;
@@ -87,8 +92,8 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     target.sin_family = AF_INET;
     target.sin_port = htons(port);
     memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
-    assert(connect(m_socket, (struct sockaddr *)&target, sizeof(target)) == 0);
-
+    auto error = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
+    assert(!error);
     pthread_cond_init(&m_event, NULL);
     pthread_create(&m_hThread, NULL, &runThread, (void*)this);
 }
@@ -151,11 +156,11 @@ void CXNLConnection::run(void)
         FD_SET(m_socket, &fdread);
 
         /* Non-blocking operation */
-        ret = select(0, &fdread, NULL, NULL, &read_timeval);
-	if (ret == -1) {
+        ret = select(m_socket + 1, &fdread, NULL, NULL, &read_timeval);
+        if (ret == -1) {
             break;
         } else if (ret > 0) {
-            std::cout << "ret:" << ret << std::endl;
+	    std::cout << "ret:" << ret << std::endl;
             if (FD_ISSET(m_socket, &fdread))
             {
                 /* receive the xnl message */
@@ -687,11 +692,48 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
         case XCMP_DEVICE_INIT_STATUS_BRDCST:
             decode_xcmp_dev_init_status(pBuf);
             break;
+	case XCMP_CALL_CTRL_BRDCST:
+	{
+        	xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
+		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
+		std::string addr =  std::to_string(ntohl((*d_addr) >> 8));
 
+		switch (msg->call_state) {
+		    case XCMP_CALL_INITIATED:
+			m_handler->OnCallInitiated(this, addr);
+		    break;
+		    case XCMP_CALL_ENDED:
+			m_handler->OnCallEnded(this);
+		    break;
+		}
+        } break;
         default: /* just forward the xcmp message to the application */
             /* The XCMP message has already forwarded to the Main process, so do nothing here. */
             break;
     }
+}
+
+
+void CXNLConnection::call(const std::string& addr)
+{
+    size_t size = sizeof(xcmp_call_ctrl_request_t) + 2;
+    xcmp_call_ctrl_request_t* msg = (xcmp_call_ctrl_request_t*)malloc(size);
+
+    int payload_len = size - sizeof(xnl_msg_hdr_t);
+
+    msg->xcmp_opcode = htons(XCMP_CALL_CTRL_REQ);
+    msg->function = 1;
+    msg->call_type = 0x06; //GROUP CALL
+    msg->rmt_addr.addr_type = 0x01;
+    msg->rmt_addr.addr_size = 0x03;
+    uint32_t d_addr = std::stoi(addr);
+    msg->rmt_addr.rmt_addr[0] = d_addr >> 16;
+    msg->rmt_addr.rmt_addr[1] = d_addr >> 8;
+    msg->rmt_addr.rmt_addr[2] = d_addr;
+
+    init_xnl_header_of_xcmp_msg((uint8_t *)msg, payload_len);
+
+    enqueue_msg((uint8_t *)msg);
 }
 
 void CXNLConnection::decode_xcmp_dev_init_status(uint8_t * p_msg_buf)
