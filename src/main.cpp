@@ -20,6 +20,17 @@ class Connection : public CXNLConnectionHandler
         {
 			std::cout << "Message received" << std::endl;
         }
+	
+	void OnCallInitiated(CXNLConnection* connection, const std::string& address)  
+	{
+	    std::cout << "Call initiated from " << address << std::endl;
+	}
+
+    
+	void OnCallEnded(CXNLConnection* connection) 
+	{
+		std::cout << "Call ended" << std::endl;
+	 }
 };
 
 int main()

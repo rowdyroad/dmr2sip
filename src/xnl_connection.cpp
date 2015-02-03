@@ -38,6 +38,13 @@ uint32_t GetTickCount()
 }
 
 
+void dbg(uint8_t* data, size_t length) {
+    for (size_t i = 0 ;i  < length; ++i) {
+	::printf("%02X ", * (data + i ));
+    }
+}
+
+
 enum CALL_STATE {
     XCMP_CALL_DECODED = 0x01,
     XCMP_CALL_IN_PROGRESS,
@@ -363,7 +370,7 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
 
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
-    std::cout << xnl_opcode << std::endl;
+    std::cout << "zzz:" << xnl_opcode << "  zzzz" << std::endl;
     switch (xnl_opcode)
     {
         case XNL_MASTER_STATUS_BROADCAST:
@@ -420,6 +427,7 @@ void CXNLConnection::decode_xnl_master_status_broadcast(uint8_t * p_msg_buf)
     xnl_master_status_broadcast_t * p_msg = (xnl_master_status_broadcast_t *)p_msg_buf;
     if ((p_msg) && (ntohs(p_msg->msg_hdr.xnl_opcode) == XNL_MASTER_STATUS_BROADCAST))
     {
+	std::cout << "status broadcast " << std::endl;
         /* Get the xnl address of the master device */
         m_xnl_dst_addr = ntohs(((xnl_msg_hdr_t *)p_msg)->src_addr);
         send_xnl_auth_key_request();
@@ -678,6 +686,7 @@ void CXNLConnection::decode_xnl_data_msg_ack(uint8_t * p_msg_buf)
 
 void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 {
+    std::cout << "zzz234234z" << std::endl;
     unsigned short xcmp_opcode = 0;
 
     if (pBuf == NULL)
@@ -694,12 +703,12 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
             break;
 	case XCMP_CALL_CTRL_BRDCST:
 	{
-        	xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
+        	std::cout << "aaaa" << std::endl;
+		xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
 		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
-		std::string addr =  std::to_string(ntohl((*d_addr) >> 8));
-
+		std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
 		switch (msg->call_state) {
-		    case XCMP_CALL_INITIATED:
+		    case XCMP_CALL_DECODED:
 			m_handler->OnCallInitiated(this, addr);
 		    break;
 		    case XCMP_CALL_ENDED:
@@ -1247,7 +1256,9 @@ void CXNLConnection::enqueue_msg(uint8_t * p_msg)
         p_new_node->p_msg = p_msg;
         p_new_node->next = NULL;
 
+	std::cout << "wait for enqueue" << std::endl;
         pthread_cond_wait(&m_event, &m_mutex);
+	std::cout << "signal received" << std::endl;
         if (m_pSendQueHdr == NULL)
         {
             m_pSendQueHdr = p_new_node;
