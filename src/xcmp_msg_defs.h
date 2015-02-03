@@ -97,14 +97,14 @@ typedef struct {
     uint16_t dev_status;
     uint8_t array_size;
     uint8_t dev_descriptor_array[1]; /* Place holder for the descriptor array */
-}xcmp_dev_init_status_t;
+} xcmp_dev_init_status_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
     uint16_t xcmp_opcode;
     uint8_t  function;
     uint8_t  intensity;
-}xcmp_brightness_request_t;
+} xcmp_brightness_request_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -115,7 +115,7 @@ typedef struct {
     uint8_t           pui_state;
     uint8_t           pui_state_min;
     uint8_t           pui_state_max;
-}xcmp_pui_broadcast_t;
+} xcmp_pui_broadcast_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -124,18 +124,18 @@ typedef struct {
     uint8_t  encoding_type;
     uint16_t num_text;
     uint8_t           string[1];
-}xcmp_display_text_broadcast_t;
+} xcmp_display_text_broadcast_t;
 
 typedef struct{
     uint8_t addr_type;
     uint8_t addr_size;
     uint8_t rmt_addr[1]; /* The length of address is variable, so this is just a place holder */
-}xcmp_remote_addr_t;
+} xcmp_remote_addr_t;
 
 typedef struct {
     uint8_t id_size;
     uint8_t group_id[3]; /* For MOTOTRBO, the id_size must be set to 3 */
-}xcmp_group_id_t;
+} xcmp_group_id_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -143,7 +143,7 @@ typedef struct {
     uint8_t  function;
     uint8_t  call_type;
     xcmp_remote_addr_t rmt_addr;
-}xcmp_call_ctrl_request_t;
+} xcmp_call_ctrl_request_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -151,7 +151,7 @@ typedef struct {
     uint8_t  call_type;
     uint8_t  call_state;
     xcmp_remote_addr_t rmt_addr;
-}xcmp_call_ctrl_broadcast_t;
+} xcmp_call_ctrl_broadcast_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -159,7 +159,7 @@ typedef struct {
     uint8_t  feature;
     uint8_t  operation;
     xcmp_remote_addr_t rmt_addr;
-}xcmp_rmt_radio_ctrl_request_t;
+} xcmp_rmt_radio_ctrl_request_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -168,7 +168,7 @@ typedef struct {
     uint8_t display_mode;
     uint16_t menu_id;
     uint8_t data[2];        /* The size of "Count" field is depended on XCMP version */
-}xcmp_menu_navigation_request_t;
+} xcmp_menu_navigation_request_t;
 
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
@@ -177,7 +177,7 @@ typedef struct {
     uint8_t function;
     uint8_t display_mode;
     uint8_t data[1];       /* place holder for rest message data */
-}xcmp_menu_navigation_reply_t;
+} xcmp_menu_navigation_reply_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
@@ -185,21 +185,21 @@ typedef struct {
     uint8_t  function;
     uint16_t zone_num;
     uint16_t channel_num;
-}xcmp_chan_zone_selection_request_t;
+} xcmp_chan_zone_selection_request_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
     uint16_t xcmp_opcode;
     uint16_t zone_num;
     uint16_t channel_num;
-}xcmp_chan_zone_selection_broadcast_t;
+} xcmp_chan_zone_selection_broadcast_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
     uint16_t xcmp_opcode;
     uint8_t  function;
     uint8_t  mode;
-}xcmp_tx_ctrl_request_t;
+} xcmp_tx_ctrl_request_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
@@ -208,13 +208,13 @@ typedef struct {
     uint8_t  function;
     uint8_t  mode;
     uint8_t  state;
-}xcmp_tx_ctrl_reply_t;
+} xcmp_tx_ctrl_reply_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
     uint16_t xcmp_opcode;
     uint8_t  condition;
-}xcmp_radio_status_request_t;
+} xcmp_radio_status_request_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
@@ -222,13 +222,13 @@ typedef struct {
     uint8_t  result;
     uint8_t  condition;
     uint8_t           status[1];
-}xcmp_radio_status_reply_t;
+} xcmp_radio_status_reply_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
     uint16_t xcmp_opcode;
     uint8_t  status;
     xcmp_remote_addr_t rmt_addr;
-}xcmp_emergency_ctrl_broadcast_t;
+} xcmp_emergency_ctrl_broadcast_t;
 
 #endif /* _XCMP_MSG_DEFS_H */
