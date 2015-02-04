@@ -22,7 +22,7 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
 
         void OnInCallBegin(SIP* sip)
         {
-            printf("INCOMMING CALL FROM %s\n", sip->CallAddress());
+            printf("### Incomming call from sip %s\n", sip->CallAddress());
             incomming_sip_call = true;
             radio->PTT(PTT_PUSH);
         }
@@ -38,22 +38,22 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
 
         void OnConnectionSuccess(CXNLConnection* connection)
         {
-            std::cout << "Connected" << std::endl;
+            std::cout << "### Radio Connected" << std::endl;
         }
 
          void OnConnectionFailure(CXNLConnection* connection)
         {
-            std::cout << "Connection failure" << std::endl;
+            std::cout << "### Radio Connection failure" << std::endl;
         }
 
          void OnXCMPMessage(CXNLConnection* connection, uint8_t* msg)
         {
-            std::cout << "Message received" << std::endl;
+            std::cout << "### Radio Message received" << std::endl;
         }
 
         void OnCallInitiated(CXNLConnection* connection, const std::string& address)
         {
-             std::cout << "!!!OnCallInitiated" << std::endl;
+             std::cout << "### Radio Call Initiated" << incomming_sip_call <<  std::endl;
             if (!incomming_sip_call)  {
                 sip->Call("1100@192.168.0.50:5060");
             }
@@ -61,7 +61,7 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
 
         void OnCallEnded(CXNLConnection* connection)
         {
-            std::cout << "!!!OnCallEnded" << std::endl;
+            std::cout << "### Radio Call Ended" << incomming_sip_call <<  std::endl;
             if (!incomming_sip_call) {
                 sip->Hangup();
             }
