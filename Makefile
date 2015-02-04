@@ -1,8 +1,16 @@
-sip_linux: 
-	g++ src/linphone.cpp -llinphone -lmediastreamer_base -o build/linphone
+CC=g++
+CFLAGS=-std=c++11
+LIBS=-lpthread
+SIP_LIBS=-llinphone -lmediastreamer_base
+BUILD_DIR=build
 
-dmr_osx:
-	g++ src/main.cpp src/xnl_connection.cpp -stdlib=libc++ -lc++  -std=c++11 -o build/dmr2sip
+SIP_TARGET=sip
+DMR_TARGET=dmr
 
-dmr_linux:
-	g++ src/main.cpp src/xnl_connection.cpp  -std=c++11 -lpthread -o build/dmr2sip
+all: $(SIP_TARGET) 
+
+$(SIP_TARGET):
+	$(CC) src/linphone.cpp src/xnl_connection.cpp $(CFLAGS) $(LIBS) $(SIP_LIBS) -o $(BUILD_DIR)/$(SIP_TARGET)
+
+$(DMR_TARGET):
+	$(CC) src/main.cpp src/xnl_connection.cpp  $(LIBS) $(CFLAGS) -o $(BUILD_DIR)/$(DMR_TARGET)

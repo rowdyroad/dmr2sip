@@ -25,8 +25,8 @@ class Connection : public CXNLConnectionHandler
         {
 			std::cout << "Message received" << std::endl;
         }
-	
-	void OnCallInitiated(CXNLConnection* connection, const std::string& address)  
+
+	void OnCallInitiated(CXNLConnection* connection, const std::string& address)
 	{
 	    std::cout << "Call initiated from " << address << std::endl;
 	    pid_t i = fork();
@@ -37,11 +37,11 @@ class Connection : public CXNLConnectionHandler
 	    }
 	}
 
-    
-	void OnCallEnded(CXNLConnection* connection) 
+
+	void OnCallEnded(CXNLConnection* connection)
 	{
 		std::cout << "Call ended" << std::endl;
-	 
+
 		kill(linphone, SIGINT);
 	}
 };

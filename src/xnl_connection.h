@@ -8,7 +8,6 @@
 #include "xnl_messages_def.h"
 #include "xcmp_msg_defs.h"
 #include <string>
-#include <pthread.h>
 #include <time.h>
 #include <iostream>
 #include <sstream>
@@ -65,7 +64,7 @@ class CXNLConnection
     ~CXNLConnection();
 
 
-    void call(const std::string& number);
+    void Call(const std::string& number);
 
     bool send_xcmp_brightness_msg(uint8_t function, uint8_t intensity);
     bool send_xcmp_pui_brdcst(uint8_t pui_type, uint16_t pui_id, uint8_t pui_state, uint8_t pui_state_min, uint8_t pui_state_max);
@@ -76,7 +75,8 @@ class CXNLConnection
     bool send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode);
     bool send_xcmp_radio_status_request(uint8_t condition);
 
-    void run(void);
+    void Run();
+    void Stop();
   private:
     void OnXnlMessageProcess(uint8_t* pBuf);
     void OnXCMPMessageProcess(uint8_t *pBuf);

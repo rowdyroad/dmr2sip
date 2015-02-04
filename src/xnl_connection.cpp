@@ -104,30 +104,18 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
 
 CXNLConnection::~CXNLConnection(void)
 {
-    MSG_QUEUE_T* p_tmp = NULL;
-
-    if (m_socket)
-    {
-        m_bCloseSocket = true;
-
-        for (; m_pSendQueHdr; )
-        {
-            p_tmp = m_pSendQueHdr;
-            m_pSendQueHdr = m_pSendQueHdr->next;
-            free(p_tmp->p_msg);
-            free(p_tmp);
-        }
-
-        if (m_pLastSendMsg != NULL)
-        {
-            free(m_pLastSendMsg);
-        }
-    }
-
+    Stop();
 }
 
+
+void CXNLConnection::Stop()
+{
+    m_bCloseSocket = true;
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
-void CXNLConnection::run()
+void CXNLConnection::Run()
 {
     std::cout << "run" << std::endl;
     MSG_QUEUE_T *p_send_msg_node = NULL;
@@ -241,6 +229,19 @@ void CXNLConnection::run()
     }
     shutdown(m_socket, SHUT_RDWR);
     close(m_socket);
+    MSG_QUEUE_T* p_tmp;
+    for (; m_pSendQueHdr; )
+    {
+        p_tmp = m_pSendQueHdr;
+        m_pSendQueHdr = m_pSendQueHdr->next;
+        free(p_tmp->p_msg);
+        free(p_tmp);
+    }
+
+    if (m_pLastSendMsg != NULL)
+    {
+        free(m_pLastSendMsg);
+    }
 }
 
 /*******************************************************************************
@@ -692,8 +693,8 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
 		std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
 		dbg((uint8_t*)msg, sizeof(xcmp_call_ctrl_broadcast_t) + 10);
-		
-	    
+
+
 		switch (msg->call_state) {
 		    case XCMP_CALL_INITIATED:
 		    case XCMP_CALL_DECODED:
@@ -711,10 +712,7 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 }
 
 
-void CXNLConnection::call(const std::string& addr)
-{
-    this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
-}
+
 
 void CXNLConnection::decode_xcmp_dev_init_status(uint8_t * p_msg_buf)
 {
@@ -897,6 +895,12 @@ bool CXNLConnection::send_xcmp_pui_brdcst(uint8_t pui_type,
 
     return (true);
 }
+
+void CXNLConnection::Call(const std::string& addr)
+{
+    this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
+}
+
 
 bool CXNLConnection::send_xcmp_call_ctrl_request(uint8_t function,
                                                  uint8_t call_type,
