@@ -896,11 +896,17 @@ bool CXNLConnection::send_xcmp_pui_brdcst(uint8_t pui_type,
     return (true);
 }
 
-void CXNLConnection::Call(const std::string& addr)
+void CXNLConnection::Call()
 {
-    this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
+    send_xcmp_tx_ctrl_request(1,0);
+    //this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
 }
 
+void CXNLConnection::PTT(PTT_FUNCTION ptt_function)
+{
+    send_xcmp_tx_ctrl_request(ptt_function,0);
+    //this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
+}
 
 bool CXNLConnection::send_xcmp_call_ctrl_request(uint8_t function,
                                                  uint8_t call_type,

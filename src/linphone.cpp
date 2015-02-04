@@ -17,17 +17,24 @@ CXNLConnection* radio;
 class Handler : public CXNLConnectionHandler, public SIPHandler
 {
     private:
-        pid_t linphone;
-
+        bool incomming_sip_call = false;
     public:
 
         void OnInCallBegin(SIP* sip)
         {
             printf("INCOMMING CALL FROM %s\n", sip->CallAddress());
-
-            radio->Call("2077001");
+            incomming_sip_call = true;
+            radio->PTT(PTT_PUSH);
         }
 
+
+        void OnCallEnd(SIP *sip)
+        {
+            if (incomming_sip_call) {
+                incomming_sip_call = false;
+                radio->PTT(PTT_RELEASE);
+            }
+        }
 
         void OnConnectionSuccess(CXNLConnection* connection)
         {
@@ -46,13 +53,18 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
 
         void OnCallInitiated(CXNLConnection* connection, const std::string& address)
         {
-            sip->Call("1100@192.168.0.50:5060");
+             std::cout << "!!!OnCallInitiated" << std::endl;
+            if (!incomming_sip_call)  {
+                sip->Call("1100@192.168.0.50:5060");
+            }
         }
 
         void OnCallEnded(CXNLConnection* connection)
         {
-            std::cout << "Call ended" << std::endl;
-            sip->Hangup();
+            std::cout << "!!!OnCallEnded" << std::endl;
+            if (!incomming_sip_call) {
+                sip->Hangup();
+            }
         }
 };
 

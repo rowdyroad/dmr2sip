@@ -5,7 +5,7 @@ class SIP;
 class SIPHandler {
     public:
         virtual void OnOutCallBegin(SIP* sip) { }
-        virtual  void OnInCallBegin(SIP* sip) { }
+        virtual void OnInCallBegin(SIP* sip) { }
         virtual void OnCallEnd(SIP* sip) { }
         virtual void OnCallError(SIP* sip) { }
 
@@ -32,8 +32,8 @@ class SIP {
             v_table_.call_state_changed = callStateChanged;
             lc_ = linphone_core_new(&v_table_,NULL,NULL,this);
             const char** devs = linphone_core_get_sound_devices(lc_);
-            linphone_core_set_playback_device (lc_, devs[2]);
-            linphone_core_set_capture_device (lc_, devs[2]);
+            linphone_core_set_playback_device (lc_, devs[device_index]);
+            linphone_core_set_capture_device (lc_, devs[device_index]);
             //linphone_core_enable_logs(NULL); //todo: make debug flag from attributes
         }
 
@@ -159,8 +159,6 @@ class SIP {
                         break;
                     }
                     sip->call_ = call;
-                    printf("Incomming call received.\n");
-
                     linphone_core_accept_call(sip->lc_, call);
                     if (sip->handler_) {
                         sip->handler_->OnInCallBegin(sip);

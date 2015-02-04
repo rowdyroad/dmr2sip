@@ -27,6 +27,12 @@ typedef enum
     XNL_INIT_COMPLETE,
 } XNL_CONNECTION_STATE;
 
+
+typedef enum {
+    PTT_PUSH = 1,
+    PTT_RELEASE
+} PTT_FUNCTION;
+
 typedef struct msg_queue{
     uint8_t * p_msg;
     struct msg_queue *next;
@@ -64,8 +70,8 @@ class CXNLConnection
     ~CXNLConnection();
 
 
-    void Call(const std::string& number);
-
+    void Call();
+    void PTT(PTT_FUNCTION ptt_function);
     bool send_xcmp_brightness_msg(uint8_t function, uint8_t intensity);
     bool send_xcmp_pui_brdcst(uint8_t pui_type, uint16_t pui_id, uint8_t pui_state, uint8_t pui_state_min, uint8_t pui_state_max);
     bool send_xcmp_call_ctrl_request(uint8_t function, uint8_t call_type, uint8_t addr_type, uint32_t rmt_addr, uint32_t group_id);
