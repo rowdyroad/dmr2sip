@@ -40,8 +40,9 @@ uint32_t GetTickCount()
 
 void dbg(uint8_t* data, size_t length) {
     for (size_t i = 0 ;i  < length; ++i) {
-	::printf("%02X ", * (data + i ));
+	   ::printf("%02X ", * (data + i ));
     }
+    ::printf("\n");
 }
 
 
@@ -459,6 +460,7 @@ void CXNLConnection::decode_xnl_auth_key_reply(uint8_t *p_msg_buf)
     }
 }
 
+
 void CXNLConnection::send_xnl_connection_request(uint8_t *p_auth_seed)
 {
     uint32_t * p_int = (uint32_t *)p_auth_seed;
@@ -679,7 +681,7 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
     {
         return;
     }
-
+    xnl_msg_hdr_t *p_xnl_hdr = (xnl_msg_hdr_t *)pBuf;
     xcmp_opcode = ntohs(*((unsigned short *)(pBuf + sizeof(xnl_msg_hdr_t))));
 
     switch (xcmp_opcode)
@@ -905,6 +907,7 @@ void CXNLConnection::Call()
 void CXNLConnection::PTT(PTT_FUNCTION ptt_function)
 {
     send_xcmp_tx_ctrl_request(ptt_function,0);
+
     //this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
 }
 
@@ -1100,6 +1103,28 @@ bool CXNLConnection::send_xcmp_chan_zone_selection_request(uint8_t function,
 
     return (true);
 
+}
+
+void CXNLConnection::select_mic(uint8_t mic)
+{
+
+    xcmp_mic_ctrl_request_t *p_msg = (xcmp_mic_ctrl_request_t *) malloc(sizeof(xcmp_mic_ctrl_request_t));
+    int payload_len = sizeof(xcmp_mic_ctrl_request_t) - sizeof(xnl_msg_hdr_t);
+
+    if (p_msg == NULL)
+    {
+        return;
+    }
+
+    p_msg->xcmp_opcode = htons(XCMP_MIC_CTRL_REQ);
+    p_msg->function = 0x03;
+    p_msg->mic = mic;
+    p_msg->signaling = 0xff;
+    p_msg->gain = 0x00;
+
+    init_xnl_header_of_xcmp_msg((uint8_t *)p_msg, payload_len);
+    /* Add the message to the sending queue */
+    enqueue_msg((uint8_t *)p_msg);
 }
 
 bool CXNLConnection::send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode)

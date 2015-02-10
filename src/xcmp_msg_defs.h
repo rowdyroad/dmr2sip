@@ -38,9 +38,10 @@
 #define XCMP_SPKR_CTRL                 0x0407
 #define XCMP_SPKR_CTRL_BRDCST          (XCMP_BRDCST_OPCODE_MASK  | XCMP_SPKR_CTRL)
 
-#define XCMP_MIC_CTRL                  0x040E
-#define XCMP_MIC_CTRL_BRDCST           (XCMP_BRDCST_OPCODE_MASK  | XCMP_MIC_CTRL)
-
+#define XCMP_MIC_CTRL                0x040E
+#define XCMP_MIC_CTRL_REQ            (XCMP_REQUEST_OPCODE_MASK | XCMP_MIC_CTRL)
+#define XCMP_MIC_CTRL_REPLY          (XCMP_REPLY_OPCODE_MASK   | XCMP_MIC_CTRL)
+#define XCMP_MIC_CTRL_BRDCST         (XCMP_BRDCST_OPCODE_MASK  | XCMP_MIC_CTRL)
 
 #define XCMP_BRIGHTNESS                0x0411
 #define XCMP_BRIGHTNESS_REQ            (XCMP_REQUEST_OPCODE_MASK | XCMP_BRIGHTNESS)
@@ -215,6 +216,15 @@ typedef struct {
     uint16_t xcmp_opcode;
     uint8_t  condition;
 } xcmp_radio_status_request_t;
+
+typedef struct {
+    xnl_msg_hdr_t  msg_hdr;
+    uint16_t xcmp_opcode;
+    uint8_t  function;
+    uint8_t  mic;
+    uint8_t  signaling;
+    uint8_t  gain;
+} xcmp_mic_ctrl_request_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;

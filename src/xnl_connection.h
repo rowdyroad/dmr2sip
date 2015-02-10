@@ -81,6 +81,8 @@ class CXNLConnection
     bool send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode);
     bool send_xcmp_radio_status_request(uint8_t condition);
 
+
+    void select_mic(uint8_t mic);
     void Run();
     void Stop();
   private:

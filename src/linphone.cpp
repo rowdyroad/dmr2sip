@@ -7,11 +7,30 @@
 
 #include <thread>
 
+#include <libconfig.h++>
+
+
+using namespace libconfig;
 volatile bool quit = false;
 
 SIP* sip;
 CXNLConnection* radio;
 
+struct Configuration
+{
+    std::string sip_id;
+    std::string sip_password;
+    std::string sip_call_by_ptt;
+    size_t device;
+
+    std::string radio_address;
+    uint32_t radio_port;
+    uint64_t radio_delta;
+    std::string radio_auth_key;
+};
+
+
+Configuration config;
 
 
 class Handler : public CXNLConnectionHandler, public SIPHandler
@@ -24,6 +43,7 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
         {
             printf("### Incomming call from sip %s\n", sip->CallAddress());
             incomming_sip_call = true;
+            radio->select_mic(1);
             radio->PTT(PTT_PUSH);
         }
 
@@ -33,6 +53,7 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
             if (incomming_sip_call) {
                 incomming_sip_call = false;
                 radio->PTT(PTT_RELEASE);
+                radio->select_mic(0);
             }
         }
 
@@ -55,7 +76,7 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
         {
              std::cout << "### Radio Call Initiated" << incomming_sip_call <<  std::endl;
             if (!incomming_sip_call)  {
-                sip->Call("1100@192.168.0.50:5060");
+                sip->Call(config.sip_call_by_ptt);
             }
         }
 
@@ -80,13 +101,50 @@ void signalHandler( int signum )
 
 int main(int argc, char*argv[])
 {
+
+    if (argc > 1) {
+    	if (!strcmp(argv[1], "-d")) {
+    	    auto devices = SIP::GetDevicesList();
+    	    std::cout << "Devices list:" << std::endl;
+    	    for (auto& p : devices) {
+    		  std::cout << "\t" << p << std::endl;
+    	    }
+    	    return 0;
+    	}
+    }
+
+    Config cfg;
+    try
+    {
+	cfg.readFile("sip2dmr.cfg");
+
+	cfg.lookupValue("sip.id", config.sip_id);
+	cfg.lookupValue("sip.password", config.sip_password);
+	cfg.lookupValue("sip.call_by_ptt",config.sip_call_by_ptt);
+	cfg.lookupValue("system.device", config.device);
+	cfg.lookupValue("radio.address", config.radio_address);;
+	cfg.lookupValue("radio.port", config.radio_port);
+	cfg.lookupValue("radio.auth_key", config.radio_auth_key);
+	cfg.lookupValue("radio.delta", config.radio_delta);
+    }
+    catch(const FileIOException &fioex)
+    {
+        std::cerr << "I/O error while reading file." << std::endl;
+	return(EXIT_FAILURE);
+     }
+    catch(const ParseException &pex)
+     {
+	std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine()
+              << " - " << pex.getError() << std::endl;
+	return(EXIT_FAILURE);
+    }
+
     signal(SIGINT, signalHandler);
 
     handler = new Handler;
     sip = new SIP(handler, 2);
-    sip->Connect("sip:1001@192.168.0.50:5060", "3be8848500ef9e1b692d7db194d6b4e3");
-    radio = new CXNLConnection("192.168.10.1", 8002, "0x152C7E9D0x38BE41C70x71E96CA40x6CAC1AFC",0x9E3779B9, handler);
-
+    sip->Connect(config.sip_id, config.sip_password);
+    radio = new CXNLConnection(config.radio_address, config.radio_port, config.radio_auth_key, config.radio_delta, handler);
     std::thread sip_thread = std::thread([=]() { sip->Run(); });
     std::thread connection_thread = std::thread([=]() { radio->Run(); });
 
@@ -96,4 +154,4 @@ int main(int argc, char*argv[])
     delete sip;
     delete handler;
     return 0;
-}
+}	

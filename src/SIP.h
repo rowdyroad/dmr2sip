@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <string>
 #include <linphone/linphonecore.h>
 class SIP;
 
@@ -23,6 +25,20 @@ class SIP {
         SIPHandler* handler_;
 
     public:
+        static std::vector<std::string> GetDevicesList()
+        {
+            LinphoneCoreVTable v = {0};
+            LinphoneCore* lc = linphone_core_new(&v,NULL,NULL,NULL);
+            /*const char** devs = linphone_core_get_sound_devices(lc);
+            size_t i = 0;
+            std::vector<std::string> list;
+            while (devs[i]) {
+              list.push_back(devs[i++]);
+            }
+            linphone_core_destroy(lc);
+            return list;*/ return std::vector<std::string>();
+        }
+
         SIP(SIPHandler* handler, const size_t device_index)
             : v_table_({0})
             , call_(nullptr)
@@ -30,11 +46,11 @@ class SIP {
             , handler_(handler)
         {
             v_table_.call_state_changed = callStateChanged;
+	    v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_,NULL,NULL,this);
             const char** devs = linphone_core_get_sound_devices(lc_);
             linphone_core_set_playback_device (lc_, devs[device_index]);
             linphone_core_set_capture_device (lc_, devs[device_index]);
-            //linphone_core_enable_logs(NULL); //todo: make debug flag from attributes
         }
 
         ~SIP()
@@ -106,6 +122,16 @@ class SIP {
         }
 
     private:
+	static void globalStateChanged(LinphoneCore *lc, LinphoneGlobalState gstate, const char *message)
+    {
+printf("GLOBAL STATE: %d - %s\n", gstate, message);
+	
+    }
+	static void registrationStateChanged(LinphoneCore *lc, LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message)
+    {
+	printf("REGISTRAtION STATE: %d - %s\n", cstate, message);
+
+}
         static void callStateChanged(LinphoneCore *lc_, LinphoneCall *call, LinphoneCallState cstate, const char *msg)
         {
 
