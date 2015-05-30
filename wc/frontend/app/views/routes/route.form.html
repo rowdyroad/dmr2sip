@@ -1,0 +1,41 @@
+<div class="panel panel-default">
+	<div class="panel-heading font-bold" ng-show="isNew">Создание маршрута</div>
+	<div class="panel-heading font-bold" ng-show="!isNew">Редактирование маршрута</div>
+	<div class="panel-body">
+	  <div class="bs-example form-horizontal">
+	    <div class="form-group">
+	      <label class="col-lg-2 control-label">Исходный узел</label>
+	      <div class="col-lg-10">
+	      	<select ng-options="item.point_id as item.name for item in points" ng-model="current.source_point_id"/>
+	      </div>
+	    </div>
+	    <div class="form-group">
+	      <label class="col-lg-2 control-label">Исходный номер</label>
+	      <div class="col-lg-10">
+	      	<input type="text" ng-model="current.source_number"/>
+	      </div>
+	    </div>
+	   	<div class="form-group">
+	      <label class="col-lg-2 control-label">Целевой узел</label>
+	      <div class="col-lg-10">
+	       	<select ng-options="item.point_id as item.name for item in points" ng-model="current.destination_point_id"/>
+	      </div>
+	    </div>
+	     <div class="form-group">
+	      <label class="col-lg-2 control-label">Целевой номер</label>
+	      <div class="col-lg-10">
+	      	<input type="text" ng-model="current.destination_number"/>
+	      </div>
+	    </div>
+		<div class="form-group">
+                <div class="col-lg-offset-2 col-lg-6">
+                    <button class="btn btn-primary" ng-click="save()" ng-show="(checkAccess('add_user') && !current[pkAttribute]) || (checkAccess('edit_user') && current[pkAttribute])">Сохранить</button>
+                    <button class="btn btn-default" ng-click="cancel()">Отмена</button>
+                </div>
+                <div class=" col-lg-2" ng-show="!current.is_admin && current[pkAttribute] && checkAccess('delete_user')">
+                    <button class="btn btn-danger" ng-click="delete()">Удалить</button>
+                </div>
+            </div>
+		</div>
+	</div>
+</div>

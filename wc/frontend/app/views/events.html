@@ -1,0 +1,18 @@
+<div class="panel panel-default">
+<div class="panel-heading">События</div>
+<table class="table table-striped m-b-none">
+		<thead>
+			<tr>
+				<th>Время</th>
+				<th>Исходящий узел</th>
+				<th>Входящий узел</th>
+				<th>&nbsp;</th>
+			</tr>
+		</thead>
+		<tr ng-repeat="item in items">
+			<td>{{ item.time }}</td>
+			<td>{{ item.source_point }}</td>
+			<td>{{ item.destinaion_point }}</td>
+		</tr>
+	</table>
+</div>

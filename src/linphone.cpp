@@ -7,28 +7,9 @@
 
 #include <thread>
 
-#include <libconfig.h++>
-
 
 using namespace libconfig;
 volatile bool quit = false;
-
-SIP* sip;
-CXNLConnection* radio;
-
-struct Configuration
-{
-    std::string sip_id;
-    std::string sip_password;
-    std::string sip_call_by_ptt;
-    size_t device;
-
-    std::string radio_address;
-    uint32_t radio_port;
-    uint64_t radio_delta;
-    std::string radio_auth_key;
-};
-
 
 Configuration config;
 
@@ -38,7 +19,6 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
     private:
         bool incomming_sip_call = false;
     public:
-
         void OnInCallBegin(SIP* sip)
         {
             printf("### Incomming call from sip %s\n", sip->CallAddress());
@@ -47,13 +27,11 @@ class Handler : public CXNLConnectionHandler, public SIPHandler
             radio->PTT(PTT_PUSH);
         }
 
-
         void OnCallEnd(SIP *sip)
         {
             if (incomming_sip_call) {
                 incomming_sip_call = false;
-                radio->PTT(PTT_RELEASE);
-                radio->select_mic(0);
+
             }
         }
 
@@ -99,6 +77,12 @@ void signalHandler( int signum )
     radio->Stop();
 }
 
+
+void signalRestartHandler(int signum)
+{
+
+}
+
 int main(int argc, char*argv[])
 {
 
@@ -113,45 +97,39 @@ int main(int argc, char*argv[])
     	}
     }
 
-    Config cfg;
-    try
-    {
-	cfg.readFile("sip2dmr.cfg");
-
-	cfg.lookupValue("sip.id", config.sip_id);
-	cfg.lookupValue("sip.password", config.sip_password);
-	cfg.lookupValue("sip.call_by_ptt",config.sip_call_by_ptt);
-	cfg.lookupValue("system.device", config.device);
-	cfg.lookupValue("radio.address", config.radio_address);;
-	cfg.lookupValue("radio.port", config.radio_port);
-	cfg.lookupValue("radio.auth_key", config.radio_auth_key);
-	cfg.lookupValue("radio.delta", config.radio_delta);
-    }
-    catch(const FileIOException &fioex)
-    {
-        std::cerr << "I/O error while reading file." << std::endl;
-	return(EXIT_FAILURE);
-     }
-    catch(const ParseException &pex)
-     {
-	std::cerr << "Parse error at " << pex.getFile() << ":" << pex.getLine()
-              << " - " << pex.getError() << std::endl;
-	return(EXIT_FAILURE);
-    }
-
     signal(SIGINT, signalHandler);
+    signal(SIGHUP, signalRestartHandler);
 
-    handler = new Handler;
-    sip = new SIP(handler, 2);
-    sip->Connect(config.sip_id, config.sip_password);
-    radio = new CXNLConnection(config.radio_address, config.radio_port, config.radio_auth_key, config.radio_delta, handler);
-    std::thread sip_thread = std::thread([=]() { sip->Run(); });
-    std::thread connection_thread = std::thread([=]() { radio->Run(); });
+    std::vector<std::thread> pool;
+    Commutator:::Configuration config("sip2dmr.conf");
+    Commutator::Storage storage(config.getDbFilename());
+    storage.UpdateAllPointsStatus(Storage::Point::Status::psInvactive);
 
-    sip_thread.join();
-    connection_thread.join();
-    delete radio;
-    delete sip;
-    delete handler;
+
+    std::map<std::string, std::unique_ptr<Commutator::PointFactory>> factories = {
+        {"sip", std::shared_ptr<Commutator::PointFactory>(new Commutator::SIPFactory())},
+        {"dmr", std::shared_ptr<Commutator::PointFactory>(new Commutator::DMRFactory())}
+    };
+
+    std::vector<Point> points;
+
+    for (auto& point : storage.GetPoints()) {
+        Point p = factories[point.type]->Create();
+        points.push_back(std::move(p));
+        pool.push_back(std::thread([=]{
+            p.Run();
+        }));
+    }
+
+
+
+    for (auto& route: storage.GetRoutes()) {
+
+    }
+
+    for (auto& thread: pool) {
+        thread.join();
+    }
+
     return 0;
-}	
+}

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="myApp" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="myApp" class="no-js"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Iceberg</title>
+  <base href="/">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="/bower_components/angular-bootstrap-datetimepicker/src/css/datetimepicker.css"/>
+  <link rel="stylesheet" href="/bower_components/angular-ui-tree/dist/angular-ui-tree.min.css">
+  <link rel="stylesheet" href="/bower_components/fullcalendar/dist/fullcalendar.css"/>
+  <link rel="stylesheet" href="/bower_components/font-awesome/css/font-awesome.min.css" type="text/css" />
+  <link rel="stylesheet" href="/bower_components/simple-line-icons/css/simple-line-icons.css" type="text/css" />
+  <link rel="stylesheet" href="/bower_components/angular-growl-v2/build/angular-growl.css" type="text/css" />
+  <link rel="stylesheet" href="/bower_components/bootstrap-slider/slider.css" type="text/css" />
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/font.css">
+</head>
+<body>
+<div growl></div>
+ <script type="text/ng-template" id="CommonAlertView">
+    <div class="alert ng-isolate-scope alert-danger alert-dismissable">
+      <button ng-show="closeable" type="button" class="close" ng-click="close()">
+          <span aria-hidden="true">×</span>
+          <span class="sr-only">Close</span>
+      </button>
+      <div ng-transclude=""><span class="ng-binding ng-scope">{{text}}</span></div>
+    </div>
+</script>
+
+ <script type="text/ng-template" id="CommonConfirmDialogView">
+    <div class="modal-header">
+        <h3 class="modal-title">{{config.title}}</h3>
+    </div>
+    <div class="modal-body">
+      {{config.text}}
+    </div>
+    <div class="modal-footer">
+        <button class="btn {{config.confirm_btn_class}}" ng-click="confirm()">{{config.confirm_btn_text}}</button>
+        <button class="btn btn-default" ng-click="cancel()">Отмена</button>
+    </div>
+</script>
+<div class="app app-header-fixed">
+  <!-- header -->
+  <header id="header" class="app-header navbar" role="menu" ng-hide="hide_header">
+          <!-- navbar header -->
+      <div class="navbar-header bg-dark">
+        <button class="pull-right visible-xs dk" ui-toggle="show" target=".navbar-collapse">
+          <i class="glyphicon glyphicon-cog"></i>
+        </button>
+        <button class="pull-right visible-xs" ui-toggle="off-screen" target=".app-aside" ui-scroll="app">
+          <i class="glyphicon glyphicon-align-justify"></i>
+        </button>
+        <!-- brand -->
+        <a href="/" class="navbar-brand text-lt">
+          <span class="hidden-folded m-l-xs">DMR2SIP</span>
+        </a>
+        <!-- / brand -->
+      </div>
+      <!-- / navbar header -->
+
+      <!-- navbar collapse -->
+      <div class="collapse pos-rlt navbar-collapse box-shadow bg-white-only">
+        <!-- buttons -->
+        <div class="nav navbar-nav hidden-xs">
+          <a href="#" class="btn no-shadow navbar-btn" ui-toggle="app-aside-folded" target=".app">
+            <i class="fa fa-dedent fa-fw text"></i>
+            <i class="fa fa-indent fa-fw text-active"></i>
+          </a>
+
+        </div>
+
+
+        <!-- / buttons -->
+
+        <!-- link and dropdown -->
+
+        <!-- / link and dropdown -->
+
+        <!-- search form -->
+
+        <!-- / search form -->
+
+        <!-- nabar right -->
+        <ul class="nav navbar-nav navbar-right" ng-controller="AuthCtrl">
+
+          <li class="dropdown">
+            <a href="#" data-toggle="dropdown" class="dropdown-toggle clear">
+
+              <span class="hidden-sm hidden-md">{{user.name}}</span> <b class="caret"></b>
+            </a>
+            <!-- dropdown -->
+            <ul class="dropdown-menu animated fadeInRight w">
+              <li>
+                <a ui-sref="app.docs">
+                  Настройки
+                </a>
+              </li>
+              <li class="divider"></li>
+              <li >
+                <a ui-sref="access.signin" ng-click="logout()">Выход</a>
+              </li>
+            </ul>
+            <!-- / dropdown -->
+          </li>
+        </ul>
+        <!-- / navbar right -->
+      </div>
+      <!-- / navbar collapse -->
+  </header>
+  <!-- / header -->
+
+  <!-- aside -->
+  <aside id="aside" class="app-aside hidden-xs bg-dark" ng-hide="hide_menu">
+          <div class="aside-wrap">
+        <div class="navi-wrap">
+          <!-- nav -->
+          <nav ui-nav="" class="navi clearfix">
+            <ul class="nav">
+              <li ng-show="checkAccess('show_journal')">
+                <a href="/events">
+                  <i class="glyphicon glyphicon-th"></i>
+                  <span>Журнал</span>
+                </a>
+              </li>
+              <li ng-show="checkAccess(['show_mammals','show_users','synchronize'])" class="line dk"></li>
+              <li ng-show="checkAccess(['show_mammals','show_users','synchronize'])" class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span>Конфигурация</span>
+              </li>
+              <li ng-show="checkAccess('show_journal')">
+                <a href="/routes">
+                  <i class="glyphicon glyphicon-th"></i>
+                  <span>Маршруты</span>
+                </a>
+              </li>
+              <li ng-show="checkAccess('show_journal')">
+                <a href="/points">
+                  <i class="glyphicon glyphicon-th"></i>
+                  <span>Узлы</span>
+                </a>
+              </li>
+              <li ng-show="checkAccess(['show_mammals','show_users','synchronize'])" class="line dk"></li>
+              <li ng-show="checkAccess(['show_mammals','show_users','synchronize'])" class="hidden-folded padder m-t m-b-sm text-muted text-xs">
+                <span>Настройки</span>
+              </li>
+              <li ng-show="checkAccess(['show_mammals','show_users'])" class="">
+                <a href="" class="auto">
+                  <span class="pull-right text-muted">
+                    <i class="fa fa-fw fa-angle-right text"></i>
+                    <i class="fa fa-fw fa-angle-down text-active"></i>
+                  </span>
+                  <i class="fa fa-list-alt icon"></i>
+                  <span>Справочники</span>
+                </a>
+                <ul class="nav nav-sub dk" style="display: none;">
+                  <li class="nav-sub-header">
+                    <a href="">
+                      <span>Справочники</span>
+                    </a>
+                  </li>
+                  <li ng-show="checkAccess('show_users')">
+                    <a href="/users">
+                      <span>Пользователи</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </nav>
+          <!-- nav -->
+
+          <!-- aside footer -->
+
+          <!-- / aside footer -->
+        </div>
+      </div>
+  </aside>
+  <!-- / aside -->
+
+  <!-- content -->
+  <div id="content" ng-class="hide_menu ? '' : 'app-content'" role="main">
+    <div class="app-content-body ">
+
+
+<div class="hbox hbox-auto-xs hbox-auto-sm" ng-init="
+    app.settings.asideFolded = false;
+    app.settings.asideDock = false;
+  ">
+  <!-- main -->
+  <div class="col">
+    <!-- main header -->
+    <div class="bg-light lter b-b wrapper-md" ng-show="state">
+      <div class="row">
+        <div class="col-sm-6 col-xs-12">
+          <h1 class="m-n font-thin h3 text-black">{{state.title}}</h1>
+          <small class="text-muted">{{state.subtitle}}</small>
+        </div>
+        <div class="col-sm-6 text-right hidden-xs">
+        </div>
+      </div>
+    </div>
+    <!-- / main header -->
+    <div class="wrapper-md" ng-view></div>
+  </div>
+  <!-- / main -->
+  <!-- right col -->
+
+  <!-- / right col -->
+</div>
+
+
+    </div>
+  </div>
+  <!-- / content -->
+
+  <!-- footer -->
+  <footer id="footer" class="app-footer" role="footer">
+        <div class="wrapper b-t bg-light">
+      <span class="pull-right">1.0<a href="" ui-scroll="app" class="m-l-sm text-muted"><i class="fa fa-long-arrow-up"></i></a></span>
+      ОТР © 2015 Все права защищены.
+    </div>
+  </footer>
+  <!-- / footer -->
+
+</div>
+
+  <script src="/bower_components/html5-boilerplate/js/vendor/modernizr-2.6.2.min.js"></script>
+  <script src="/bower_components/moment/moment.js"></script>
+  <script src="/bower_components/jquery/dist/jquery.js"></script>
+  <script src="/bower_components/jquery-ui/ui/jquery-ui.js"></script>
+  <script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+  <script src="/bower_components/angular/angular.js"></script>
+
+  <script src="/bower_components/angular-growl-v2/build/angular-growl.js"></script>
+  <script src="/bower_components/angular-bootstrap/ui-bootstrap.js"></script>
+  <script src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+  <script src="/bower_components/angular-route/angular-route.js"></script>
+  <script src="/services/AuthService.js"></script>
+  <script src="/controllers/auth.js"></script>
+  <script src="/controllers/users.js"></script>
+  <script src="/controllers/events.js"></script>
+  <script src="/controllers/points.js"></script>
+  <script src="/controllers/routes.js"></script>
+  <script src="/app.js"></script>
+
+  <script src="/js/ui-load.js"></script>
+  <script src="/js/ui-jp.config.js"></script>
+  <script src="/js/ui-jp.js"></script>
+  <script src="/js/ui-nav.js"></script>
+  <script src="/js/ui-toggle.js"></script>
+</body>
+</html>

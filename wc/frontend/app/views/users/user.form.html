@@ -1,0 +1,42 @@
+<div class="panel panel-default">
+	<div class="panel-heading font-bold" ng-show="isNew">Создание пользователя</div>
+	<div class="panel-heading font-bold" ng-show="!isNew">Редактирование пользователя</div>
+	<div class="panel-body">
+	  <div class="bs-example form-horizontal">
+	    <div class="form-group">
+	      <label class="col-lg-2 control-label">Имя пользователя</label>
+	      <div class="col-lg-10">
+	        <input type="text" class="form-control"  ng-model="current.username">
+	      </div>
+	    </div>
+	   	<div class="form-group">
+	      <label class="col-lg-2 control-label">Пароль</label>
+	      <div class="col-lg-10">
+	        <input type="password" class="form-control"  ng-model="current.password">
+	      </div>
+	    </div>
+	    <div class="form-group">
+	      <label class="col-lg-2 control-label">Настоящее Имя</label>
+	      <div class="col-lg-10">
+	        <input type="text" class="form-control"  ng-model="current.name">
+	      </div>
+	    </div>
+
+	    <div class="form-group">
+	      <label class="col-lg-2 control-label">Описание</label>
+	      <div class="col-lg-10">
+	   			<textarea class="form-control"  ng-model="current.description"></textarea>
+	      </div>
+	    </div>
+		<div class="form-group">
+                <div class="col-lg-offset-2 col-lg-6">
+                    <button class="btn btn-primary" ng-click="save()" ng-show="(checkAccess('add_user') && !current[pkAttribute]) || (checkAccess('edit_user') && current[pkAttribute])">Сохранить</button>
+                    <button class="btn btn-default" ng-click="cancel()">Отмена</button>
+                </div>
+                <div class=" col-lg-2" ng-show="!current.is_admin && current[pkAttribute] && checkAccess('delete_user')">
+                    <button class="btn btn-danger" ng-click="delete()">Удалить</button>
+                </div>
+            </div>
+		</div>
+	</div>
+</div>
