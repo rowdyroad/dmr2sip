@@ -21,7 +21,7 @@ namespace Commutator {
 			{
 				auto delimiter_pos = point.id.find("/");
 				size_t device_index = std::stoi(point.id.substr(0, delimiter_pos));
-				std::string id = point.id.substr(delimiter_pos);
+				std::string id = point.id.substr(delimiter_pos + 1);
 				sip_.reset(new SIP(this, device_index));
 				sip_->Connect(id, point.password);
 			}

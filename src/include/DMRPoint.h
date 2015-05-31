@@ -16,12 +16,12 @@ namespace Commutator {
 			{
 				auto del_pos = point.id.find(":");
 				std::string address = point.id.substr(0, del_pos);
-				size_t port = std::stoi(point.id.substr(del_pos));
+				size_t port = std::stoi(point.id.substr(del_pos + 1));
 
 				del_pos = point.password.find(":");
 
 				std::string auth_key = point.password.substr(0, del_pos);
-				size_t delta = std::stoi(point.password.substr(del_pos));
+				size_t delta = std::stoul(point.password.substr(del_pos + 1));
   
 				connection_.reset(new CXNLConnection(address, port, auth_key, delta, this));
 			}

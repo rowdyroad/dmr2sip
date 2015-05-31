@@ -16,7 +16,6 @@ namespace Commutator {
 	{
 
 	    private:
-	        size_t device_;
 	        std::string db_filename_;
 	        libconfig::Config cfg_;
 	        std::string configuration_filename_;
@@ -28,7 +27,6 @@ namespace Commutator {
 	        {
 	            try {
 	                cfg_.readFile(configuration_filename_.c_str());
-	                cfg_.lookupValue("system.device", this->device_);
 	                cfg_.lookupValue("system.db.filename", this->db_filename_);
 	            }
 	            catch(const libconfig::FileIOException &fioex) {
