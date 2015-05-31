@@ -26,7 +26,7 @@ class SIP {
         SIPHandler* handler_;
 
     public:
-        static std::vector<std::string>&& GetDevicesList()
+        static std::vector<std::string> GetDevicesList()
         {
             LinphoneCoreVTable v = {0};
             LinphoneCore* lc = linphone_core_new(&v,NULL,NULL,NULL);

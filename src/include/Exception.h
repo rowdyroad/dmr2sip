@@ -15,7 +15,7 @@ namespace Commutator {
                 , message_(message)
             {}
 
-            template<class T>
+            template<template<class TT = std::string> class T>
             Exception(size_t code, const T<std::string>& list) noexcept
                 : code_(code)
             {

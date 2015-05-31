@@ -1,80 +1,22 @@
+#include <string.h>
 #include <string>
 #include <stdio.h>
 #include <signal.h>
 #include <memory>
-#include "SIP.h"
-#include "xnl_connection.h"
-
 #include <thread>
+#include <map>
+#include "include/Exception.h"
+#include "include/Configuration.h"
+#include "include/Storage.h"
+#include "include/Point.h"
+#include "include/SIPPoint.h"
+#include "include/DMRPoint.h"
 
-
-using namespace libconfig;
 volatile bool quit = false;
-
-Configuration config;
-
-
-class Handler : public CXNLConnectionHandler, public SIPHandler
-{
-    private:
-        bool incomming_sip_call = false;
-    public:
-        void OnInCallBegin(SIP* sip)
-        {
-            printf("### Incomming call from sip %s\n", sip->CallAddress());
-            incomming_sip_call = true;
-            radio->select_mic(1);
-            radio->PTT(PTT_PUSH);
-        }
-
-        void OnCallEnd(SIP *sip)
-        {
-            if (incomming_sip_call) {
-                incomming_sip_call = false;
-
-            }
-        }
-
-        void OnConnectionSuccess(CXNLConnection* connection)
-        {
-            std::cout << "### Radio Connected" << std::endl;
-        }
-
-         void OnConnectionFailure(CXNLConnection* connection)
-        {
-            std::cout << "### Radio Connection failure" << std::endl;
-        }
-
-         void OnXCMPMessage(CXNLConnection* connection, uint8_t* msg)
-        {
-            std::cout << "### Radio Message received" << std::endl;
-        }
-
-        void OnCallInitiated(CXNLConnection* connection, const std::string& address)
-        {
-             std::cout << "### Radio Call Initiated" << incomming_sip_call <<  std::endl;
-            if (!incomming_sip_call)  {
-                sip->Call(config.sip_call_by_ptt);
-            }
-        }
-
-        void OnCallEnded(CXNLConnection* connection)
-        {
-            std::cout << "### Radio Call Ended" << incomming_sip_call <<  std::endl;
-            if (!incomming_sip_call) {
-                sip->Hangup();
-            }
-        }
-};
-
-
-Handler* handler;
 
 
 void signalHandler( int signum )
 {
-    sip->Stop();
-    radio->Stop();
 }
 
 
@@ -88,7 +30,7 @@ int main(int argc, char*argv[])
 
     if (argc > 1) {
     	if (!strcmp(argv[1], "-d")) {
-    	    auto devices = SIP::GetDevicesList();
+    	    auto devices = Commutator::SIPPoint::GetDevicesList();
     	    std::cout << "Devices list:" << std::endl;
     	    for (auto& p : devices) {
     		  std::cout << "\t" << p << std::endl;
@@ -101,23 +43,26 @@ int main(int argc, char*argv[])
     signal(SIGHUP, signalRestartHandler);
 
     std::vector<std::thread> pool;
-    Commutator:::Configuration config("sip2dmr.conf");
+    Commutator::Configuration config("sip2dmr.conf");
     Commutator::Storage storage(config.getDbFilename());
-    storage.UpdateAllPointsStatus(Storage::Point::Status::psInvactive);
+    storage.UpdateAllPointsStatus(Commutator::Storage::Point::Status::psInvactive);
 
 
-    std::map<std::string, std::unique_ptr<Commutator::PointFactory>> factories = {
-        {"sip", std::shared_ptr<Commutator::PointFactory>(new Commutator::SIPFactory())},
-        {"dmr", std::shared_ptr<Commutator::PointFactory>(new Commutator::DMRFactory())}
-    };
+    typedef std::shared_ptr<Commutator::PointFactory> PointFactoryPtr;
 
-    std::vector<Point> points;
+    std::map<std::string, PointFactoryPtr> factories;
+
+	factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
+	factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory())));
+
+
+    std::vector<Commutator::PointPtr> points;
 
     for (auto& point : storage.GetPoints()) {
-        Point p = factories[point.type]->Create();
-        points.push_back(std::move(p));
+        Commutator::PointPtr p = factories[point.type]->Create(point, nullptr);
+        points.push_back(p);
         pool.push_back(std::thread([=]{
-            p.Run();
+            p->Run();
         }));
     }
 

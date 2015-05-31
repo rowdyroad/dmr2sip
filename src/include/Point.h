@@ -1,21 +1,27 @@
 #pragma once
+#include <memory>
+
 #include "Storage.h"
 
 namespace Commutator {
 
+	class Point;
+
+	typedef std::shared_ptr<Point> PointPtr;
+
 	class PointHandler {
 		public:
-			virtual void OnCallReceived(Point& point, const std::string& number) = 0;
-			virtual void OnCallEnded(Point& point) = 0;
+			virtual void OnCallReceived(Point* const  point, const std::string& number) = 0;
+			virtual void OnCallEnded(Point* const point) = 0;
 	};
 
 	class Point {
 		private:
 			const Storage::Point& point_;
-			PointHandler& handler_;
+			PointHandler* const handler_;
 
 		public:
-			Point(const Storage::Point& point, PointHandler& handler)
+			Point(const Storage::Point& point, PointHandler* const handler)
 				: point_(point)
 				, handler_(handler)
 			{}
@@ -24,7 +30,7 @@ namespace Commutator {
 				return point_;
 			}
 
-			PointHandler& Handler()
+			PointHandler* const Handler()
 			{
 				return handler_;
 			}
@@ -36,8 +42,6 @@ namespace Commutator {
 
 	class PointFactory {
 		public:
-			virtual Point Create(const Storage::Point& point, PointHandler& handler) {
-				return std::move(Point(point, handler));
-			}
+			virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler) = 0;
 	};
 }

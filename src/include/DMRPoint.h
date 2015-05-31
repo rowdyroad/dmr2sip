@@ -1,4 +1,5 @@
 #pragma once
+#include "DMR/xnl_connection.h"
 
 #include "Point.h"
 #include "Storage.h"
@@ -6,17 +7,11 @@
 
 namespace Commutator {
 
-
-	class DMRPoint;
-
-
-	class DMRPoint : public Point,  public CXNLConnectionHandler {
+	class DMRPoint : public Point, public CXNLConnectionHandler {
 		private:
-			std::unqie_ptr<CXNLConnection> connection_;
-
-
+			std::unique_ptr<CXNLConnection> connection_;
 		public:
-			DMRPoint(const Storage::Point& point, PointHandler& handler)
+			DMRPoint(const Storage::Point& point, PointHandler* const handler)
 				: Point(point, handler)
 			{
 				auto del_pos = point.id.find(":");
@@ -26,43 +21,43 @@ namespace Commutator {
 				del_pos = point.password.find(":");
 
 				std::string auth_key = point.password.substr(0, del_pos);
-				std::string delta = point.password.substr(del_pos);
-
+				size_t delta = std::stoi(point.password.substr(del_pos));
+  
 				connection_.reset(new CXNLConnection(address, port, auth_key, delta, this));
 			}
 
 			void Run()
 			{
-				connection_->run();
+				connection_->Run();
 			}
 
 			void Initiate(const std::string& number)
 			{
 				connection_->PTT(PTT_PUSH);
-                connection_->select_mic(0);
+            			connection_->select_mic(0);
 			}
 
 			void Hangup()
 			{
   				connection_->PTT(PTT_RELEASE);
-                connection_->select_mic(0);
+            			connection_->select_mic(0);
 			}
+    				void OnCallInitiated(CXNLConnection* connection, const std::string& address)
+				{
+				    Handler()->OnCallReceived(this, address);
+				}
 
-			void OnCallInitiated(CXNLConnection* connection, const std::string& address)
-			{
-				Handler().OnCallReceived(*this, address);
-			}
+	    			void OnCallEnded(CXNLConnection* connection)
+	    			{
+	    			    Handler()->OnCallEnded(this);
+	    			}
 
-	    	void OnCallEnded(CXNLConnection* connection)
-	    	{
-	    		Handler().OnCallEnded(*this);
-	    	}
 	};
 
 	class DMRPointFactory: public PointFactory {
 		public:
-			Point Create(const Storage::Point& point, PointHandler& handler)  {
-				return std::move(DMRPoint(point, handler));
+			virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
+				return PointPtr(new DMRPoint(point, handler));
 			}
 	};
 

@@ -5,20 +5,18 @@
 
 namespace Commutator {
 
-	class SIPPoint;
-
-	class SIPPointHandler {
-		public:
-			virtual void OnCallReceived(SIPPoint& point, const std::string& number) = 0;
-			virtual void OnCallEnded(SIPPoint& point) = 0;
-	};
-
 	class SIPPoint : public Point, public SIPHandler {
 		private:
 			std::unique_ptr<SIP> sip_;
 
 		public:
-			SIPPoint(const Storage::Point& point, PointHandler& handler)
+			
+			static std::vector<std::string> GetDevicesList() 
+			{
+			    return SIP::GetDevicesList();
+			}
+
+			SIPPoint(const Storage::Point& point, PointHandler* const handler)
 				: Point(point, handler)
 			{
 				auto delimiter_pos = point.id.find("/");
@@ -50,19 +48,19 @@ namespace Commutator {
 
 	        void OnCallEnd(SIP* sip)
 	        {
-	        	Handler().OnCallEnded(*this);
+	        	Handler()->OnCallEnded(this);
 	        }
 
-			void OnInCallBegin(SIP* sip)
-			{
-				Handler().OnCallReceived(*this, sip->CallAddress());
-			}
+		void OnInCallBegin(SIP* sip)
+		{
+			Handler()->OnCallReceived(this, sip->CallAddress());
+		}
 	};
 
 	class SIPPointFactory: public PointFactory {
 		public:
-			Point Create(const Storage::Point& point, PointHandler& handler)  {
-				return std::move(SIPPoint(point, handler));
+			virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
+				return PointPtr(new SIPPoint(point, handler));
 			}
 	};
 }

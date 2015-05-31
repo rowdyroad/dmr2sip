@@ -1,5 +1,9 @@
 #pragma once
-#include <SQLiteCpp/SQLiteCpp.h>
+//#include <SQLiteCpp/SQLiteCpp.h>
+#include <sqlite/connection.hpp>
+#include <sqlite/result.hpp>
+#include <sqlite/query.hpp>
+#include <sqlite/execute.hpp>
 
 #include "Exception.h"
 
@@ -10,7 +14,7 @@ namespace Commutator {
     class Storage
     {
         private:
-            std::unique_ptr<SQLite::Database> db_;
+            std::unique_ptr<sqlite::connection> db_;
 
         public:
             struct Point {
@@ -35,42 +39,45 @@ namespace Commutator {
             Storage(const std::string& filename)
             {
                 try {
-                    db.reset(new SQLite::Database(This->db_filename_, SQLITE_OPEN_READWRITE));
+                    db_.reset(new sqlite::connection(filename));
                 } catch (std::exception& e) {
                     throw new ConfigurationException(3, e.what());
                 }
             }
 
-            SQLite::Database& Handle()
+            sqlite::connection& Handle()
             {
                 return *db_;
             }
 
             size_t UpdateAllPointsStatus(size_t status)
             {
-                SQLite::Statement  stmt(*db, "UPDATE points SET status  = ?");
-                stmt.bind(1, status);
-                stmt.exec();
+		sqlite::execute command(*db_, "UPDATE points SET status  = ?");
+                command.bind(1, (int)status);
+                command.emit();
             }
 
             size_t UpdatePointStatus(size_t point_id, size_t status)
             {
-                SQLite::Statement  stmt(*db, "UPDATE points SET status  = ? WHERE point_id = ?");
-                stmt.bind(1, status);
-                stmt.bind(2, point_id);
-                stmt.exec();
+                sqlite::execute stmt(*db_, "UPDATE points SET status  = ? WHERE point_id = ?");
+                stmt.bind(1, (int)status);
+                stmt.bind(2, (int)point_id);
+                stmt.emit();
             }
 
             std::vector<Point>&& GetPoints()
             {
                 std::vector<Point> points;
-                SQLite::Statement   query(*db, "SELECT point_id, type, id, password  FROM points");
-                while (query.executeStep()) {
+                sqlite::query query(*db_, "SELECT point_id, type, id, password  FROM points");
+
+		auto result = query.emit_result();
+
+                while (result->next_row()) {
                     Point p;
-                    p.point_id = query.getColumn(0);
-                    p.type = query.getColumn(1);
-                    p.id = query.getColumn(2);
-                    p.password = getColumn(3);
+                    p.point_id = result->get_int(0);
+                    p.type = result->get_string(1);
+                    p.id = result->get_string(2);
+                    p.password = result->get_string(3);
                     points.push_back(p);
                 }
                 return std::move(points);
@@ -79,14 +86,16 @@ namespace Commutator {
             std::vector<Route>&& GetRoutes()
             {
                 std::vector<Route> routes;
-                SQLite::Statement   query(*db, "SELECT route_id, source_point_id, source_number, destination_point_id, destination_number  FROM routes");
-                while (query.executeStep()) {
+                sqlite::query query(*db_, "SELECT route_id, source_point_id, source_number, destination_point_id, destination_number  FROM routes");
+                auto result = query.emit_result();
+
+		while (result->next_row()) {
                     Route r;
-                    r.route_id = query.getColumn(0);
-                    r.source_point_id = query.getColumn(1);
-                    r.source_number = query.getColumn(2);
-                    r.destination_point_id = getColumn(3);
-                    r.destination_number = query.getColumn(2);
+                    r.route_id = result->get_int(0);
+                    r.source_point_id = result->get_int(1);
+                    r.source_number = result->get_string(2);
+                    r.destination_point_id = result->get_int(3);
+                    r.destination_number = result->get_string(4);
                     routes.push_back(r);
                 }
                 return std::move(routes);
@@ -94,10 +103,10 @@ namespace Commutator {
 
             void addEvent(size_t route_id, const std::string& source_number)
             {
-                SQLite::Statement  stmt(*db, "INSERT events (route_id, source_number)  VALUES(?, ?)");
-                stmt.bind(1, route_id);
+                sqlite::execute  stmt(*db_, "INSERT events (route_id, source_number)  VALUES(?, ?)");
+                stmt.bind(1, (int)route_id);
                 stmt.bind(2, source_number);
-                stmt.exec();
+                stmt.emit();
             }
     };
 
