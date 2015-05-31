@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-std=c++11
 LIBS=-lpthread
-SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -lsqlite -lsqlitepp3
+SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -lsqlite -lvsqlitepp
 BUILD_DIR=build
 
 SIP_TARGET=sip
