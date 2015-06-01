@@ -18,11 +18,7 @@ angular.module('myApp.routes', ['ngRoute'])
 .controller('RouteFormCtrl', function($scope, $http,$routeParams, $modal) {
   $scope.points = [];
   $http.get('/api/points').success(function(data) {
-     for (var i in data) {
-      data[i].name = data[i].type + ':' + data[i].id;
-      $scope.points.push(data[i]);
-     }
-     console.log($scope.points);
+    $scope.points = data;
   });
 
 	FormController('/api/routes', 'route_id', $scope, $http, $routeParams, $modal);

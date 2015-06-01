@@ -12,9 +12,9 @@
 			</tr>
 		</thead>
 		<tr ng-repeat="item in items">
-			<td>{{ item.source_point.type }}: {{item.source_point.id}} -  {{item.source_number}}</td>
+			<td>{{ item.source_point.name }}: {{item.source_number}}</td>
 
-			<td>{{ item.destination_point.type }}: {{item.destination_point.id}} -  {{item.destination_number}}</td>
+			<td>{{ item.destination_point.name }}: {{item.destination_number}}</td>
 			<td class="pull-right">
 				<a href="/routes/{{item.route_id}}"><button class="btn btn-default"><i style="padding:0.2em" class="glyphicon glyphicon-edit"/></button></a>
 			</td>

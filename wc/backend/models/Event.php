@@ -12,7 +12,18 @@ class Event extends \yii\db\ActiveRecord
  	public function rules()
     {
     	return 	[
-    				[['source_point','destination_point'], 'required']
+    				[['route_id','source_number'], 'required']
     			];
+    }
+
+
+    public function getRoute()
+    {
+	return $this->hasOne(Route::className(), ['route_id'=>'route_id']);
+    }
+
+    public function fields()
+    {
+	return array_merge(parent::fields(),['route']);
     }
 }

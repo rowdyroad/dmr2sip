@@ -12,7 +12,7 @@ class Point extends \yii\db\ActiveRecord
  	public function rules()
     {
     	return 	[
-    				[['type','id'], 'required'],
+    				[['type','name','id'], 'required'],
                     ['password','safe']
     			];
     }

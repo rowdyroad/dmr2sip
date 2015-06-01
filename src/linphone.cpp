@@ -72,6 +72,7 @@ int main(int argc, char*argv[])
     class Program : public Commutator::PointHandler
     {
 	private:
+	    Commutator::Storage& storage_;
 	    std::vector<std::shared_ptr<std::thread>> pool_;
 	    std::vector<Commutator::PointPtr> points_;
 	    std::vector<Commutator::Storage::Route> routes_;
@@ -90,10 +91,10 @@ int main(int argc, char*argv[])
 
 	public:
 	    Program(Commutator::Storage& storage, std::map<std::string, PointFactoryPtr>& factories)
-		: routes_(storage.GetRoutes())
+		: storage_(storage)
+		, routes_(storage.GetRoutes())
 		, current_route_(nullptr)
 	    {
-
 		std::cout << "Initialize points" << std::endl;
 		for (auto& point : storage.GetPoints()) {
 		    std::cout << "\tPoint id: " << point.point_id << std::endl
@@ -118,6 +119,7 @@ int main(int argc, char*argv[])
 			auto destination = this->getPointById(route.destination_point_id);
 			if (destination) {
 			    current_route_ = &route;
+			    storage_.addEvent(route.route_id, number);
 			    destination->Initiate(route.destination_number);
 			    break;
 			}
