@@ -52,7 +52,7 @@ namespace Commutator {
 
             size_t UpdateAllPointsStatus(size_t status)
             {
-		sqlite::execute command(*db_, "UPDATE points SET status  = ?");
+        sqlite::execute command(*db_, "UPDATE points SET status  = ?");
                 command.bind(1, (int)status);
                 command.emit();
             }
@@ -69,18 +69,18 @@ namespace Commutator {
             {
                 std::vector<Point> points;
                 sqlite::query query(*db_, "SELECT point_id, type, id, password  FROM points");
-		
-		auto result = query.emit_result();
-		if (result->get_row_count() > 0) {
-            	    do {
-                	Point p;
-                	p.point_id = result->get_int(0);
-                	p.type = result->get_string(1);
-            	        p.id = result->get_string(2);
-            	        p.password = result->get_string(3);
-            		points.push_back(p);
-            	    } while (result->next_row());
-		}
+
+        auto result = query.emit_result();
+        if (result->get_row_count() > 0) {
+                    do {
+                    Point p;
+                    p.point_id = result->get_int(0);
+                    p.type = result->get_string(1);
+                        p.id = result->get_string(2);
+                        p.password = result->get_string(3);
+                    points.push_back(p);
+                    } while (result->next_row());
+        }
                 return std::move(points);
             }
 
@@ -90,16 +90,16 @@ namespace Commutator {
                 sqlite::query query(*db_, "SELECT route_id, source_point_id, source_number, destination_point_id, destination_number  FROM routes");
                 auto result = query.emit_result();
 
-		if (result->get_row_count() > 0) {
-		    do {
-                	Route r;
-                	r.route_id = result->get_int(0);
-                	r.source_point_id = result->get_int(1);
-                	r.source_number = result->get_string(2);
-                	r.destination_point_id = result->get_int(3);
-                	r.destination_number = result->get_string(4);
-                	routes.push_back(r);
-		    } while (result->next_row());
+        if (result->get_row_count() > 0) {
+            do {
+                    Route r;
+                    r.route_id = result->get_int(0);
+                    r.source_point_id = result->get_int(1);
+                    r.source_number = result->get_string(2);
+                    r.destination_point_id = result->get_int(3);
+                    r.destination_number = result->get_string(4);
+                    routes.push_back(r);
+            } while (result->next_row());
                 }
                 return std::move(routes);
             }

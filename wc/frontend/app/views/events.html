@@ -1,20 +1,20 @@
 <div class="panel panel-default">
-<div class="panel-heading">События</div>
+<div class="panel-heading">Ð¡Ð¾Ð±Ñ‹Ñ‚Ð¸Ñ</div>
 <table class="table table-striped m-b-none">
-		<thead>
-			<tr>
-				<th>Время</th>
-				<th>Исходящий узел</th>
-				<th>Входящий узел</th>
-				<th>�оме�</th>
-				<th>&nbsp;</th>
-			</tr>
-		</thead>
-		<tr ng-repeat="item in items">
-			<td>{{ item.time }}</td>
-			<td>{{ item.route.source_point.name }}</td>
-			<td>{{ item.route.destination_point.name }}</td>
-			<td>{{ item.source_number}}</td>
-		</tr>
-	</table>
+        <thead>
+            <tr>
+                <th>Время</th>
+                <th>Исходящий узел</th>
+                <th>Входящий узел</th>
+                <th>Входящий номер</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="item in items">
+            <td>{{ item.time }}</td>
+            <td>{{ item.route.source_point.name }}</td>
+            <td>{{ item.route.destination_point.name }}</td>
+            <td>{{ item.source_number}}</td>
+        </tr>
+    </table>
 </div>

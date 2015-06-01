@@ -5,62 +5,62 @@
 
 namespace Commutator {
 
-	class SIPPoint : public Point, public SIPHandler {
-		private:
-			std::unique_ptr<SIP> sip_;
+    class SIPPoint : public Point, public SIPHandler {
+        private:
+            std::unique_ptr<SIP> sip_;
 
-		public:
-			
-			static std::vector<std::string> GetDevicesList() 
-			{
-			    return SIP::GetDevicesList();
-			}
+        public:
 
-			SIPPoint(const Storage::Point& point, PointHandler* const handler)
-				: Point(point, handler)
-			{
-				auto delimiter_pos = point.id.find("/");
-				size_t device_index = std::stoi(point.id.substr(0, delimiter_pos));
-				std::string id = point.id.substr(delimiter_pos + 1);
-				sip_.reset(new SIP(this, device_index));
-				sip_->Connect(id, point.password);
-			}
+            static std::vector<std::string> GetDevicesList()
+            {
+                return SIP::GetDevicesList();
+            }
 
-			~SIPPoint()
-			{
-				sip_->Stop();
-			}
+            SIPPoint(const Storage::Point& point, PointHandler* const handler)
+                : Point(point, handler)
+            {
+                auto delimiter_pos = point.id.find("/");
+                size_t device_index = std::stoi(point.id.substr(0, delimiter_pos));
+                std::string id = point.id.substr(delimiter_pos + 1);
+                sip_.reset(new SIP(this, device_index));
+                sip_->Connect(id, point.password);
+            }
 
-			void Run()
-			{
-				sip_->Run();
-			}
+            ~SIPPoint()
+            {
+                sip_->Stop();
+            }
 
-			void Initiate(const std::string& number)
-			{
-				sip_->Call(number);
-			}
+            void Run()
+            {
+                sip_->Run();
+            }
 
-	       	void Hangup()
-	       	{
-	       		sip_->Hangup();
-	       	}
+            void Initiate(const std::string& number)
+            {
+                sip_->Call(number);
+            }
 
-	        void OnCallEnd(SIP* sip)
-	        {
-	        	Handler()->OnCallEnded(this);
-	        }
+            void Hangup()
+            {
+                sip_->Hangup();
+            }
 
-		void OnInCallBegin(SIP* sip)
-		{
-			Handler()->OnCallReceived(this, sip->CallAddress());
-		}
-	};
+            void OnCallEnd(SIP* sip)
+            {
+                Handler()->OnCallEnded(this);
+            }
 
-	class SIPPointFactory: public PointFactory {
-		public:
-			virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
-				return PointPtr(new SIPPoint(point, handler));
-			}
-	};
+        void OnInCallBegin(SIP* sip)
+        {
+            Handler()->OnCallReceived(this, sip->CallAddress());
+        }
+    };
+
+    class SIPPointFactory: public PointFactory {
+        public:
+            virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
+                return PointPtr(new SIPPoint(point, handler));
+            }
+    };
 }

@@ -16,7 +16,7 @@ angular.module('myApp.users', ['ngRoute'])
   })
 }])
 .controller('UserFormCtrl', function($scope, $http,$routeParams, $modal) {
-	FormController('/api/users', 'user_id', $scope, $http, $routeParams, $modal);
+  FormController('/api/users', 'user_id', $scope, $http, $routeParams, $modal);
 })
 .controller('UserCtrl', function($scope, $http) {
   BaseController('/api/users', 'user_id', $scope, $http);

@@ -1,34 +1,34 @@
 <div class="panel panel-default">
-	<div class="panel-heading font-bold" ng-show="isNew">Создание узла</div>
-	<div class="panel-heading font-bold" ng-show="!isNew">Редактирование узла</div>
-	<div class="panel-body">
-	  <div class="bs-example form-horizontal">
-	    <div class="form-group">
-	      <label class="col-lg-2 control-label">Тип</label>
-	      <div class="col-lg-10">
-	        <select ng-options="type.id as type.name for type in types" ng-model="current.type"/>
-	      </div>
-	    </div>
-	    <div class="form-group">
-	      <label class="col-lg-2 control-label">�азвание</label>
-	      <div class="col-lg-10">
-	        <input type="text" class="form-control"  ng-model="current.name">
-	      </div>
-	    </div>
-	    <div class="form-group">
-	      <label class="col-lg-2 control-label">Идентификатор</label>
-	      <div class="col-lg-10">
-	        <input type="text" class="form-control"  ng-model="current.id">
-	      </div>
-	    </div>
-	   	<div class="form-group">
-	      <label class="col-lg-2 control-label">Пароль</label>
-	      <div class="col-lg-10">
-	        <input type="text" class="form-control"  ng-model="current.password">
-	      </div>
-	    </div>
+    <div class="panel-heading font-bold" ng-show="isNew">Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ ÑƒÐ·Ð»Ð°</div>
+    <div class="panel-heading font-bold" ng-show="!isNew">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ ÑƒÐ·Ð»Ð°</div>
+    <div class="panel-body">
+      <div class="bs-example form-horizontal">
+        <div class="form-group">
+          <label class="col-lg-2 control-label">Тип</label>
+          <div class="col-lg-10">
+            <select ng-options="type.id as type.name for type in types" ng-model="current.type"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-lg-2 control-label">Название</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control"  ng-model="current.name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-lg-2 control-label">Идентификатор</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control"  ng-model="current.id">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="col-lg-2 control-label">Пароль</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control"  ng-model="current.password">
+          </div>
+        </div>
 
-		<div class="form-group">
+        <div class="form-group">
                 <div class="col-lg-offset-2 col-lg-6">
                     <button class="btn btn-primary" ng-click="save()" ng-show="(checkAccess('add_user') && !current[pkAttribute]) || (checkAccess('edit_user') && current[pkAttribute])">Сохранить</button>
                     <button class="btn btn-default" ng-click="cancel()">Отмена</button>
@@ -37,6 +37,6 @@
                     <button class="btn btn-danger" ng-click="delete()">Удалить</button>
                 </div>
             </div>
-		</div>
-	</div>
+        </div>
+    </div>
 </div>

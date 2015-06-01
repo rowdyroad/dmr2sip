@@ -7,7 +7,7 @@ class m150601_015133_point_name extends Migration
 {
     public function up()
     {
-	$this->addColumn('points','name','string(200)');
+        $this->addColumn('points','name','string(200)');
     }
 
     public function down()
@@ -16,13 +16,13 @@ class m150601_015133_point_name extends Migration
 
         return false;
     }
-    
+
     /*
     // Use safeUp/safeDown to run migration code within a transaction
     public function safeUp()
     {
     }
-    
+
     public function safeDown()
     {
     }

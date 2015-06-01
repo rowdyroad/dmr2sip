@@ -1,26 +1,26 @@
-	<div class="btn-group  m-b-xs">
-	  <a href="/points/new" ng-show="checkAccess('add_user')"><button type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"/> Добавить узел</button></a>
-	</div>
+    <div class="btn-group  m-b-xs">
+      <a href="/points/new" ng-show="checkAccess('add_user')"><button type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"/> Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ ÑƒÐ·ÐµÐ»</button></a>
+    </div>
 <div class="panel panel-default">
-<div class="panel-heading">Узлы</div>
+<div class="panel-heading">Ð£Ð·Ð»Ñ‹</div>
 <table class="table table-striped m-b-none">
-		<thead>
-			<tr>
-				<th style="width:20px">&nbsp;</th>
-				<th>Ти/th>
-				<th>�азвание</th>
-				<th>Идентификатор</th>
-				<th>&nbsp;</th>
-			</tr>
-		</thead>
-		<tr ng-repeat="item in items">
-			<td><i class="fa" ng-class="item.status ? 'fa-check-square-o' : 'fa-square-o' "></i></td>
-			<td>{{ item.type }}</td>
-			<td>{{ item.name }}</td>
-			<td>{{ item.id }}</td>
-			<td class="pull-right">
-				<a href="/points/{{item.point_id}}"><button class="btn btn-default"><i style="padding:0.2em" class="glyphicon glyphicon-edit"/></button></a>
-			</td>
-		</tr>
-	</table>
+        <thead>
+            <tr>
+                <th style="width:20px">&nbsp;</th>
+                <th>Тип</th>
+                <th>Название</th>
+                <th>Идентификатор</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="item in items">
+            <td><i class="fa" ng-class="item.status ? 'fa-check-square-o' : 'fa-square-o' "></i></td>
+            <td>{{ item.type }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.id }}</td>
+            <td class="pull-right">
+                <a href="/points/{{item.point_id}}"><button class="btn btn-default"><i style="padding:0.2em" class="glyphicon glyphicon-edit"/></button></a>
+            </td>
+        </tr>
+    </table>
 </div>

@@ -1,23 +1,22 @@
-	<div class="btn-group  m-b-xs">
-	  <a href="/routes/new" ng-show="checkAccess('add_user')"><button type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"/> Добавить маршрут</button></a>
-	</div>
+    <div class="btn-group  m-b-xs">
+      <a href="/routes/new" ng-show="checkAccess('add_user')"><button type="button" class="btn btn-primary"><i class="glyphicon glyphicon-plus"/> Добавить маршрут</button></a>
+    </div>
 <div class="panel panel-default">
 <div class="panel-heading">Маршруты</div>
 <table class="table table-striped m-b-none">
-		<thead>
-			<tr>
-				<th>Исходный узел</th>
-				<th>Целевой узел</th>
-				<th>&nbsp;</th>
-			</tr>
-		</thead>
-		<tr ng-repeat="item in items">
-			<td>{{ item.source_point.name }}: {{item.source_number}}</td>
-
-			<td>{{ item.destination_point.name }}: {{item.destination_number}}</td>
-			<td class="pull-right">
-				<a href="/routes/{{item.route_id}}"><button class="btn btn-default"><i style="padding:0.2em" class="glyphicon glyphicon-edit"/></button></a>
-			</td>
-		</tr>
-	</table>
+        <thead>
+            <tr>
+                <th>Исходный узел</th>
+                <th>Целевой узел</th>
+                <th>&nbsp;</th>
+            </tr>
+        </thead>
+        <tr ng-repeat="item in items">
+            <td>{{ item.source_point.name }}: {{item.source_number}}</td>
+            <td>{{ item.destination_point.name }}: {{item.destination_number}}</td>
+            <td class="pull-right">
+                <a href="/routes/{{item.route_id}}"><button class="btn btn-default"><i style="padding:0.2em" class="glyphicon glyphicon-edit"/></button></a>
+            </td>
+        </tr>
+    </table>
 </div>

@@ -4,30 +4,30 @@ namespace app\models;
 
 class Route extends \yii\db\ActiveRecord
 {
-	static public function tableName()
-	{
-		return 'routes';
-	}
-
- 	public function rules()
+    static public function tableName()
     {
-    	return 	[
-    				[['source_point_id','source_number', 'destination_point_id', 'destination_number'], 'required']
-    			];
+        return 'routes';
+    }
+
+    public function rules()
+    {
+        return  [
+                    [['source_point_id','source_number', 'destination_point_id', 'destination_number'], 'required']
+                ];
     }
 
     public function getSource_point()
     {
-    	return $this->hasOne(Point::className(), ['point_id'=>'source_point_id']);
+        return $this->hasOne(Point::className(), ['point_id'=>'source_point_id']);
     }
 
     public function getDestination_point()
     {
-    	return $this->hasOne(Point::className(), ['point_id'=>'destination_point_id']);
+        return $this->hasOne(Point::className(), ['point_id'=>'destination_point_id']);
     }
 
     public function fields()
     {
-    	return array_merge(parent::fields(),['source_point','destination_point']);
+        return array_merge(parent::fields(),['source_point','destination_point']);
     }
 }
