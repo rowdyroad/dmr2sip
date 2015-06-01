@@ -110,6 +110,12 @@
             <!-- / dropdown -->
           </li>
         </ul>
+	<div ng-controller="CommutatorCtrl" style="margin-top:8px">
+	    <button ng-if="state" class="btn m-b-xs" ng-click="reload()" ng-class="state.active ? 'btn-success': 'btn-danger'">
+		<span ng-if="state.active">Reload configuration</span>
+		<spna ng-if="!state.active">Apply configuration</span>
+	    </button>
+	</div>
         <!-- / navbar right -->
       </div>
       <!-- / navbar collapse -->
@@ -246,6 +252,7 @@
   <script src="/controllers/users.js"></script>
   <script src="/controllers/events.js"></script>
   <script src="/controllers/points.js"></script>
+  <script src="/controllers/commutator.js"></script>
   <script src="/controllers/routes.js"></script>
   <script src="/app.js"></script>
 

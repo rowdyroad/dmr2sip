@@ -23,7 +23,7 @@ class Program : public PointHandler
         }
 
     public:
-        Program(Commutator::Storage& storage, std::map<std::string, PointFactoryPtr>& factories)
+        Program(Commutator::Storage& storage, std::map<std::string, std::shared_ptr<PointFactory>>& factories)
             : storage_(storage)
             , routes_(storage.GetRoutes())
             , current_route_(nullptr)
@@ -49,10 +49,10 @@ class Program : public PointHandler
 
         void Run()
         {
-            for (auto& thread: pool_) {
+            for (auto thread: pool_) {
                 thread->join();
             }
-            storage.UpdateAllPointsStatus(Commutator::Storage::Point::Status::psInvactive);
+            storage_.UpdateAllPointsStatus(Commutator::Storage::Point::Status::psInvactive);
         }
 
         void Stop()

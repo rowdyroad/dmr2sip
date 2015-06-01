@@ -36,6 +36,7 @@ namespace Commutator {
             }
 
             virtual void Run() = 0;
+	    virtual void Stop() = 0;
             virtual void Initiate(const std::string& number) = 0;
             virtual void Hangup() = 0;
     };

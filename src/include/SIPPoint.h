@@ -36,6 +36,11 @@ namespace Commutator {
                 sip_->Run();
             }
 
+	    void Stop()
+	    {
+		sip_->Stop();
+	    }
+
             void Initiate(const std::string& number)
             {
                 sip_->Call(number);

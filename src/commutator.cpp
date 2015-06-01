@@ -13,31 +13,30 @@
 #include "include/Program.h"
 
 volatile bool quit = false;
+typedef std::shared_ptr<Commutator::PointFactory> PointFactoryPtr;
+
 std::unique_ptr<Commutator::Storage> storage;
 std::unique_ptr<Commutator::Program> program;
 std::map<std::string, PointFactoryPtr> factories;
-typedef std::shared_ptr<Commutator::PointFactory> PointFactoryPtr;
-factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
-factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory())));
 
 void signalHandler( int signum )
 {
     if (program) {
         program->Stop();
     }
+    quit = true;
 }
 
 
 void signalRestartHandler(int signum)
 {
     if (program) {
-        program.reset(new Program(*storage, factories));
+	program->Stop();
     }
 }
 
 int main(int argc, char*argv[])
 {
-
     if (argc > 1) {
         if (!strcmp(argv[1], "-d")) {
             auto devices = Commutator::SIPPoint::GetDevicesList();
@@ -52,16 +51,22 @@ int main(int argc, char*argv[])
 
     std::string db = "/tmp/dmr2sip.sqlite";
     for (size_t i = 1; i < argc; ++i) {
-    if (!strcmp(argv[i], "-f")) {
-        db = argv[i+1];
-        continue;
-    }
+	if (!strcmp(argv[i], "-f")) {
+    	    db = argv[i+1];
+    	    continue;
+	}
     }
 
     signal(SIGINT, signalHandler);
     signal(SIGHUP, signalRestartHandler);
+    
+    factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
+    factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory())));
+    
     storage.reset(new Commutator::Storage(db));
-    program.reset(new Program(*storage, factories));
-    program->Run();
+    while (!quit) {
+	program.reset(new Commutator::Program(*storage, factories));
+	program->Run();
+    }
     return 0;
 }

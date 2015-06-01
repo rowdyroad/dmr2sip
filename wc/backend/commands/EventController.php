@@ -13,4 +13,9 @@ class EventController extends Controller
 	$event->source_number = $source_number;
 	$event->save();
     }
+
+    public function actionClean()
+    {
+	Event::deleteAll();
+    }
 }

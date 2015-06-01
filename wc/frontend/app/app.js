@@ -162,7 +162,7 @@ angular.module('myApp', [
   'myApp.events',
   'myApp.points',
   'myApp.routes',
-
+  'myApp.commutator',
   'myApp.Auth'
 ])
 .controller('MainFormAttachmentCtrl', function($scope, $http, $routeParams, $rootScope, FileUploader) {

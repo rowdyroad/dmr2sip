@@ -18,6 +18,7 @@ $config = [
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'E5TZYQ7aOX5mYSr7ErHe0f88lFrPWP-l',
+	    'enableCsrfValidation'=>false,
             'parsers' => [
                'application/json' => '\yii\web\JsonParser',
             ]
@@ -57,10 +58,12 @@ $config = [
                 [
                     'class' => 'yii\rest\UrlRule',
                     'controller' => [
-                                        'user','point','route','event'
+                                        'event','user','point','route'
                                     ],
                     'tokens'=> [ '{id}' => '<id:.+>' ]
                 ],
+                ['class' => 'yii\web\UrlRule', 'route'=>'commutator/state', 'pattern'=>'commutator/state', 'verb'=>'GET'],
+                ['class' => 'yii\web\UrlRule', 'route'=>'commutator/reload', 'pattern'=>'commutator/reload', 'verb'=>'POST'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/check', 'pattern'=>'user/check'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/login', 'pattern'=>'user/login','verb'=>'POST'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/logout', 'pattern'=>'user/logout', 'verb'=>'POST'],

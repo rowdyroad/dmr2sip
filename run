@@ -1,0 +1,4 @@
+#!/bin/sh
+
+BASEDIR=$1
+/usr/local/dmr2sip/build/commutator > $BASEDIR/commutator.log & echo $! > $BASEDIR/commutator.pid 
