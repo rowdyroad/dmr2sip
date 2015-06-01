@@ -10,5 +10,5 @@ SOURCES=$(wildcard src/include/**/*.cpp)
 all: $(TARGET) 
 
 $(TARGET):
-	$(CC) src/linphone.cpp $(SOURCES) $(CFLAGS) $(LIBS) $(SIP_LIBS) -o $(BUILD_DIR)/$(TARGET)
+	$(CC) src/commutator.cpp $(SOURCES) $(CFLAGS) $(LIBS) $(SIP_LIBS) -o $(BUILD_DIR)/$(TARGET)
 

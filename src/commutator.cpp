@@ -6,7 +6,6 @@
 #include <thread>
 #include <map>
 #include "include/Exception.h"
-#include "include/Configuration.h"
 #include "include/Storage.h"
 #include "include/Point.h"
 #include "include/SIPPoint.h"
