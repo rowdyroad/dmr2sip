@@ -80,12 +80,12 @@ int main(int argc, char*argv[])
 
         Commutator::PointPtr getPointById(size_t point_id)
         {
-        for (auto& p : points_) {
-            if (p->getConfiguration().point_id == point_id) {
-                return p;
-            }
-        }
-        return Commutator::PointPtr();
+            for (auto p : points_) {
+	        if (p->getConfiguration().point_id == point_id) {
+    	    	    return p;
+    		}
+    	    }
+    	    return Commutator::PointPtr();
         }
 
     public:
@@ -100,8 +100,8 @@ int main(int argc, char*argv[])
                       << "\tIdentity: " << point.id << std::endl
                       << "\tPassword: " << point.password << std::endl;
             Commutator::PointPtr p = factories.at(point.type)->Create(point, this);
-                points_.push_back(p);
-                storage.UpdatePointStatus(point.point_id, 1);
+            points_.push_back(p);
+            storage.UpdatePointStatus(point.point_id, 1);
             std::shared_ptr<std::thread> thread(new std::thread(&Commutator::Point::Run, p));
             pool_.push_back(thread);
         }
@@ -113,10 +113,15 @@ int main(int argc, char*argv[])
 
         void OnCallReceived(Commutator::Point* const point, const std::string& number)
         {
+	std::cout << "RECEIVED point:" << point->getConfiguration().point_id << " number:" << number << std::endl;
+	current_route_ = nullptr;
         for (auto& route : routes_) {
+	    std::cout << " CHECK point: " << route.source_point_id << " number: " << route.source_number << std::endl;
             if (route.source_point_id == point->getConfiguration().point_id && (route.source_number == "*" || route.source_number == number)) {
+	    std::cout << "\t\thas route to " << route.destination_point_id  << std::endl;
             auto destination = this->getPointById(route.destination_point_id);
             if (destination) {
+	        std::cout << "\t\thas destination" << std::endl;
                 current_route_ = &route;
                 storage_.addEvent(route.route_id, number);
                 destination->Initiate(route.destination_number);
@@ -125,10 +130,17 @@ int main(int argc, char*argv[])
             }
             break;
         }
+
+	if (!current_route_) {
+	    storage_.addEvent(0, point->getConfiguration().name + " " + number); 
+	}
+	    
+
         }
 
         void OnCallEnded(Commutator::Point* const point)
         {
+	    std::cout << "ENDED point: " << point->getConfiguration().point_id << std::endl;
         if (!current_route_) {
             std::cout << "Undefined current rout" << std::endl;
             return;

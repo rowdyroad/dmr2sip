@@ -17,11 +17,11 @@ namespace Commutator {
 
     class Point {
         private:
-            const Storage::Point& point_;
+            Storage::Point point_;
             PointHandler* const handler_;
 
         public:
-            Point(const Storage::Point& point, PointHandler* const handler)
+            Point(Storage::Point point, PointHandler* const handler)
                 : point_(point)
                 , handler_(handler)
             {}
@@ -42,6 +42,6 @@ namespace Commutator {
 
     class PointFactory {
         public:
-            virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler) = 0;
+            virtual PointPtr Create(Storage::Point point, PointHandler* const handler) = 0;
     };
 }

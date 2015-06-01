@@ -11,7 +11,7 @@ namespace Commutator {
         private:
             std::unique_ptr<CXNLConnection> connection_;
         public:
-            DMRPoint(const Storage::Point& point, PointHandler* const handler)
+            DMRPoint(Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
             {
                 auto del_pos = point.id.find(":");
@@ -40,23 +40,23 @@ namespace Commutator {
             void Hangup()
             {
                 connection_->PTT(PTT_RELEASE);
-                        connection_->select_mic(0);
+                connection_->select_mic(0);
             }
-                    void OnCallInitiated(CXNLConnection* connection, const std::string& address)
-                {
-                    Handler()->OnCallReceived(this, address);
-                }
 
-                    void OnCallEnded(CXNLConnection* connection)
-                    {
-                        Handler()->OnCallEnded(this);
-                    }
+            void OnCallInitiated(CXNLConnection* connection, const std::string& address)
+            {
+               Handler()->OnCallReceived(this, address);
+            }
 
+            void OnCallEnded(CXNLConnection* connection)
+            {
+                Handler()->OnCallEnded(this);
+            }
     };
 
     class DMRPointFactory: public PointFactory {
         public:
-            virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
+            virtual PointPtr Create(Storage::Point point, PointHandler* const handler)  {
                 return PointPtr(new DMRPoint(point, handler));
             }
     };

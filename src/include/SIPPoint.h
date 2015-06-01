@@ -16,7 +16,7 @@ namespace Commutator {
                 return SIP::GetDevicesList();
             }
 
-            SIPPoint(const Storage::Point& point, PointHandler* const handler)
+            SIPPoint(Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
             {
                 auto delimiter_pos = point.id.find("/");
@@ -59,7 +59,7 @@ namespace Commutator {
 
     class SIPPointFactory: public PointFactory {
         public:
-            virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
+            virtual PointPtr Create(Storage::Point point, PointHandler* const handler)  {
                 return PointPtr(new SIPPoint(point, handler));
             }
     };

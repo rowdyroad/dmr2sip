@@ -26,6 +26,7 @@ namespace Commutator {
                 std::string type;
                 std::string id;
                 std::string password;
+                std::string name;
             };
 
             struct Route {
@@ -68,7 +69,7 @@ namespace Commutator {
             std::vector<Point> GetPoints()
             {
                 std::vector<Point> points;
-                sqlite::query query(*db_, "SELECT point_id, type, id, password  FROM points");
+                sqlite::query query(*db_, "SELECT point_id, type, id, password,name  FROM points");
 
                 auto result = query.emit_result();
                 if (result->get_row_count() > 0) {
@@ -76,8 +77,9 @@ namespace Commutator {
                     Point p;
                     p.point_id = result->get_int(0);
                     p.type = result->get_string(1);
-                        p.id = result->get_string(2);
-                        p.password = result->get_string(3);
+                    p.id = result->get_string(2);
+                    p.password = result->get_string(3);
+                    p.name = result->get_string(4);
                     points.push_back(p);
                     } while (result->next_row());
                 }
@@ -106,7 +108,7 @@ namespace Commutator {
 
             void addEvent(size_t route_id, const std::string& source_number)
             {
-                sqlite::execute  stmt(*db_, "INSERT events (route_id, source_number)  VALUES(?, ?)");
+                sqlite::execute  stmt(*db_, "INSERT INTO events (route_id, source_number)  VALUES(?, ?)");
                 stmt.bind(1, (int)route_id);
                 stmt.bind(2, source_number);
                 stmt.emit();

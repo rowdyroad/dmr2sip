@@ -118,7 +118,6 @@ void CXNLConnection::Stop()
 ///////////////////////////////////////////////////////////////////////////////
 void CXNLConnection::Run()
 {
-    std::cout << "run" << std::endl;
     MSG_QUEUE_T *p_send_msg_node = NULL;
     uint8_t *p_send_msg = NULL;
     uint8_t *p_rcv_msg = NULL;
