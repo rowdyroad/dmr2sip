@@ -108,7 +108,6 @@ CXNLConnection::~CXNLConnection(void)
     Stop();
 }
 
-
 void CXNLConnection::Stop()
 {
     m_bCloseSocket = true;

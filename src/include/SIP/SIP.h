@@ -56,6 +56,7 @@ class SIP {
 
         ~SIP()
         {
+            Stop();
             linphone_core_destroy(lc_);
         }
 

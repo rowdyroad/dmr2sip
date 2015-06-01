@@ -26,15 +26,15 @@ namespace Commutator {
                 connection_.reset(new CXNLConnection(address, port, auth_key, delta, this));
             }
 
-            void Run()
+            void  Interate()
             {
-                connection_->Run();
+                connection_->Interate();
             }
 
             void Initiate(const std::string& number)
             {
+                connection_->select_mic(0);
                 connection_->PTT(PTT_PUSH);
-                        connection_->select_mic(0);
             }
 
             void Hangup()
