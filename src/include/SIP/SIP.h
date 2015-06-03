@@ -88,7 +88,7 @@ class SIP {
             }
 
             if (call_) {
-                linphone_core_terminate_call(lc_, call_);
+		Hangup();
             }
         }
 
