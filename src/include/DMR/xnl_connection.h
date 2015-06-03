@@ -58,7 +58,8 @@ class CXNLConnectionHandler
     public:
         virtual void OnConnectionSuccess(CXNLConnection* connection) { }
         virtual void OnConnectionFailure(CXNLConnection* connection) { }
-        virtual void OnXCMPMessage(CXNLConnection* connection, uint8_t* msg)  { }
+        virtual void OnXnlMessageReceived(CXNLConnection* connection, uint8_t* msg, size_t len)  { }
+	virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { } 
         virtual void OnCallInitiated(CXNLConnection* connection, const std::string& address)  { }
 	virtual void OnCallEnded(CXNLConnection* connection) { }
 };
@@ -78,7 +79,7 @@ class CXNLConnection
     bool send_xcmp_rmt_radio_ctrl_request(uint8_t feature, uint8_t operation, uint8_t addr_type, uint32_t rmt_addr);
     bool send_xcmp_menu_navigation_request(uint8_t function, uint8_t display_mode, uint16_t menu_id, uint16_t  count);
     bool send_xcmp_chan_zone_selection_request(uint8_t function, uint16_t zone_num, uint16_t chan_num);
-    bool send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode);
+    bool send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode, uint8_t source);
     bool send_xcmp_radio_status_request(uint8_t condition);
 
 
@@ -88,6 +89,7 @@ class CXNLConnection
 
   private:
     void OnXnlMessageProcess(uint8_t* pBuf);
+    void OnXCMPMessageSent(uint8_t* pBuf);
     void OnXCMPMessageProcess(uint8_t *pBuf);
 
     bool recv_xnl_message(uint8_t **pp_rcv_msg);

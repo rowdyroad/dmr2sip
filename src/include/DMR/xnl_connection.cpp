@@ -37,15 +37,6 @@ uint32_t GetTickCount()
     return theTick;
 }
 
-
-void dbg(uint8_t* data, size_t length) {
-    for (size_t i = 0 ;i  < length; ++i) {
-	   ::printf("%02X ", * (data + i ));
-    }
-    ::printf("\n");
-}
-
-
 enum CALL_STATE {
     XCMP_CALL_DECODED = 0x01,
     XCMP_CALL_IN_PROGRESS,
@@ -55,7 +46,6 @@ enum CALL_STATE {
 
 CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler)
 {
-    std::cout << "start" << std::endl;
     m_handler = handler;
     m_delta = delta;
     m_bConnected = false;
@@ -142,7 +132,6 @@ void CXNLConnection::Run()
         if (ret == -1) {
             break;
         } else if (ret > 0) {
-	    std::cout << "ret:" << ret << std::endl;
             if (FD_ISSET(m_socket, &fdread))
             {
                 /* receive the xnl message */
@@ -168,6 +157,8 @@ void CXNLConnection::Run()
             if (p_send_msg_node != NULL)
             {
                 p_send_msg = p_send_msg_node->p_msg;
+
+		m_handler->OnXnlMessageSent(this, p_send_msg, ((xnl_msg_hdr_t *)p_send_msg)->msg_len );
                 /* Need to set the XNL flag and trans id */
                 ((xnl_msg_hdr_t *)p_send_msg)->xnl_flag = m_tx_xnl_flag;
                 *((uint8_t *)(&((xnl_msg_hdr_t *)p_send_msg)->trans_id)) = m_trans_id_base;
@@ -348,14 +339,16 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
         return;
     }
 
+
     msg_len = ntohs(*((unsigned short *)pBuf)) + 2;
+    m_handler->OnXnlMessageReceived(this, pBuf, msg_len);
     p_msg_buf = (uint8_t *)malloc(msg_len);
     memcpy(p_msg_buf, pBuf, msg_len);
     /* Forward the received message to main window to display the raw data message. */
     p_notify_msg->event = XNL_RCV_XCMP_MSG;
     p_notify_msg->p_msg = p_msg_buf;
 
-
+    
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
     switch (xnl_opcode)
@@ -692,8 +685,6 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 		xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
 		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
 		std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
-		dbg((uint8_t*)msg, sizeof(xcmp_call_ctrl_broadcast_t) + 10);
-
 
 		switch (msg->call_state) {
 		    case XCMP_CALL_INITIATED:
@@ -898,13 +889,13 @@ bool CXNLConnection::send_xcmp_pui_brdcst(uint8_t pui_type,
 
 void CXNLConnection::Call()
 {
-    send_xcmp_tx_ctrl_request(1,0);
+    send_xcmp_tx_ctrl_request(1,0,1);
     //this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
 }
 
 void CXNLConnection::PTT(PTT_FUNCTION ptt_function)
 {
-    send_xcmp_tx_ctrl_request(ptt_function,0);
+    send_xcmp_tx_ctrl_request(ptt_function,0, 1);
 
     //this->send_xcmp_call_ctrl_request(1, 6, 1, std::stoi(addr), std::stoi(addr));
 }
@@ -1125,7 +1116,7 @@ void CXNLConnection::select_mic(uint8_t mic)
     enqueue_msg((uint8_t *)p_msg);
 }
 
-bool CXNLConnection::send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode)
+bool CXNLConnection::send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode, uint8_t source)
 {
     xcmp_tx_ctrl_request_t *p_msg = (xcmp_tx_ctrl_request_t *)malloc(sizeof(xcmp_tx_ctrl_request_t));
     int payload_len = sizeof(xcmp_tx_ctrl_request_t) - sizeof(xnl_msg_hdr_t);
@@ -1138,6 +1129,7 @@ bool CXNLConnection::send_xcmp_tx_ctrl_request(uint8_t function, uint8_t mode)
     p_msg->xcmp_opcode = htons(XCMP_TX_CTRL_REQ);
     p_msg->function = function;
     p_msg->mode = mode;
+    p_msg->source = source;
 
     init_xnl_header_of_xcmp_msg((uint8_t *)p_msg, payload_len);
     /* Add the message to the sending queue */

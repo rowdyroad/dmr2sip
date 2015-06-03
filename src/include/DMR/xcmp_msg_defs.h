@@ -200,6 +200,7 @@ typedef struct {
     uint16_t xcmp_opcode;
     uint8_t  function;
     uint8_t  mode;
+    uint8_t  source;
 } xcmp_tx_ctrl_request_t;
 
 typedef struct {

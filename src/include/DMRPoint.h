@@ -38,7 +38,7 @@ namespace Commutator {
 
             void Initiate(const std::string& number)
             {
-                connection_->select_mic(0);
+                connection_->select_mic(1);
                 connection_->PTT(PTT_PUSH);
             }
 

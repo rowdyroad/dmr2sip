@@ -1,10 +1,10 @@
 #pragma once
-//#include <SQLiteCpp/SQLiteCpp.h>
 #include <sqlite/connection.hpp>
 #include <sqlite/result.hpp>
 #include <sqlite/query.hpp>
 #include <sqlite/execute.hpp>
 
+#include <mutex>
 #include "Exception.h"
 
 namespace Commutator {
@@ -15,7 +15,7 @@ namespace Commutator {
     {
         private:
             std::unique_ptr<sqlite::connection> db_;
-
+	    std::mutex mutex_;
         public:
             struct Point {
                 enum Status {
@@ -53,6 +53,7 @@ namespace Commutator {
 
             size_t UpdateAllPointsStatus(size_t status)
             {
+		std::lock_guard<std::mutex> lock(mutex_);
                 sqlite::execute command(*db_, "UPDATE points SET status  = ?");
                 command.bind(1, (int)status);
                 command.emit();
@@ -60,6 +61,7 @@ namespace Commutator {
 
             size_t UpdatePointStatus(size_t point_id, size_t status)
             {
+		std::lock_guard<std::mutex> lock(mutex_);
                 sqlite::execute stmt(*db_, "UPDATE points SET status  = ? WHERE point_id = ?");
                 stmt.bind(1, (int)status);
                 stmt.bind(2, (int)point_id);
@@ -69,7 +71,7 @@ namespace Commutator {
             std::vector<Point> GetPoints()
             {
                 std::vector<Point> points;
-                sqlite::query query(*db_, "SELECT point_id, type, id, password,name  FROM points");
+                sqlite::query query(*db_, "SELECT point_id, type, id, password, name  FROM points");
 
                 auto result = query.emit_result();
                 if (result->get_row_count() > 0) {
@@ -89,9 +91,9 @@ namespace Commutator {
             std::vector<Route> GetRoutes()
             {
                 std::vector<Route> routes;
-                sqlite::query query(*db_, "SELECT route_id, source_point_id, source_number, destination_point_id, destination_number  FROM routes");
+                sqlite::query query(*db_, "SELECT route_id, source_point_id, source_number, destination_point_id, destination_number FROM routes");
                 auto result = query.emit_result();
-
+		std::cout << "routes count " << result->get_row_count() << std::endl;
                 if (result->get_row_count() > 0) {
                     do {
                         Route r;
@@ -108,6 +110,7 @@ namespace Commutator {
 
             void addEvent(size_t route_id, const std::string& source_number)
             {
+		std::lock_guard<std::mutex> lock(mutex_);
                 sqlite::execute  stmt(*db_, "INSERT INTO events (route_id, source_number)  VALUES(?, ?)");
                 stmt.bind(1, (int)route_id);
                 stmt.bind(2, source_number);

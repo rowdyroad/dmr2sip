@@ -11,19 +11,22 @@ class CommutatorController extends Controller
     const PID_FILE = '/var/www/commutator.pid';
     private function getPid()
     {
-	return file_exists(self::PID_FILE) ? (int)file_get_contents(self::PID_FILE) : 0;
+	if ($pid = file_exists(self::PID_FILE) ? (int)file_get_contents(self::PID_FILE) : 0) {
+	    system("ps -p $pid > /dev/null", $ret);
+	    if (!$ret) {
+		return $pid;
+	    }
+	}
+
+	return false;
     }
 
     public function actionState()
     {
-	$active = false;
-	if ($pid = $this->getPid()) {
-	    system("ps -p $pid > /dev/null", $ret);
-	    $active = !(bool)$ret; 
-	}
+	$pid = $this->getPid();
 	return [
 		'pid'=>$pid,
-		'active'=>$active
+		'active'=>$pid !== false
 	];
     }
 
@@ -31,9 +34,10 @@ class CommutatorController extends Controller
     public function actionReload()
     {
 	if ($pid = $this->getPid()) {
-	    posix_kill($pid, 1);
+	    echo $pid;
+	    var_dump(posix_kill($pid, 1));
     	} else {
-	    system("/usr/local/dmr2sip/build/commutator >> /var/www/commutator.log & echo $! > /var/www/commutator.pid");
+	    system("/usr/local/dmr2sip/run /var/www");
 	}
     }
 }
