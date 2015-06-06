@@ -2,6 +2,6 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'sqlite:/tmp/dmr2sip.sqlite',
+    'dsn' => 'sqlite:/usr/local/commutator/commutator.sqlite',
     'charset' => 'utf8',
 ];
