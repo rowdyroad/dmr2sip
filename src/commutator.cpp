@@ -41,8 +41,13 @@ void signalRestartHandler(int signum)
 
 int main(int argc, char*argv[])
 {
-    if (argc > 1) {
-        if (!strcmp(argv[1], "-d")) {
+	std::string server;
+	std::string password;
+	std::string username;
+	std::string database;
+
+    for (size_t i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "-l")) {
             auto devices = Commutator::SIPPoint::GetDevicesList();
             std::cout << "Devices list:" << std::endl;
 	    size_t idx = 0;
@@ -51,13 +56,21 @@ int main(int argc, char*argv[])
             }
             return 0;
         }
-    }
-
-    std::string db = "/tmp/dmr2sip.sqlite";
-    for (size_t i = 1; i < argc; ++i) {
-	if (!strcmp(argv[i], "-f")) {
-    	    db = argv[i+1];
+	if (!strcmp(argv[i], "-s")) {
+	    server = argv[i+1];
     	    continue;
+	}
+	if (!strcmp(argv[i], "-p")) {
+	    password = argv[i+1];
+	    continue;
+	}
+	if (!strcmp(argv[i], "-u")) {
+	    username = argv[i+1];
+	    continue;
+	}
+	if (!strcmp(argv[i], "-d")) {
+	    database = argv[i+1];
+	    continue;
 	}
     }
 
@@ -67,7 +80,7 @@ int main(int argc, char*argv[])
     factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
     factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory())));
     
-    storage.reset(new Commutator::Storage(db));
+    storage.reset(new Commutator::Storage(server, database, username, password));
     while (!quit) {
 	program.reset(new Commutator::Program(*storage, factories));
 	program->Run();

@@ -1,4 +1,4 @@
 #!/bin/sh
 
 BASEDIR=$1
-/usr/local/dmr2sip/build/commutator > $BASEDIR/commutator.log & echo $! > $BASEDIR/commutator.pid 
+/usr/local/commutator/build/commutator -s localhost -n commutator -u root -p root > $BASEDIR/commutator.log & echo $! > $BASEDIR/commutator.pid 

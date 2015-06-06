@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-std=c++11 -g
 LIBS=-lpthread
-SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -lsqlite -lvsqlitepp
+SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -I/usr/include/mysql/ -lmysqlpp
 BUILD_DIR=build
 
 TARGET=commutator

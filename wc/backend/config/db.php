@@ -2,6 +2,8 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'sqlite:/usr/local/commutator/commutator.sqlite',
+    'dsn' => 'mysql:host=localhost;dbname=commutator',
+    'username'=>'root',
+    'password'=>'root',
     'charset' => 'utf8',
 ];

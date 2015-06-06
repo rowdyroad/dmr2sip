@@ -1,9 +1,11 @@
 #pragma once
-#include <sqlite/connection.hpp>
+/*#include <sqlite/connection.hpp>
 #include <sqlite/result.hpp>
 #include <sqlite/query.hpp>
 #include <sqlite/execute.hpp>
+*/
 
+#include <mysql++/mysql++.h>
 #include <mutex>
 #include "Exception.h"
 
@@ -14,7 +16,7 @@ namespace Commutator {
     class Storage
     {
         private:
-            std::unique_ptr<sqlite::connection> db_;
+            std::unique_ptr<mysqlpp::Connection> db_;
 	    std::mutex mutex_;
         public:
             struct Point {
@@ -37,16 +39,17 @@ namespace Commutator {
                 std::string destination_number;
             };
 
-            Storage(const std::string& filename)
+            Storage(const std::string& host, const std::string& database, const std::string& username, const std::string& password, uint16_t port = 3306)
             {
                 try {
-                    db_.reset(new sqlite::connection(filename));
+                    db_.reset(new mysqlpp::Connection());
+		    db_->connect(database.c_str(), host.c_str(), username.c_str(), password.c_str(), port);
                 } catch (std::exception& e) {
                     throw new Exception(3, e.what());
                 }
             }
 
-            sqlite::connection& Handle()
+            mysqlpp::Connection& Handle()
             {
                 return *db_;
             }
@@ -54,56 +57,55 @@ namespace Commutator {
             size_t UpdateAllPointsStatus(size_t status)
             {
 		std::lock_guard<std::mutex> lock(mutex_);
-                sqlite::execute command(*db_, "UPDATE points SET status  = ?");
-                command.bind(1, (int)status);
-                command.emit();
+		auto query = db_->query();
+		query << "UPDATE points SET status = " << (int)status;
+		query.execute();
             }
 
             size_t UpdatePointStatus(size_t point_id, size_t status)
             {
 		std::lock_guard<std::mutex> lock(mutex_);
-                sqlite::execute stmt(*db_, "UPDATE points SET status  = ? WHERE point_id = ?");
-                stmt.bind(1, (int)status);
-                stmt.bind(2, (int)point_id);
-                stmt.emit();
+		auto query = db_->query();
+		query << "UPDATE points SET status  = " << (int)status << " WHERE point_id = " << (int)point_id;
+		query.execute();
             }
 
             std::vector<Point> GetPoints()
             {
                 std::vector<Point> points;
-                sqlite::query query(*db_, "SELECT point_id, type, id, password, name  FROM points");
-
-                auto result = query.emit_result();
-                if (result->get_row_count() > 0) {
-                    do {
-                    Point p;
-                    p.point_id = result->get_int(0);
-                    p.type = result->get_string(1);
-                    p.id = result->get_string(2);
-                    p.password = result->get_string(3);
-                    p.name = result->get_string(4);
-                    points.push_back(p);
-                    } while (result->next_row());
-                }
+		auto query = db_->query("SELECT point_id, type, id, password, name  FROM points");
+		if (auto res = query.store()) {
+                    if (res.num_rows() > 0) {
+	                for (auto& row : res) {
+    		            Point p;
+    	    		    p.point_id = row[0];
+                	    p.type = row[1].c_str();
+                	    p.id = row[2].c_str();
+                	    p.password = row[3].c_str();
+                	    p.name = row[4].c_str();
+                	    points.push_back(p);
+                	}
+            	    }
+		}
                 return std::move(points);
             }
 
             std::vector<Route> GetRoutes()
             {
                 std::vector<Route> routes;
-                sqlite::query query(*db_, "SELECT route_id, source_point_id, source_number, destination_point_id, destination_number FROM routes");
-                auto result = query.emit_result();
-		std::cout << "routes count " << result->get_row_count() << std::endl;
-                if (result->get_row_count() > 0) {
-                    do {
-                        Route r;
-                        r.route_id = result->get_int(0);
-                        r.source_point_id = result->get_int(1);
-                        r.source_number = result->get_string(2);
-                        r.destination_point_id = result->get_int(3);
-                        r.destination_number = result->get_string(4);
-                        routes.push_back(r);
-                    } while (result->next_row());
+                auto query = db_->query("SELECT route_id, source_point_id, source_number, destination_point_id, destination_number FROM routes");
+                if (auto res = query.store()) {
+		    if (res.num_rows() > 0) {
+                	for (auto& row: res) {
+                    	    Route r;
+                    	    r.route_id = row[0];
+                    	    r.source_point_id = row[1];
+                    	    r.source_number = row[2].c_str();
+                    	    r.destination_point_id = row[3];
+                	    r.destination_number = row[4].c_str();
+                    	    routes.push_back(r);
+                	}
+		    }
                 }
                 return std::move(routes);
             }
@@ -111,10 +113,9 @@ namespace Commutator {
             void addEvent(size_t route_id, const std::string& source_number)
             {
 		std::lock_guard<std::mutex> lock(mutex_);
-                sqlite::execute  stmt(*db_, "INSERT INTO events (route_id, source_number)  VALUES(?, ?)");
-                stmt.bind(1, (int)route_id);
-                stmt.bind(2, source_number);
-                stmt.emit();
+                auto query = db_->query("INSERT INTO events (route_id, source_number)  VALUES(");
+		query << (int)route_id << ", '" << source_number << "')";
+		query.execute();
             }
     };
 }
