@@ -64,7 +64,7 @@ class SIP {
         {
             LinphoneProxyConfig* proxy_cfg = linphone_proxy_config_new();
             LinphoneAddress *from = linphone_address_new(identity.c_str());
-            LinphoneAuthInfo *info = linphone_auth_info_new(linphone_address_get_username(from), NULL, password.c_str(),NULL,NULL);
+            LinphoneAuthInfo *info = linphone_auth_info_new(linphone_address_get_username(from), NULL, password.c_str(),NULL,NULL,NULL);
             linphone_core_add_auth_info(lc_, info);
             linphone_proxy_config_set_identity(proxy_cfg, identity.c_str()); /*set identity with user name and domain*/
             const char* server_addr = linphone_address_get_domain(from); /*extract domain address from identity*/
@@ -72,7 +72,7 @@ class SIP {
             linphone_proxy_config_enable_register(proxy_cfg,TRUE); /*activate registration for this proxy config*/
             linphone_address_destroy(from); /*release resource*/
             linphone_core_add_proxy_config(lc_, proxy_cfg); /*add proxy config to linphone core*/
-            linphone_core_set_default_proxy(lc_, proxy_cfg); /*set to default proxy*/
+            linphone_core_set_default_proxy_config(lc_, proxy_cfg); /*set to default proxy*/
         }
 
         void Stop()
