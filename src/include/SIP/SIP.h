@@ -118,11 +118,19 @@ class SIP {
         {
             if (call_) {
                 linphone_core_terminate_call(lc_, call_);
-                call_ = nullptr;
+		flushCall();
             }
         }
 
     private:
+	
+	void flushCall()
+	{
+	    if (call_) {
+		linphone_call_unref(call_);
+		call_ = nullptr;
+	    }
+	}
     	static void globalStateChanged(LinphoneCore *lc, LinphoneGlobalState gstate, const char *message)
         {
             printf("GLOBAL STATE: %d - %s\n", gstate, message);
@@ -157,7 +165,6 @@ class SIP {
                 break;
                 case LinphoneCallConnected:
                     printf("We are connected !\n");
-
                 break;
                 case LinphoneCallStreamsRunning:
                     printf("Media streams established !\n");
@@ -170,17 +177,19 @@ class SIP {
                     if (sip->handler_) {
                         sip->handler_->OnCallEnd(sip);
                     }
+		    sip->flushCall();
                 break;
                 case LinphoneCallError:
                     printf("Call failure !");
                     if (sip->handler_) {
                         sip->handler_->OnCallError(sip);
                     }
-
+		    sip->flushCall();
                 break;
 
                 case LinphoneCallIncomingReceived:
-                    if (sip->call_) {
+		    printf("Call Icoming Received\n");
+		    if (sip->call_) {
                         printf("Busy. Ignoring call");
                         break;
                     }

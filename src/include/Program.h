@@ -136,22 +136,29 @@ class Program : public PointHandler
 
 	    std::map<size_t, std::shared_ptr<Link>>::iterator link;
 	    {
-		std::unique_lock<std::mutex> lock(mutex_);
+	    	std::unique_lock<std::mutex> lock(mutex_);
 		link = linked_points_.find(point->getConfiguration().point_id);
 		if (link == linked_points_.end()) {
 		    std::cout << "\tNot found actived route for "<< point->getConfiguration().point_id << std::endl;
             	    return;
 		}
 	    }
-
-	    link->second->getSource()->Hangup();
-	    link->second->getDestination()->Hangup();
-
+	    
+	    if (point == link->second->getDestination().get()) {
+		std::cout << "Source hanguping" << std::endl;
+		link->second->getSource()->Hangup();
+		std::cout << "Source hangup successfully" << std::endl;
+	    } else {
+		std::cout << "Destination hanguping" << std::endl;
+		link->second->getDestination()->Hangup();
+		std::cout << "Destination hanguping  successfully" << std::endl;
+	    }
 	    {
 		std::unique_lock<std::mutex> lock(mutex_);
 		linked_points_.erase(link->second->getRoute().source_point_id);
 		linked_points_.erase(link->second->getRoute().destination_point_id);
 	    }
+	    std::cout << "Call end successfully" << std::endl;
         }
     };
 }
