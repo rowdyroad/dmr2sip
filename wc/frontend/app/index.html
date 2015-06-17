@@ -59,7 +59,7 @@
         </button>
         <!-- brand -->
         <a href="/" class="navbar-brand text-lt">
-          <span class="hidden-folded m-l-xs">DMR2SIP</span>
+          <span class="hidden-folded m-l-xs">Commutator</span>
         </a>
         <!-- / brand -->
       </div>
@@ -112,8 +112,8 @@
         </ul>
 	<div ng-controller="CommutatorCtrl" style="margin-top:8px">
 	    <button ng-if="state" class="btn m-b-xs" ng-click="reload()" ng-class="state.active ? 'btn-success': 'btn-danger'">
-		<span ng-if="state.active">Reload configuration</span>
-		<spna ng-if="!state.active">Apply configuration</span>
+		<span ng-if="state.active">Перезапустить</span>
+		<spna ng-if="!state.active">Запустить</span>
 	    </button>
 	</div>
         <!-- / navbar right -->
