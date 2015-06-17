@@ -9,4 +9,17 @@ class EventController extends ActiveController
         'collectionEnvelope' => 'data',
     ];
     public $modelClass = 'app\models\Event';
+
+    public function actions()
+    {
+        return array_diff_key(parent::actions(), ['index'=>null]);
+    }
+
+    public function actionIndex()
+    {
+        $model = $this->modelClass;
+        return new \yii\data\ActiveDataProvider([
+		'query'=>$model::find()->orderBy('`time` desc')
+	]);
+    }
 }
