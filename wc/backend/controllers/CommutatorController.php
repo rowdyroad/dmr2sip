@@ -34,10 +34,8 @@ class CommutatorController extends Controller
     public function actionReload()
     {
 	if ($pid = $this->getPid()) {
-	    echo $pid;
-	    var_dump(posix_kill($pid, 1));
-    	} else {
-	    system("/usr/local/dmr2sip/run /var/www");
-	}
+	    posix_kill($pid, 9);
+    	}
+	system("/usr/local/commutator/run /var/www");
     }
 }

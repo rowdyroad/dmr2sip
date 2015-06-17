@@ -1,4 +1,4 @@
 #!/bin/sh
 
 BASEDIR=$1
-/usr/local/commutator/build/commutator -s localhost -n commutator -u root -p root > $BASEDIR/commutator.log & echo $! > $BASEDIR/commutator.pid 
+LD_LIBRARY_PATH=/usr/local/lib /usr/local/commutator/build/commutator -s localhost -d commutator -u root -p root > $BASEDIR/commutator.log & echo $! > $BASEDIR/commutator.pid 
