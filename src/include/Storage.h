@@ -6,6 +6,7 @@
 */
 
 #include <mysql++/mysql++.h>
+#include <memory>
 #include <mutex>
 #include <regex>
 #include "Exception.h"
@@ -30,18 +31,18 @@ namespace Commutator {
                 std::string id;
                 std::string password;
                 std::string name;
-                bool phone_mode;
             };
 
             struct Route {
                 size_t route_id;
                 size_t source_point_id;
-                std::regex source_number;
+                std::string source_number;
                 size_t destination_point_id;
                 std::string destination_number;
+                std::regex source_number_regex;
                 bool checkSourceNumber(const std::string& number)
                 {
-                    return std::regex_match(number, source_number);
+                    return std::regex_match(number, source_number_regex);
                 }
             };
 
@@ -79,7 +80,7 @@ namespace Commutator {
             std::vector<Point> GetPoints()
             {
                 std::vector<Point> points;
-                auto query = db_->query("SELECT point_id, type, id, password, name, phone_mode  FROM points");
+                auto query = db_->query("SELECT point_id, type, id, password, name  FROM points");
                 if (auto res = query.store()) {
                     if (res.num_rows() > 0) {
                         for (auto& row : res) {
@@ -89,7 +90,6 @@ namespace Commutator {
                             p.id = row[2].c_str();
                             p.password = row[3].c_str();
                             p.name = row[4].c_str();
-                            p.phone_mode = row[5];
                             points.push_back(p);
                         }
                     }
@@ -108,6 +108,7 @@ namespace Commutator {
                             r.route_id = row[0];
                             r.source_point_id = row[1];
                             r.source_number = row[2].c_str();
+                            r.source_number_regex = row[2].c_str();
                             r.destination_point_id = row[3];
                             r.destination_number = row[4].c_str();
                             routes.push_back(r);
