@@ -36,10 +36,10 @@ namespace Commutator {
                 sip_->Run();
             }
 
-	    void Stop()
-	    {
-		sip_->Stop();
-	    }
+            void Stop()
+            {
+                sip_->Stop();
+            }
 
             void Initiate(const std::string& number)
             {

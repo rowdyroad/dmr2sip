@@ -7,6 +7,7 @@
 
 #include <mysql++/mysql++.h>
 #include <mutex>
+#include <regex>
 #include "Exception.h"
 
 namespace Commutator {
@@ -17,7 +18,7 @@ namespace Commutator {
     {
         private:
             std::unique_ptr<mysqlpp::Connection> db_;
-	    std::mutex mutex_;
+        std::mutex mutex_;
         public:
             struct Point {
                 enum Status {
@@ -29,21 +30,26 @@ namespace Commutator {
                 std::string id;
                 std::string password;
                 std::string name;
+                bool phone_mode;
             };
 
             struct Route {
                 size_t route_id;
                 size_t source_point_id;
-                std::string source_number;
+                std::regex source_number;
                 size_t destination_point_id;
                 std::string destination_number;
+                bool checkSourceNumber(const std::string& number)
+                {
+                    return std::regex_match(number, source_number);
+                }
             };
 
             Storage(const std::string& host, const std::string& database, const std::string& username, const std::string& password, uint16_t port = 3306)
             {
                 try {
                     db_.reset(new mysqlpp::Connection());
-		    db_->connect(database.c_str(), host.c_str(), username.c_str(), password.c_str(), port);
+                    db_->connect(database.c_str(), host.c_str(), username.c_str(), password.c_str(), port);
                 } catch (std::exception& e) {
                     throw new Exception(3, e.what());
                 }
@@ -56,37 +62,38 @@ namespace Commutator {
 
             size_t UpdateAllPointsStatus(size_t status)
             {
-		std::lock_guard<std::mutex> lock(mutex_);
-		auto query = db_->query();
-		query << "UPDATE points SET status = " << (int)status;
-		query.execute();
+                std::lock_guard<std::mutex> lock(mutex_);
+                auto query = db_->query();
+                query << "UPDATE points SET status = " << (int)status;
+                query.execute();
             }
 
             size_t UpdatePointStatus(size_t point_id, size_t status)
             {
-		std::lock_guard<std::mutex> lock(mutex_);
-		auto query = db_->query();
-		query << "UPDATE points SET status  = " << (int)status << " WHERE point_id = " << (int)point_id;
-		query.execute();
+                std::lock_guard<std::mutex> lock(mutex_);
+                auto query = db_->query();
+                query << "UPDATE points SET status  = " << (int)status << " WHERE point_id = " << (int)point_id;
+                query.execute();
             }
 
             std::vector<Point> GetPoints()
             {
                 std::vector<Point> points;
-		auto query = db_->query("SELECT point_id, type, id, password, name  FROM points");
-		if (auto res = query.store()) {
+                auto query = db_->query("SELECT point_id, type, id, password, name, phone_mode  FROM points");
+                if (auto res = query.store()) {
                     if (res.num_rows() > 0) {
-	                for (auto& row : res) {
-    		            Point p;
-    	    		    p.point_id = row[0];
-                	    p.type = row[1].c_str();
-                	    p.id = row[2].c_str();
-                	    p.password = row[3].c_str();
-                	    p.name = row[4].c_str();
-                	    points.push_back(p);
-                	}
-            	    }
-		}
+                        for (auto& row : res) {
+                            Point p;
+                            p.point_id = row[0];
+                            p.type = row[1].c_str();
+                            p.id = row[2].c_str();
+                            p.password = row[3].c_str();
+                            p.name = row[4].c_str();
+                            p.phone_mode = row[5];
+                            points.push_back(p);
+                        }
+                    }
+                }
                 return std::move(points);
             }
 
@@ -95,27 +102,27 @@ namespace Commutator {
                 std::vector<Route> routes;
                 auto query = db_->query("SELECT route_id, source_point_id, source_number, destination_point_id, destination_number FROM routes");
                 if (auto res = query.store()) {
-		    if (res.num_rows() > 0) {
-                	for (auto& row: res) {
-                    	    Route r;
-                    	    r.route_id = row[0];
-                    	    r.source_point_id = row[1];
-                    	    r.source_number = row[2].c_str();
-                    	    r.destination_point_id = row[3];
-                	    r.destination_number = row[4].c_str();
-                    	    routes.push_back(r);
-                	}
-		    }
+                    if (res.num_rows() > 0) {
+                        for (auto& row: res) {
+                            Route r;
+                            r.route_id = row[0];
+                            r.source_point_id = row[1];
+                            r.source_number = row[2].c_str();
+                            r.destination_point_id = row[3];
+                            r.destination_number = row[4].c_str();
+                            routes.push_back(r);
+                        }
+                    }
                 }
                 return std::move(routes);
             }
 
             void addEvent(size_t route_id, const std::string& source_number)
             {
-		std::lock_guard<std::mutex> lock(mutex_);
+                std::lock_guard<std::mutex> lock(mutex_);
                 auto query = db_->query("INSERT INTO events (route_id, source_number)  VALUES(");
-		query << (int)route_id << ", '" << source_number << "')";
-		query.execute();
+                query << (int)route_id << ", '" << source_number << "')";
+                query.execute();
             }
     };
 }

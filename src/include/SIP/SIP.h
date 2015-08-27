@@ -47,7 +47,7 @@ class SIP {
             , handler_(handler)
         {
             v_table_.call_state_changed = callStateChanged;
-	        v_table_.registration_state_changed = registrationStateChanged;
+            v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_,NULL,NULL,this);
             const char** devs = linphone_core_get_sound_devices(lc_);
             linphone_core_set_playback_device (lc_, devs[device_index]);
@@ -88,7 +88,7 @@ class SIP {
             }
 
             if (call_) {
-		Hangup();
+                Hangup();
             }
         }
 
@@ -118,28 +118,31 @@ class SIP {
         {
             if (call_) {
                 linphone_core_terminate_call(lc_, call_);
-		flushCall();
+                flushCall();
             }
         }
 
     private:
-	
-	void flushCall()
-	{
-	    if (call_) {
-		linphone_call_unref(call_);
-		call_ = nullptr;
-	    }
-	}
-    	static void globalStateChanged(LinphoneCore *lc, LinphoneGlobalState gstate, const char *message)
+
+        void flushCall()
+        {
+            if (call_) {
+                linphone_call_unref(call_);
+                call_ = nullptr;
+            }
+        }
+
+        static void globalStateChanged(LinphoneCore *lc, LinphoneGlobalState gstate, const char *message)
         {
             printf("GLOBAL STATE: %d - %s\n", gstate, message);
 
         }
-    	static void registrationStateChanged(LinphoneCore *lc, LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message)
+
+        static void registrationStateChanged(LinphoneCore *lc, LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message)
         {
-    	   printf("REGISTRAtION STATE: %d - %s\n", cstate, message);
+           printf("REGISTRAtION STATE: %d - %s\n", cstate, message);
         }
+
         static void callStateChanged(LinphoneCore *lc_, LinphoneCall *call, LinphoneCallState cstate, const char *msg)
         {
 
@@ -177,19 +180,19 @@ class SIP {
                     if (sip->handler_) {
                         sip->handler_->OnCallEnd(sip);
                     }
-		    sip->flushCall();
+                    sip->flushCall();
                 break;
                 case LinphoneCallError:
                     printf("Call failure !");
                     if (sip->handler_) {
                         sip->handler_->OnCallError(sip);
                     }
-		    sip->flushCall();
+                    sip->flushCall();
                 break;
 
                 case LinphoneCallIncomingReceived:
-		    printf("Call Icoming Received\n");
-		    if (sip->call_) {
+                    printf("Call Icoming Received\n");
+                    if (sip->call_) {
                         printf("Busy. Ignoring call");
                         break;
                     }
@@ -200,7 +203,7 @@ class SIP {
                     }
                 break;
                 default:
-                        printf("Unhandled notification %i\n",cstate);
+                    printf("Unhandled notification %i\n",cstate);
             }
         }
 };

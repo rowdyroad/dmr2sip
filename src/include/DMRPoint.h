@@ -31,10 +31,10 @@ namespace Commutator {
                 connection_->Run();
             }
 
-	    void Stop()
-	    {
-		connection_->Stop();
-	    }
+            void Stop()
+            {
+                connection_->Stop();
+            }
 
             void Initiate(const std::string& number)
             {
