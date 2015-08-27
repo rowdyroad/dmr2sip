@@ -348,7 +348,7 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
     p_notify_msg->event = XNL_RCV_XCMP_MSG;
     p_notify_msg->p_msg = p_msg_buf;
 
-    
+
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
     switch (xnl_opcode)
@@ -685,6 +685,9 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
 		xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
 		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
 		std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
+
+        uint32_t * g_addr = (uint32_t*)((uint8_t*)&msg->rmt_addr + sizeof(xcmp_remote_addr_t) + msg->rmt_addr.addr_size + 1);
+        addr = std::to_string(ntohl(*g_addr & 0xFFFFFF00)) + ":" + addr;
 
 		switch (msg->call_state) {
 		    case XCMP_CALL_INITIATED:
