@@ -19,7 +19,6 @@ class SIP {
     private:
         std::string identity_;
         std::string password_;
-        volatile bool quit_ = false;
         LinphoneCoreVTable v_table_;
         LinphoneCore* lc_;
         LinphoneCall* call_;
@@ -56,7 +55,6 @@ class SIP {
 
         ~SIP()
         {
-            Stop();
             linphone_core_destroy(lc_);
         }
 
@@ -75,21 +73,9 @@ class SIP {
             linphone_core_set_default_proxy_config(lc_, proxy_cfg); /*set to default proxy*/
         }
 
-        void Stop()
+        void Iterate()
         {
-            quit_ = true;
-        }
-
-        void Run()
-        {
-             while(!quit_) {
-                linphone_core_iterate(lc_);
-                usleep(50000);
-            }
-
-            if (call_) {
-                Hangup();
-            }
+            linphone_core_iterate(lc_);
         }
 
         void Call(const std::string& address)
@@ -121,6 +107,11 @@ class SIP {
                 flushCall();
             }
         }
+
+	bool IsCalling()
+	{
+	    return call_ != nullptr;
+	}
 
     private:
 

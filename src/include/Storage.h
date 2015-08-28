@@ -8,7 +8,7 @@
 #include <mysql++/mysql++.h>
 #include <memory>
 #include <mutex>
-#include <regex>
+#include <regex.h>
 #include "Exception.h"
 
 namespace Commutator {
@@ -39,10 +39,14 @@ namespace Commutator {
                 std::string source_number;
                 size_t destination_point_id;
                 std::string destination_number;
-                std::regex source_number_regex;
+                regex_t source_number_regex;
                 bool checkSourceNumber(const std::string& number)
                 {
-                    return std::regex_match(number, source_number_regex);
+                    if (!regexec(&source_number_regex, number.c_str(), 0, NULL, 0)) {
+			printf("%s not matched with %s\n",number.c_str(), source_number.c_str());
+			return false;
+		    }
+		    return true;
                 }
             };
 
@@ -108,7 +112,10 @@ namespace Commutator {
                             r.route_id = row[0];
                             r.source_point_id = row[1];
                             r.source_number = row[2].c_str();
-                            r.source_number_regex = row[2].c_str();
+                            if (regcomp(&r.source_number_regex, row[2], REG_EXTENDED)) {
+                                std::cout << "Incorrect regexp pattern '" << row[2] << "'" << std::endl;
+                                throw new std::exception();;
+                            }
                             r.destination_point_id = row[3];
                             r.destination_number = row[4].c_str();
                             routes.push_back(r);

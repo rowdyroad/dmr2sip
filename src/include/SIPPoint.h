@@ -8,6 +8,8 @@ namespace Commutator {
     class SIPPoint : public Point, public SIPHandler {
         private:
             std::unique_ptr<SIP> sip_;
+	    volatile bool quit_;
+	    std::mutex mutex_;
 
         public:
 
@@ -18,6 +20,7 @@ namespace Commutator {
 
             SIPPoint(Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
+		, quit_(false)
             {
                 auto delimiter_pos = point.id.find("/");
                 size_t device_index = std::stoi(point.id.substr(0, delimiter_pos));
@@ -28,26 +31,37 @@ namespace Commutator {
 
             ~SIPPoint()
             {
-                sip_->Stop();
+                Stop();
             }
 
             void Run()
             {
-                sip_->Run();
+		while (!quit_) {
+		    {
+			std::unique_lock<std::mutex> lock(mutex_);
+			sip_->Iterate();
+		    }
+		    usleep(50000);
+		}
+		if (sip_->IsCalling()) {
+		    sip_->Hangup();
+		}
             }
 
             void Stop()
             {
-                sip_->Stop();
+                quit_ = true;
             }
 
             void Initiate(const std::string& number)
             {
+		std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Call(number);
             }
 
             void Hangup()
             {
+		std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Hangup();
             }
 
