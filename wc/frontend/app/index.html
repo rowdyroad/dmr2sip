@@ -73,19 +73,13 @@
             <i class="fa fa-dedent fa-fw text"></i>
             <i class="fa fa-indent fa-fw text-active"></i>
           </a>
-
         </div>
-
-
-        <!-- / buttons -->
-
-        <!-- link and dropdown -->
-
-        <!-- / link and dropdown -->
-
-        <!-- search form -->
-
-        <!-- / search form -->
+	<div class="nav navbar-nav" ng-controller="CommutatorCtrl" ng-cloak>
+	    <div  style="margin-top:12px">
+		<span ng-if="state && state.active" class="label label-success">Active</span>
+		<span ng-if="state && !state.active" class="label label-danger">Not actived</span>
+	    </div>
+	</div>
 
         <!-- nabar right -->
         <ul class="nav navbar-nav navbar-right" ng-controller="AuthCtrl">
@@ -110,12 +104,6 @@
             <!-- / dropdown -->
           </li>
         </ul>
-	<div ng-controller="CommutatorCtrl" style="margin-top:8px">
-	    <button ng-if="state" class="btn m-b-xs" ng-click="reload()" ng-class="state.active ? 'btn-success': 'btn-danger'">
-		<span ng-if="state.active">Перезапустить</span>
-		<spna ng-if="!state.active">Запустить</span>
-	    </button>
-	</div>
         <!-- / navbar right -->
       </div>
       <!-- / navbar collapse -->

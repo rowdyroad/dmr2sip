@@ -84,6 +84,8 @@ int main(int argc, char*argv[])
     while (!quit) {
 	program.reset(new Commutator::Program(*storage, factories));
 	program->Run();
+	std::cout << "Wait for 3 seconds to restart..." << std::endl;
+	sleep(3);
     }
     return 0;
 }

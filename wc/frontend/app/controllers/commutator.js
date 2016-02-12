@@ -11,13 +11,5 @@ angular.module('myApp.commutator',[])
 	    });
 	},1000);
     }
-
-    $scope.reload = function()
-    {
-	$http.post('/api/commutator/reload').success(function() { 
-	    $scope.state = null;
-	});
-    }
-
     state();
 });
