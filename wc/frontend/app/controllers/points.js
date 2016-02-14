@@ -15,9 +15,9 @@ angular.module('myApp.points', ['ngRoute'])
     controller: 'PointFormCtrl'
   })
 }])
-.controller('PointFormCtrl', function($scope, $http,$routeParams, $modal) {
+.controller('PointFormCtrl', function($scope, $http,$routeParams, $uibModal) {
   $scope.types = [{id:'sip', name:'SIP'}, {id:'dmr', name:'DMR'}];
-	FormController('/api/points', 'point_id', $scope, $http, $routeParams, $modal);
+	FormController('/api/points', 'point_id', $scope, $http, $routeParams, $uibModal);
 })
 .controller('PointCtrl', function($scope, $http) {
   BaseController('/api/points', 'point_id', $scope, $http);

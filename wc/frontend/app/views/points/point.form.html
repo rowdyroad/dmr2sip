@@ -15,19 +15,7 @@
             <input type="text" class="form-control"  ng-model="current.name">
           </div>
         </div>
-        <div class="form-group">
-          <label class="col-lg-2 control-label">Идентификатор</label>
-          <div class="col-lg-10">
-            <input type="text" class="form-control"  ng-model="current.id">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="col-lg-2 control-label">Пароль</label>
-          <div class="col-lg-10">
-            <input type="text" class="form-control"  ng-model="current.password">
-          </div>
-        </div>
-
+	<ng-include ng-if="current.type" src="'/views/points/point.form.' +current.type +'.html'"></ng-include>
         <div class="form-group">
                 <div class="col-lg-offset-2 col-lg-6">
                     <button class="btn btn-primary" ng-click="save()" ng-show="(checkAccess('add_user') && !current[pkAttribute]) || (checkAccess('edit_user') && current[pkAttribute])">Сохранить</button>

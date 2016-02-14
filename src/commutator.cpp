@@ -41,37 +41,37 @@ void signalRestartHandler(int signum)
 
 int main(int argc, char*argv[])
 {
-	std::string server;
-	std::string password;
-	std::string username;
-	std::string database;
+        std::string server;
+        std::string password;
+        std::string username;
+        std::string database;
 
     for (size_t i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "-l")) {
             auto devices = Commutator::SIPPoint::GetDevicesList();
             std::cout << "Devices list:" << std::endl;
-	    size_t idx = 0;
+            size_t idx = 0;
             for (auto& p : devices) {
               std::cout << "\t" << idx++ << ". " << p << std::endl;
             }
             return 0;
         }
-	if (!strcmp(argv[i], "-s")) {
-	    server = argv[i+1];
-    	    continue;
-	}
-	if (!strcmp(argv[i], "-p")) {
-	    password = argv[i+1];
-	    continue;
-	}
-	if (!strcmp(argv[i], "-u")) {
-	    username = argv[i+1];
-	    continue;
-	}
-	if (!strcmp(argv[i], "-d")) {
-	    database = argv[i+1];
-	    continue;
-	}
+        if (!strcmp(argv[i], "-s")) {
+            server = argv[i+1];
+                continue;
+        }
+        if (!strcmp(argv[i], "-p")) {
+            password = argv[i+1];
+            continue;
+        }
+        if (!strcmp(argv[i], "-u")) {
+            username = argv[i+1];
+            continue;
+        }
+        if (!strcmp(argv[i], "-d")) {
+            database = argv[i+1];
+            continue;
+        }
     }
 
     signal(SIGINT, signalHandler);
@@ -82,10 +82,14 @@ int main(int argc, char*argv[])
     
     storage.reset(new Commutator::Storage(server, database, username, password));
     while (!quit) {
-	program.reset(new Commutator::Program(*storage, factories));
-	program->Run();
-	std::cout << "Wait for 3 seconds to restart..." << std::endl;
-	sleep(3);
+        try {
+            program.reset(new Commutator::Program(*storage, factories));
+            program->Run();
+        } catch (std::exception& e) {
+            std::cout << "Catched exception: " << e.what() << std::endl;
+        }
+        std::cout << "Wait for 3 seconds to restart..." << std::endl;
+        sleep(3);
     }
     return 0;
 }

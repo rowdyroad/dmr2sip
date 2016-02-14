@@ -7,9 +7,8 @@
         <thead>
             <tr>
                 <th style="width:20px">&nbsp;</th>
-                <th>Тип</th>
-                <th>Название</th>
-                <th>Идентификатор</th>
+                <th>Type</th>
+                <th>Name</th>
                 <th>&nbsp;</th>
             </tr>
         </thead>
@@ -17,7 +16,6 @@
             <td><i class="fa" ng-class="item.status ? 'fa-check-square-o' : 'fa-square-o' "></i></td>
             <td>{{ item.type }}</td>
             <td>{{ item.name }}</td>
-            <td>{{ item.id }}</td>
             <td class="pull-right">
                 <a href="/points/{{item.point_id}}"><button class="btn btn-default"><i style="padding:0.2em" class="glyphicon glyphicon-edit"/></button></a>
             </td>

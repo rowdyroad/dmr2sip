@@ -15,13 +15,13 @@ angular.module('myApp.routes', ['ngRoute'])
     controller: 'RouteFormCtrl'
   })
 }])
-.controller('RouteFormCtrl', function($scope, $http,$routeParams, $modal) {
+.controller('RouteFormCtrl', function($scope, $http,$routeParams, $uibModal) {
   $scope.points = [];
   $http.get('/api/points').success(function(data) {
     $scope.points = data;
   });
 
-	FormController('/api/routes', 'route_id', $scope, $http, $routeParams, $modal);
+	FormController('/api/routes', 'route_id', $scope, $http, $routeParams, $uibModal);
 })
 .controller('RouteCtrl', function($scope, $http) {
   BaseController('/api/routes', 'route_id', $scope, $http);

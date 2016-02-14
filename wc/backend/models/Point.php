@@ -12,8 +12,22 @@ class Point extends \yii\db\ActiveRecord
     public function rules()
     {
         return  [
-                    [['type','name','id'], 'required'],
-                    ['password','safe']
+                    [['type','name'], 'required'],
+		    ['configuration', 'jsonEncode']
                 ];
     }
+
+
+    public function jsonEncode($attribute, $params)
+    {
+	$this->configuration = json_encode($this->configuration);
+    }
+
+    public function toArray( $fields = [], $expand = [], $recursive = true )
+    {
+	$arr = parent::toArray($fields, $expand, $recursive);
+	$arr['configuration'] = json_decode($arr['configuration'],true);
+	return $arr;
+    }
+
 }
