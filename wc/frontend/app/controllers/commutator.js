@@ -12,4 +12,9 @@ angular.module('myApp.commutator',[])
 	},1000);
     }
     state();
+
+    $scope.reload = function()
+    {
+	$http.post('/api/commutator/reload');
+    }
 });

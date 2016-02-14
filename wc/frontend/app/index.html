@@ -74,12 +74,17 @@
             <i class="fa fa-indent fa-fw text-active"></i>
           </a>
         </div>
-	<div class="nav navbar-nav" ng-controller="CommutatorCtrl" ng-cloak>
-	    <div  style="margin-top:12px">
-		<span ng-if="state && state.active" class="label label-success">Active</span>
+	<div class="nav navbar-nav" ng-controller="CommutatorCtrl" ng-cloak style="padding-top:12px">
+	    <div ng-if="state">
+		<span ng-if="state && state.active" class="label label-success">Actived</span>
 		<span ng-if="state && !state.active" class="label label-danger">Not actived</span>
 	    </div>
 	</div>
+	<div class="nav navbar-nav" ng-controller="CommutatorCtrl">
+          <a href="#" class="btn navbar-btn" ng-click="reload()">
+            <i class="fa fa-refresh"></i>
+          </a>
+        </div>
 
         <!-- nabar right -->
         <ul class="nav navbar-nav navbar-right" ng-controller="AuthCtrl">

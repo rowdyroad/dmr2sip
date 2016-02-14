@@ -1,3 +1,0 @@
-#!/bin/sh
-
-LD_LIBRARY_PATH=/usr/local/lib /opt/dmr/build/commutator -s localhost -d commutator -u root -p root > /var/log/commutator.log & echo $! > /var/run/commutator.pid || rm /var/run/commutator.pid 
