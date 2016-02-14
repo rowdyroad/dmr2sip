@@ -8,7 +8,7 @@
                             <h1><a href="/">DMR Web Console</a></h1>
                         </section>
 
-                        <form class="form-horizontal">
+                        <form class="form-horizontal" ng-submit="login()">
                             <fieldset>
                                 <div class="form-group">
                                     <div class="ui-input-group">
@@ -25,11 +25,12 @@
                                     </div>
                                 </div>
                             </fieldset>
+                            <div class="card-action no-border text-right">
+                                <button type="submit" class="btn-w-md md-primary md-button md-ink-ripple" data-translate="Sign in"></button>
+                            </div>
                         </form>
                     </div>
-                    <div class="card-action no-border text-right">
-                        <a href="javascript:void(0)" ng-click="login()" class="color-primary" data-translate="Sign in"></a>
-                    </div>
+
                 </div>
             </div>
         </div>
