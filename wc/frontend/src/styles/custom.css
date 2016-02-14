@@ -1,0 +1,48 @@
+/*    .catalog-item  .card-image {
+        height: 400px;
+    }
+
+    .catalog-item .card-image  div {
+         background-repeat:no-repeat !important;
+         background-position: 50% 0% !important;
+         background-size:cover !important;
+         height:100%;
+    }
+
+    .catalog-item .card-content {
+        height:72px;
+        overflow:hidden;
+    }
+
+    .post-item  .card-image {
+        height: 280px;
+    }
+
+    .post-item .card-image  div {
+         background-repeat:no-repeat !important;
+         background-position: 50% 0% !important;
+         background-size:cover !important;
+         height:100%;
+    }
+
+    .post-item .card-content {
+        height:72px;
+        overflow:hidden;
+    }*/
+
+
+    @media (min-width: 992px) {
+        .modal-course-content {
+            width: 80%;
+        }
+    }
+
+
+    .model-course-content
+        md-input-container  {
+        margin-bottom: 0px;
+    }
+
+    .gridster-item {
+        border:1px dashed silver;
+    }

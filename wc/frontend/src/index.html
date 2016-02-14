@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" ng-app="ac" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="ac" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="ac" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" class="no-js" ng-app="ac"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>DMR Web Console</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- lib:css -->
+  <!-- endinject -->
+
+  <!-- app:css -->
+  <!-- endinject -->
+
+</head>
+<body id="app" class="app" data-custom-page ng-controller="MainCtrl">
+
+<div ng-if="!loaded" id="loader-container"></div>
+
+<header ng-if="loaded && user" ng-include=" '/views/header.html' " id="header" class="header-container header-fixed bg-white"></header>
+
+<div ng-if="loaded && user" class="main-container">
+    <aside ng-include=" '/views/sidebar.html' " id="nav-container" class="nav-container nav-fixed nav-vertical bg-dark">
+    </aside>
+    <div id="content" class="content-container">
+        <section ng-view class="view-container"></section>
+    </div>
+</div>
+
+<ng-include ng-if="loaded && !user" src="'/views/login.html'"></ng-include>
+
+<!-- lib:js -->
+<!-- endinject -->
+
+<script>
+  (function() {
+    var base_angular_module_function = angular.module;
+    var modules = {};
+    angular.module = function(name, requires, configfn)
+    {
+      if (!modules[name]) {
+        modules[name] = base_angular_module_function(name, requires, configfn);
+      } else {
+        for (var i in requires) {
+          modules[name].requires.push(requires[i]);
+        }
+      }
+      return modules[name];
+    }
+  })();
+</script>
+
+<!-- app:js -->
+<!-- endinject -->
+
+</body>
+</html>

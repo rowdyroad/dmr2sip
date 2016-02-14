@@ -1,26 +1,78 @@
 {
-  "name": "angular-seed",
-  "description": "A starter project for AngularJS",
-  "version": "0.0.0",
-  "homepage": "https://github.com/angular/angular-seed",
-  "license": "MIT",
+  "name": "leanory",
+  "version": "0.0.1",
+  "license": "GPL",
   "private": true,
   "dependencies": {
-    "angular": "1.3.x",
-    "angular-route": "1.3.x",
-    "angular-loader": "1.3.x",
-    "angular-mocks": "~1.3.x",
-    "html5-boilerplate": "~4.3.0",
-    "bootstrap": "latest",
-    "angular-bootstrap": "latest",
-    "angular-bootstrap-datetimepicker": "latest",
-    "angular-ui-tree": "2.1.5",
-    "angular-local-storage": "~0.1.5",
-    "angular-ui-calendar": "0.9.0-beta.1",
-    "font-awesome": "~4.3.0",
-    "simple-line-icons": "~0.1.2",
+    "jquery": "~2.1.4",
+    "jquery-ui": "^1.11.4",
+    "angular": "1.4.x",
+    "angular-route": "1.4.x",
     "angular-growl-v2": "~0.7.3",
-    "bootstrap-slider": "*",
-    "angular-file-upload": "~1.1.5"
+    "textAngular": "~1.4.1",
+    "ng-tags-input": "3.0.0",
+    "angular-loading-bar": "~0.8.0",
+    "ng-file-upload": "~11.0.2",
+    "moment": "~2.11.1",
+    "simple-line-icons": "~2.2.3",
+    "font-awesome": "~4.5.0",
+    "angular-animate": "~1.4.0",
+    "angular-aria": "~1.4.0",
+    "angular-messages": "~1.4.0",
+    "angular-material": "1.0.1",
+    "angular-ui-router": "~0.2.14",
+    "angular-bootstrap": "~0.14.0",
+    "angular-translate": "~2.8.0",
+    "angular-translate-loader-static-files": "~2.8.0",
+    "material-design-iconic-font": "~2.2.0",
+    "jquery.slimscroll": "~1.3.3",
+    "angular-validation-match": "~1.7.0",
+    "angular-scroll": "~1.0.0",
+    "jquery-steps": "~1.1.0",
+    "angular-masonry": "*",
+    "fabric.js": "fabric#^1.5.0",
+    "angular-resizable": "^1.2.0",
+    "bg-splitter": "*",
+    "gridster": "0.5.6"
+
+  },
+  "devDependencies": {
+    "bourbon": "~4.2.0",
+    "bootstrap-sass-official": "~3.3.0"
+  },
+  "resolutions": {
+    "angular": "~1.4.0"
+  },
+  "overrides": {
+    "gridster": {
+      "main":[
+        "dist/jquery.gridster.js",
+        "dist/jquery.gridster.min.css"
+      ]
+    },
+    "jquery-ui": {
+      "main": [
+        "jquery-ui.js",
+        "themes/base/jquery-ui.css",
+        "themes/base/images/*"
+      ]
+    },
+    "font-awesome": {
+      "main": [
+        "css/font-awesome.css",
+        "fonts/*"
+      ]
+    },
+    "jquery.slimscroll": {
+      "main": [
+        "jquery.slimscroll.js"
+      ]
+    },
+    "outlayer": {
+      "main": [
+        "item.js",
+        "outlayer.js"
+      ]
+    }
   }
 }

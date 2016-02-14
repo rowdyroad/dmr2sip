@@ -1,0 +1,39 @@
+<div class="page-signin" ng-controller="LoginCtrl">
+    <div class="wrapper">
+        <div class="main-body">
+            <div class="body-inner">
+                <div class="card bg-white">
+                    <div class="card-content">
+                        <section class="logo text-center">
+                            <h1><a href="/">DMR Web Console</a></h1>
+                        </section>
+
+                        <form class="form-horizontal">
+                            <fieldset>
+                                <div class="form-group">
+                                    <div class="ui-input-group">
+                                        <input type="text" required ng-model="credentials.username" class="form-control">
+                                        <span class="input-bar"></span>
+                                        <label data-translate="Username"></label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="ui-input-group">
+                                        <input type="password" required ng-model="credentials.password" class="form-control">
+                                        <span class="input-bar"></span>
+                                        <label data-translate="Password"></label>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </form>
+                    </div>
+                    <div class="card-action no-border text-right">
+                        <a href="javascript:void(0)" ng-click="login()" class="color-primary" data-translate="Sign in"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,88 @@
+<div class="page page-form">
+    <div class="row ui-section">
+        <div class="col-lg-8 clearfix">
+            <h2 class="section-header" ng-if="isNew" data-translate="Routes: creation"></h2>
+            <h2 class="section-header" ng-if="!isNew" data-translate="Routes: edition"></h2>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body padding-xl form-validation" ng-cloak>
+                    <div class="row">
+                        <div class="col-lg-6 col-lg-offset-3">
+                            <div class="form-horizontal form-validation">
+                              <div class="row">
+                                <div class="col-md-4">
+                                    <md-input-container flex>
+                                      <label data-translate="Source"></label>
+                                      <md-select ng-model="current.source_point_id">
+                                          <md-option ng-repeat="item in points" value="{{item.point_id}}">
+                                              {{item.name}}
+                                          </md-option>
+                                      </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-8">
+                                    <md-input-container class="md-block">
+                                        <label data-translate="Source number"></label>
+                                        <input required
+                                               type="text"
+                                               autocomplete="off"
+                                               ng-model="current.source_number"
+                                               />
+                                    </md-input-container>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-4">
+                                    <md-input-container flex>
+                                      <label data-translate="Target"></label>
+                                      <md-select ng-model="current.destination_point_id">
+                                          <md-option ng-repeat="item in points" value="{{item.point_id}}">
+                                              {{item.name}}
+                                          </md-option>
+                                      </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-8">
+                                    <md-input-container class="md-block">
+                                        <label data-translate="Target number"></label>
+                                        <input required
+                                               type="text"
+                                               autocomplete="off"
+                                               ng-model="current.destination_number"
+                                               />
+                                    </md-input-container>
+                                </div>
+                              </div>
+                                    <div class="divider divider-md"></div>
+
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-4">
+                                            <md-button type="submit"
+                                                       class="md-raised btn-w-md md-primary"
+                                                       data-translate="Save"
+                                                       ng-click="save()"
+                                                       ></md-button>
+                                        </div>
+                                        <div class="col-md-4 col-sm-4">
+                                            <md-button class="btn-w-md"
+                                                        data-translate="Cancel"
+                                                        ng-click="cancel()"></md-button>
+                                        </div>
+                                        <div class="col-md-4 col-sm-4">
+                                            <md-button
+                                                        ng-if="current[pkAttribute]"
+                                                        class="pull-right md-raised md-warn btn-w-md"
+                                                        data-translate="Remove"
+                                                        ng-click="delete()"></md-button>
+                                        </div>
+                                    </div>
+                              </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
