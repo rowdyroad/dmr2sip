@@ -55,7 +55,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
      * bytes can be converted to a uint32_t integer.
      */
     if (auth_key.length() < 40) {
-        throw new CXNLConnectionException(10000, "Incorrect auth key length.");
+        throw CXNLConnectionException(10000, "Incorrect auth key length.");
     }
 
     for (size_t i = 0; i < 4; ++i) {
@@ -87,7 +87,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     if (m_socket == -1) {
-        throw new CXNLConnectionException();
+        throw CXNLConnectionException();
     }
 
     target.sin_family = AF_INET;
@@ -95,7 +95,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
     auto error = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
     if (error) {
-        throw new CXNLConnectionException();
+        throw CXNLConnectionException();
     }
 }
 

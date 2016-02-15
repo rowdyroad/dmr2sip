@@ -78,10 +78,11 @@ int main(int argc, char*argv[])
     signal(SIGHUP, signalRestartHandler);
 
     factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
-    factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory())));
+    factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory("0x112233440x556677880x99aabbcc0xddeeff00", 12121212))));
 
     storage.reset(new Commutator::Storage(server, database, username, password));
     while (!quit) {
+        std::cout << "Starting..." << std::endl;
         try {
             program.reset(new Commutator::Program(*storage, factories));
             program->Run();
