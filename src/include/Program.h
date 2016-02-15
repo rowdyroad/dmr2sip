@@ -55,8 +55,8 @@ class Program : public PointHandler
             std::cout << "Initialize points" << std::endl;
             for (auto& point : storage.GetPoints()) {
                 std::cout << "\tPoint id: " << point.point_id << std::endl
-                          << "\tIdentity: " << point.id << std::endl
-                          << "\tPassword: " << point.password << std::endl;
+                          << "\tType: " << point.type << std::endl
+                          << "\tName: " << point.name << std::endl;
                 Commutator::PointPtr p = factories.at(point.type)->Create(point, this);
                 points_.push_back(p);
                 storage.UpdatePointStatus(point.point_id, Commutator::Storage::Point::Status::psActive);

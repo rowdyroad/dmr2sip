@@ -3,6 +3,7 @@
 
 #include "Point.h"
 #include "Storage.h"
+#include <regex>
 
 
 namespace Commutator {
@@ -14,15 +15,14 @@ namespace Commutator {
             DMRPoint(Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
             {
-                auto del_pos = point.id.find(":");
-                std::string address = point.id.substr(0, del_pos);
-                size_t port = std::stoi(point.id.substr(del_pos + 1));
-
-                del_pos = point.password.find(":");
-
-                std::string auth_key = point.password.substr(0, del_pos);
-                size_t delta = std::stoul(point.password.substr(del_pos + 1));
-
+                std::string address = Storage::getValue(point.configuration, "address");
+                uint16_t port =  std::stoi(Storage::getValue(point.configuration, "port"));
+                std::string auth_key = Storage::getValue(point.configuration, "auth_key");
+                uint32_t delta = std::stoul(Storage::getValue(point.configuration, "delta"));
+                std::cout << "Configuration: " << std::endl
+                            << "\tAddress = " << address << ":" << port << std::endl
+                            << "\tAuth key = " << auth_key << std::endl
+                            << "\tDelta = " << delta << std::endl;
                 connection_.reset(new CXNLConnection(address, port, auth_key, delta, this));
             }
 

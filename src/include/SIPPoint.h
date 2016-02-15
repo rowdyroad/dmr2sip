@@ -20,13 +20,17 @@ namespace Commutator {
 
             SIPPoint(Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
-		, quit_(false)
+		        , quit_(false)
             {
-                auto delimiter_pos = point.id.find("/");
-                size_t device_index = std::stoi(point.id.substr(0, delimiter_pos));
-                std::string id = point.id.substr(delimiter_pos + 1);
+                size_t device_index = std::stoi(Storage::getValue(point.configuration, "device_index"));
+                std::string id = Storage::getValue(point.configuration, "id");
+                std::string password = Storage::getValue(point.configuration, "password");
+                std::cout << "Configuration: " << std::endl
+                            << "\tDevice index = " << device_index << std::endl
+                            << "\tID = " << id << std::endl
+                            << "\tPassword = " << password << std::endl;
                 sip_.reset(new SIP(this, device_index));
-                sip_->Connect(id, point.password);
+                sip_->Connect(id, password);
             }
 
             ~SIPPoint()
@@ -36,16 +40,16 @@ namespace Commutator {
 
             void Run()
             {
-		while (!quit_) {
-		    {
-			std::unique_lock<std::mutex> lock(mutex_);
-			sip_->Iterate();
-		    }
-		    usleep(50000);
-		}
-		if (sip_->IsCalling()) {
-		    sip_->Hangup();
-		}
+        	   while (!quit_) {
+        	       {
+                        std::unique_lock<std::mutex> lock(mutex_);
+                        sip_->Iterate();
+        		    }
+        		    usleep(50000);
+        		}
+        		if (sip_->IsCalling()) {
+        		    sip_->Hangup();
+        		}
             }
 
             void Stop()
@@ -55,13 +59,13 @@ namespace Commutator {
 
             void Initiate(const std::string& number)
             {
-		std::unique_lock<std::mutex> lock(mutex_);
+		        std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Call(number);
             }
 
             void Hangup()
             {
-		std::unique_lock<std::mutex> lock(mutex_);
+		          std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Hangup();
             }
 
@@ -70,10 +74,10 @@ namespace Commutator {
                 Handler()->OnCallEnded(this);
             }
 
-        void OnInCallBegin(SIP* sip)
-        {
-            Handler()->OnCallReceived(this, sip->CallAddress());
-        }
+            void OnInCallBegin(SIP* sip)
+            {
+                Handler()->OnCallReceived(this, sip->CallAddress());
+            }
     };
 
     class SIPPointFactory: public PointFactory {

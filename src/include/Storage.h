@@ -9,6 +9,7 @@
 #include <memory>
 #include <mutex>
 #include <regex.h>
+#include <regex>
 #include "Exception.h"
 
 namespace Commutator {
@@ -21,6 +22,21 @@ namespace Commutator {
             std::unique_ptr<mysqlpp::Connection> db_;
         std::mutex mutex_;
         public:
+            static std::string getValue(const std::string& haystack, const std::string& name)
+            {
+                std::string search = "\"" + name + "\":\"";
+                size_t pos = haystack.find(search);
+                if (pos == std::string::npos) {
+                    throw new Exception(2000, "Name not found in haystack.");
+                }
+
+                size_t last_pos = haystack.find("\"", pos + search.size());
+                if (pos == std::string::npos) {
+                    throw new Exception(2000, "haystack format incorrect.");
+                }
+                return  haystack.substr(pos + search.size(), last_pos - (pos + search.size()));
+            }
+
             struct Point {
                 enum Status {
                     psInvactive = 0,
@@ -28,9 +44,8 @@ namespace Commutator {
                 };
                 size_t point_id;
                 std::string type;
-                std::string id;
-                std::string password;
                 std::string name;
+                std::string configuration;
             };
 
             struct Route {
@@ -84,16 +99,15 @@ namespace Commutator {
             std::vector<Point> GetPoints()
             {
                 std::vector<Point> points;
-                auto query = db_->query("SELECT point_id, type, id, password, name  FROM points");
+                auto query = db_->query("SELECT point_id, type, name, configuration FROM points");
                 if (auto res = query.store()) {
                     if (res.num_rows() > 0) {
                         for (auto& row : res) {
                             Point p;
                             p.point_id = row[0];
                             p.type = row[1].c_str();
-                            p.id = row[2].c_str();
-                            p.password = row[3].c_str();
-                            p.name = row[4].c_str();
+                            p.name = row[2].c_str();
+                            p.configuration = row[3].c_str();
                             points.push_back(p);
                         }
                     }

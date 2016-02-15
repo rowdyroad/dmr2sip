@@ -15,6 +15,9 @@
 #include <sys/select.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <exception>
+#include <string.h>
+#include <errno.h>
 
 typedef enum
 {
@@ -53,13 +56,45 @@ typedef struct {
 
 class CXNLConnection;
 
+class CXNLConnectionException : public std::exception
+{
+    private:
+        int code_;
+        std::string message_;
+    public:
+        CXNLConnectionException(int code, const std::string& message)  noexcept
+            : code_(code)
+            , message_(message_)
+        {}
+
+        CXNLConnectionException() noexcept
+            : code_(errno)
+            , message_(strerror(errno))
+        {}
+
+        int getCode() const
+        {
+            return code_;
+        }
+
+        const std::string& getMessage() const
+        {
+            return message_;
+        }
+
+        virtual const char* what() const noexcept
+        {
+            return message_.c_str();
+        }
+};
+
 class CXNLConnectionHandler
 {
     public:
         virtual void OnConnectionSuccess(CXNLConnection* connection) { }
         virtual void OnConnectionFailure(CXNLConnection* connection) { }
         virtual void OnXnlMessageReceived(CXNLConnection* connection, uint8_t* msg, size_t len)  { }
-	virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { } 
+	virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { }
         virtual void OnCallInitiated(CXNLConnection* connection, const std::string& address)  { }
 	virtual void OnCallEnded(CXNLConnection* connection) { }
 };

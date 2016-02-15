@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include <assert.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -55,9 +54,12 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
      * 0x 11 22 33 44 0x556677880x99aabbcc0xddeeff00. Start from the 1st byte, each 10
      * bytes can be converted to a uint32_t integer.
      */
+    if (auth_key.length() < 40) {
+        throw new CXNLConnectionException(10000, "Incorrect auth key length.");
+    }
 
     for (size_t i = 0; i < 4; ++i) {
-	m_auth_key[i] = strtoul(auth_key.substr(i* 10, 10).c_str(), NULL, 16);
+	   m_auth_key[i] = strtoul(auth_key.substr(i* 10, 10).c_str(), NULL, 16);
     }
 
     encrypted_seed[0] = 0;
@@ -80,17 +82,21 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     m_XCMP_ver = 0;
 
 
-     struct hostent *he = gethostbyname(host.c_str());
+    struct hostent *he = gethostbyname(host.c_str());
     struct sockaddr_in  target;
     m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
-    assert(m_socket != -1);
+    if (m_socket == -1) {
+        throw new CXNLConnectionException();
+    }
 
     target.sin_family = AF_INET;
     target.sin_port = htons(port);
     memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
     auto error = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
-    assert(!error);
+    if (error) {
+        throw new CXNLConnectionException();
+    }
 }
 
 CXNLConnection::~CXNLConnection(void)
