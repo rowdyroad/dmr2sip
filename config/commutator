@@ -25,8 +25,8 @@ DAEMON=/opt/dmr/bin/$NAME
 DAEMON_ARGS="-s localhost -d commutator -u root -p root  > /opt/dmr/log/$NAME.log 2>&1"
 PIDFILE=/opt/dmr/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-GROUP=www-data
-USER=www-data
+GROUP=root
+USER=root
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0

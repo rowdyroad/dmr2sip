@@ -16,7 +16,7 @@ class m150227_163333_init extends Migration
         ]);
 
         $admin = new \app\models\User;
-        $admin->username = 'admin';
+        $admin->username = 'administrator';
         $admin->password = '123123';
         $admin->is_admin = 1;
         $admin->name = 'Administrator';

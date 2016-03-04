@@ -9,7 +9,7 @@
     </li>
     <li   class=" nav-divider"> </li>
     <li   class=" nav-title"> <span  data-translate="Commutation" class=""></span> </li>
-    <li   class="">
+    <li   class="" ng-if="user.is_admin">
         <a class="md-button  md-ink-ripple"   md-button="" aria-label="meanu" href="/points"> <i  class="zmdi zmdi-dot-circle-alt"></i> <span data-translate="Points" class=""></span>
             <div class="md-ripple-container"></div>
         </a>
@@ -19,9 +19,9 @@
             <div class="md-ripple-container"></div>
         </a>
     </li>
-    <li   class=" nav-divider"> </li>
-    <li   class=" nav-title"> <span  data-translate="User managments" class=""></span> </li>
-    <li   class="">
+    <li   class=" nav-divider" ng-if="user.is_admin"> </li>
+    <li   class=" nav-title" ng-if="user.is_admin"> <span  data-translate="User managments" class=""></span> </li>
+    <li   class="" ng-if="user.is_admin">
         <a class="md-button  md-ink-ripple"   md-button="" aria-label="meanu" href="/users"> <i  class="zmdi zmdi-account"></i> <span data-translate="Users" class=""></span>
             <div class="md-ripple-container"></div>
         </a>

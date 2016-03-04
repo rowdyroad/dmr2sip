@@ -12,6 +12,7 @@ angular
       function login(user)
       {
           self.user = user;
+          $rootScope.user = user;
           $rootScope.$broadcast("auth:login", user);
       }
 

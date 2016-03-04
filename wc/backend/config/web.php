@@ -62,6 +62,7 @@ $config = [
                                     ],
                     'tokens'=> [ '{id}' => '<id:.+>' ]
                 ],
+                ['class' => 'yii\web\UrlRule', 'route'=>'configuration/network', 'pattern'=>'configuration/network', 'verb'=>['GET','POST']],
                 ['class' => 'yii\web\UrlRule', 'route'=>'commutator/state', 'pattern'=>'commutator/state', 'verb'=>'GET'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'commutator/reload', 'pattern'=>'commutator/reload', 'verb'=>'POST'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/check', 'pattern'=>'user/check'],

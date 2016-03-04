@@ -29,7 +29,7 @@
                     <span ng-if="!state.active" class="label label-danger" data-translate="Inactive"></span>
                  </a>
             </li>
-            <li>
+            <li ng-if="user.is_admin">
                 <a href="javascript:void(0)" ng-click="reload()" md-button><i class="zmdi zmdi-refresh-sync"></i></a>
             </li>
         </ul>
@@ -43,6 +43,12 @@
                     </span>
                 </a>
                 <ul class="uib-dropdown-menu with-arrow pull-right dropdown-menu-scaleIn">
+                    <li ng-if="user.is_admin">
+                        <a href="/configuration/network">
+                            <i class="zmdi zmdi-settings"></i>
+                            <span data-translate="Network Configuration"></span>
+                        </a>
+                    </li>
                     <li>
                         <a href="javascript:void(0)" ng-click="logout()">
                             <i class="zmdi zmdi-forward"></i>

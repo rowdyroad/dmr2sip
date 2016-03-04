@@ -1,0 +1,47 @@
+<div class="page page-form">
+    <div class="row ui-section">
+        <div class="col-lg-8 clearfix">
+            <h2 class="section-header" data-translate="Configuration: Network"></h2>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default">
+                <div class="panel-body padding-xl form-validation" ng-cloak>
+                    <div class="row">
+                        <div class="col-lg-6 col-lg-offset-3">
+                            <div class="form-horizontal form-validation">
+                              <div class="row">
+                                <div class="col-md-4">
+                                    <md-input-container flex>
+                                      <label data-translate="Type"></label>
+                                      <md-select ng-model="current.type">
+                                          <md-option ng-repeat="item in types" value="{{item}}">
+                                              {{item}}
+                                          </md-option>
+                                      </md-select>
+                                    </md-input-container>
+                                </div>
+                              </div>
+                              <ng-include
+                                ng-if="current.type"
+                                src="'/views/configuration/network.' +current.type +'.html'"></ng-include>
+                                    <div class="divider divider-md"></div>
+
+                                    <div class="row">
+                                        <div class="col-md-4 col-sm-4">
+                                            <md-button type="submit"
+                                                       class="md-raised btn-w-md md-primary"
+                                                       data-translate="Save"
+                                                       ng-click="save()"
+                                                       ></md-button>
+                                        </div>
+                                    </div>
+                              </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+

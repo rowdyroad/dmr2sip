@@ -10,16 +10,10 @@
                     <div class="row">
                         <div class="col-lg-6 col-lg-offset-3">
                             <div class="form-horizontal form-validation">
+                                    <label data-translate="Username"></label>
+                                    <div>{{current.username}}</div>
                                     <md-input-container class="md-block">
-                                        <label data-translate="Имя пользователя"></label>
-                                        <input required
-                                               type="text"
-                                               autocomplete="off"
-                                               ng-model="current.username"
-                                               />
-                                    </md-input-container>
-                                    <md-input-container class="md-block">
-                                        <label data-translate="Пароль"></label>
+                                        <label data-translate="Password"></label>
                                         <input required
                                                type="password"
                                                autocomplete="off"
@@ -27,22 +21,16 @@
                                                />
                                     </md-input-container>
                                     <md-input-container class="md-block">
-                                        <label data-translate="Реальное имя"></label>
+                                        <label data-translate="Name"></label>
                                         <input required
                                                type="text"
                                                ng-model="current.name"
                                                />
                                     </md-input-container>
                                     <md-input-container class="md-block">
-                                            <label data-translate="Описание"></label>
+                                            <label data-translate="Description"></label>
                                             <textarea ng-model="current.description" columns="1"></textarea>
                                     </md-input-container>
-                                    <div class="callout callout-info">
-                                      <span data-translate="Последняя активность"></span>:
-                                      <span class="md-checked ng-binding">
-                                        {{current.last_user_actitity_time}}
-                                      </span>
-                                    </div>
 
                                     <div class="divider divider-md"></div>
 
@@ -50,21 +38,14 @@
                                         <div class="col-md-4 col-sm-4">
                                             <md-button type="submit"
                                                        class="md-raised btn-w-md md-primary"
-                                                       data-translate="Сохранить"
+                                                       data-translate="Save"
                                                        ng-click="save()"
                                                        ></md-button>
                                         </div>
                                         <div class="col-md-4 col-sm-4">
                                             <md-button class="btn-w-md"
-                                                        data-translate="Отмена"
+                                                        data-translate="Cancel"
                                                         ng-click="cancel()"></md-button>
-                                        </div>
-                                        <div class="col-md-4 col-sm-4">
-                                            <md-button
-                                                        ng-if="current[pkAttribute]"
-                                                        class="pull-right md-raised md-warn btn-w-md"
-                                                        data-translate="Удалить"
-                                                        ng-click="delete()"></md-button>
                                         </div>
                                     </div>
                               </div>

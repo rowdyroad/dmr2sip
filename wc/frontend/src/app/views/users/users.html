@@ -3,21 +3,36 @@
         <div class="col-md-10 col-sm-10 col-xs-10">
             <h2 class="section-header" data-translate="Users"></h2>
         </div>
-        <div class="col-md-2 col-sm-2 col-xs-2">
-            <h2 class="pull-right">
-                <a href="/users/new">
-                    <md-button class="md-fab md-primary" aria-label="plus">
-                        <span class="fa fa-plus"></span>
-                    </md-button>
-                </a>
-            </h2>
-        </div>
         <div class="col-md-12">
-            <div class="row">
-                <div class="col-md-3 col-sm-6 post-item" ng-repeat="item in items">
-                    <ng-include src="'/views/users/user.item.html'"></ng-include>
-                </div>
-            </div>
+            <div class="panel panel-default">
+                <div class="panel-body">
+           <table class="table no-margin">
+                        <thead>
+                            <tr>
+                                <th data-translate="Name"></th>
+                                <th data-translate="Username"></th>
+                                <th data-translate="Administrator"></th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="item in items">
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.username}} </td>
+                                <td ng-if="item.is_admin" data-translate="Yes"></td>
+                                <td ng-if="!item.is_admin" data-translate="No"></td>
+                                <td>
+                                    <a href="/users/{{item.user_id}}">
+                                       <button class="md-icon-button md-button md-ink-ripple">
+                                            <span class="fa fa-edit"></span>
+                                       </button>
+                                   </a>
+                                </td>
+                            </tr>
+                        </tbody>
+           </table>
+              </div>
+           </div>
         </div>
     </div>
 </div>
