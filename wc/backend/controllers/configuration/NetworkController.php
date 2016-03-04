@@ -30,7 +30,7 @@ class NetworkController extends \yii\rest\Controller
         if (preg_match(sprintf("/dns-nameservers (([0-9\.]+)\s+)+/", self::NETWORK_INTERFACE), $interface_config, $iregs)) {
             $dns = array_slice($iregs, 1,2);
         }
-        return ['type'=>$type, "ip"=>$regs["ip"], "mask"=>$regs["mask"], "gateway"=>$regs["gateway"], "dns_primary"=>@$dns[0], "dns_secondary"=>@$dns[1]];;
+        return ['type'=>$type, "ip"=>$regs["ip"], "mask"=>$regs["mask"], "gateway"=>@$regs["gateway"], "dns_primary"=>@$dns[0], "dns_secondary"=>@$dns[1]];;
     }
 
     public function actionIndex()
