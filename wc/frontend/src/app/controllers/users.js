@@ -15,9 +15,11 @@ angular
     controller: 'UserFormCtrl'
   })
 })
-.controller('UserFormCtrl', function($scope, $http,$routeParams, $uibModal) {
-  FormController('/api/users', 'user_id', $scope, $http, $routeParams, $uibModal);
+.controller('UserFormCtrl', function($scope, $http,$routeParams, $uibModal, auth) {
+auth.Protect();
+   FormController('/api/users', 'user_id', $scope, $http, $routeParams, $uibModal,auth);
 })
-.controller('UserCtrl', function($scope, $http) {
+.controller('UserCtrl', function($scope, $http,auth) {
+  auth.Protect();
   BaseController('/api/users', 'user_id', $scope, $http);
 });

@@ -9,6 +9,13 @@ angular
         return this.user == null;
       }
 
+      this.Protect = function()
+      {
+        if (!self.user.is_admin) {
+            window.location = '/';
+        }
+      }
+
       function login(user)
       {
           self.user = user;

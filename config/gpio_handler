@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os;
 import time;
 from time import sleep;
@@ -29,4 +31,6 @@ while True:
                         print "Run external command";
                         os.system(options.command);
                         started = False
+            if c == '0':
+                started = False
             sleep(0.1);

@@ -7,8 +7,8 @@ angular.module('ac.controllers', ['ngRoute'])
     controller: 'ConfigurationNetworkCtrl'
   });
 })
-.controller('ConfigurationNetworkCtrl', function($scope, $http) {
-
+.controller('ConfigurationNetworkCtrl', function($scope, $http, auth) {
+    auth.Protect();
     $http.get('/api/configuration/network').success(function(data) {
         $scope.current = data;
     });
@@ -17,6 +17,6 @@ angular.module('ac.controllers', ['ngRoute'])
 
     $scope.save = function()
     {
-         $http.post('/api/configuration/network');
+         $http.post('/api/configuration/network', $scope.current);
     }
 });

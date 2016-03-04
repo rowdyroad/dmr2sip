@@ -1,0 +1,19 @@
+#!/bin/sh
+
+echo -n "Reseting administrator password - "
+/opt/dmr/wc/backend/yii user/password-reset administrator
+echo "DONE"
+
+echo -n "Reseting interace configuration - "
+cat<<EOF>/etc/network/interfaces.d/eth0
+auto eth0
+  iface eth0 inet static
+  address 192.168.0.200
+  netmask 255.255.255.0
+EOF
+echo "DONE"
+
+echo -n "Restarting interface - "
+ifdown eth0 && ifup eth0
+echo "DONE"
+

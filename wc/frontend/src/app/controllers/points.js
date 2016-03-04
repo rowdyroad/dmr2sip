@@ -15,10 +15,12 @@ angular
     controller: 'PointFormCtrl'
   })
 }])
-.controller('PointFormCtrl', function($scope, $http,$routeParams, $uibModal) {
+.controller('PointFormCtrl', function($scope, $http,$routeParams, $uibModal,auth) {
+  auth.Protect();
   $scope.types = [{id:'sip', name:'SIP'}, {id:'dmr', name:'DMR'}];
   FormController('/api/points', 'point_id', $scope, $http, $routeParams, $uibModal);
 })
-.controller('PointCtrl', function($scope, $http) {
+.controller('PointCtrl', function($scope, $http,auth) {
+  auth.Protect();
   BaseController('/api/points', 'point_id', $scope, $http);
 });
