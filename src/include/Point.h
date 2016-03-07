@@ -35,6 +35,9 @@ namespace Commutator {
                 return handler_;
             }
 
+            virtual bool Link(PointPtr& point) { return true; }
+            virtual void UnLink(PointPtr& point) { }
+
             virtual void Run() = 0;
             virtual void Stop() = 0;
             virtual void Initiate(const std::string& number) = 0;

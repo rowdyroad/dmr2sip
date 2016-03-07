@@ -21,6 +21,9 @@ std::unique_ptr<Commutator::Storage> storage;
 std::unique_ptr<Commutator::Program> program;
 std::map<std::string, PointFactoryPtr> factories;
 
+const char* dmrAuthorizationKey = "0x152C7E9D0x38BE41C70x71E96CA40x6CAC1AFC0x9E3779B9";
+const size_t dmrAuthorizationDelta = 0x9E3779B9;
+
 void signalHandler( int signum )
 {
     std::cout << "Request for quit" << std::endl;
@@ -78,7 +81,7 @@ int main(int argc, char*argv[])
     signal(SIGHUP, signalRestartHandler);
 
     factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
-    factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory("0x112233440x556677880x99aabbcc0xddeeff00", 12121212))));
+    factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory(dmrAuthorizationKey, dmrAuthorizationDelta))));
 
     storage.reset(new Commutator::Storage(server, database, username, password));
     while (!quit) {

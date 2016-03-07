@@ -2,6 +2,7 @@
 #include "Point.h"
 #include "Storage.h"
 #include "SIP/SIP.h"
+#include "Exception.h"
 
 namespace Commutator {
 
@@ -22,15 +23,17 @@ namespace Commutator {
                 : Point(point, handler)
 		        , quit_(false)
             {
-                size_t device_index = std::stoi(Storage::getValue(point.configuration, "device_index"));
-                std::string id = Storage::getValue(point.configuration, "id");
+                std::string username = Storage::getValue(point.configuration, "authorization_username");
                 std::string password = Storage::getValue(point.configuration, "password");
+
+                std::string host = Storage::getValue(point.configuration, "host");
+                uint16_t port = std::stoi(Storage::getValue(point.configuration, "port"));
+
                 std::cout << "Configuration: " << std::endl
-                            << "\tDevice index = " << device_index << std::endl
-                            << "\tID = " << id << std::endl
-                            << "\tPassword = " << password << std::endl;
-                sip_.reset(new SIP(this, device_index));
-                sip_->Connect(id, password);
+                            << "\tAuthorization Username = " << username << std::endl
+                            << "\tPassword = " << "*********" << std::endl;
+                sip_.reset(new SIP(this));
+                sip_->Connect(host, port, username, password);
             }
 
             ~SIPPoint()
@@ -65,8 +68,19 @@ namespace Commutator {
 
             void Hangup()
             {
-		          std::unique_lock<std::mutex> lock(mutex_);
+		        std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Hangup();
+            }
+
+            bool Link(PointPtr& point)
+            {
+                try {
+                    size_t device_index = std::stoi(Storage::getValue(point->getConfiguration().configuration, "device_index"));
+                    sip_->SelectDevice(device_index);
+                    return true;
+                } catch (Exception& e) {
+                    return false;
+                }
             }
 
             void OnCallEnd(SIP* sip)

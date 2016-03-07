@@ -29,7 +29,16 @@ class Program : public PointHandler
                         } else if (p->getConfiguration().point_id == route.destination_point_id) {
                             destination_ = p;
                         }
-                        if (source_ && destination_) break;
+                        if (source_ && destination_) {
+                            if (source_->Link(destination_) && destination_->Link(source_)) {
+                                break;
+                            }  else {
+                                source_->UnLink(destination_);
+                                destination_->UnLink(source_);
+                                source_.reset();
+                                destination_.reset();
+                            }
+                        }
                     }
                 }
 

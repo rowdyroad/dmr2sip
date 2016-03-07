@@ -39,7 +39,7 @@ class SIP {
             return std::move(list);
         }
 
-        SIP(SIPHandler* handler, const size_t device_index)
+        SIP(SIPHandler* handler)
             : v_table_({0})
             , call_(nullptr)
             , lc_(nullptr)
@@ -48,6 +48,10 @@ class SIP {
             v_table_.call_state_changed = callStateChanged;
             v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_,NULL,NULL,this);
+        }
+
+        void SelectDevice(const size_t device_index)
+        {
             const char** devs = linphone_core_get_sound_devices(lc_);
             linphone_core_set_playback_device (lc_, devs[device_index]);
             linphone_core_set_capture_device (lc_, devs[device_index]);
@@ -58,17 +62,15 @@ class SIP {
             linphone_core_destroy(lc_);
         }
 
-        void Connect(const std::string& identity, const std::string& password)
+        void Connect(const std::string& host, uint16_t port, const std::string& username, const std::string& password)
         {
             LinphoneProxyConfig* proxy_cfg = linphone_proxy_config_new();
-            LinphoneAddress *from = linphone_address_new(identity.c_str());
-            LinphoneAuthInfo *info = linphone_auth_info_new(linphone_address_get_username(from), NULL, password.c_str(),NULL,NULL,NULL);
+            std::string address = host + ":" + std::to_string(port);
+            LinphoneAuthInfo *info = linphone_auth_info_new(username.c_str(), NULL, password.c_str(),NULL,NULL,NULL);
             linphone_core_add_auth_info(lc_, info);
-            linphone_proxy_config_set_identity(proxy_cfg, identity.c_str()); /*set identity with user name and domain*/
-            const char* server_addr = linphone_address_get_domain(from); /*extract domain address from identity*/
-            linphone_proxy_config_set_server_addr(proxy_cfg,server_addr); /* we assume domain = proxy server address*/
-            linphone_proxy_config_enable_register(proxy_cfg,TRUE); /*activate registration for this proxy config*/
-            linphone_address_destroy(from); /*release resource*/
+            linphone_proxy_config_set_identity(proxy_cfg, ("sip:" + username + "@" + address).c_str());
+            linphone_proxy_config_set_server_addr(proxy_cfg, ("sip:" + address).c_str());
+            linphone_proxy_config_enable_register(proxy_cfg,TRUE);
             linphone_core_add_proxy_config(lc_, proxy_cfg); /*add proxy config to linphone core*/
             linphone_core_set_default_proxy_config(lc_, proxy_cfg); /*set to default proxy*/
         }
