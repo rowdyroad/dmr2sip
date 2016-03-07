@@ -41,6 +41,14 @@ class Program : public PointHandler
                         }
                     }
                 }
+                ~Link()
+                {
+                    if (source_ && destination_) {
+                        source_->UnLink(destination_);
+                        destination_->UnLink(source_);
+                    }
+                }
+
 
                 const Commutator::Storage::Route& getRoute() const { return route_; }
                 const Commutator::PointPtr& getSource() const { return source_; }
@@ -102,14 +110,14 @@ class Program : public PointHandler
             }
         }
 
-        void OnCallReceived(Commutator::Point* const point, const std::string& number)
+        bool OnCallReceived(Commutator::Point* const point, const std::string& number)
         {
             std::cout << "RECEIVED point:" << point->getConfiguration().point_id << " number:" << number << std::endl;
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 if (linked_points_.find(point->getConfiguration().point_id) != linked_points_.end()) {
                     std::cout << "\tIgnore incomming call, point in actived route now" << std::endl;
-                    return;
+                    return false;
                 }
             }
             bool link_created = false;
@@ -136,6 +144,7 @@ class Program : public PointHandler
             if (!link_created) {
                 storage_.addEvent(0, point->getConfiguration().name + " " + number);
             }
+            return link_created;
         }
 
         void OnCallEnded(Commutator::Point* const point)

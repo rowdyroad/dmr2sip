@@ -11,7 +11,7 @@ namespace Commutator {
 
     class PointHandler {
         public:
-            virtual void OnCallReceived(Point* const point, const std::string& number) = 0;
+            virtual bool OnCallReceived(Point* const point, const std::string& number) = 0;
             virtual void OnCallEnded(Point* const point) = 0;
     };
 

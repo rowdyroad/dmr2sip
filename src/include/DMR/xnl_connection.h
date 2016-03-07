@@ -94,9 +94,9 @@ class CXNLConnectionHandler
         virtual void OnConnectionSuccess(CXNLConnection* connection) { }
         virtual void OnConnectionFailure(CXNLConnection* connection) { }
         virtual void OnXnlMessageReceived(CXNLConnection* connection, uint8_t* msg, size_t len)  { }
-	virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { }
+        virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { }
         virtual void OnCallInitiated(CXNLConnection* connection, const std::string& address)  { }
-	virtual void OnCallEnded(CXNLConnection* connection) { }
+        virtual void OnCallEnded(CXNLConnection* connection) { }
 };
 
 class CXNLConnection

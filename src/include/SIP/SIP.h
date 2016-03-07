@@ -9,7 +9,7 @@ class SIP;
 class SIPHandler {
     public:
         virtual void OnOutCallBegin(SIP* sip) { }
-        virtual void OnInCallBegin(SIP* sip) { }
+        virtual bool OnInCallBegin(SIP* sip) { return true; }
         virtual void OnCallEnd(SIP* sip) { }
         virtual void OnCallError(SIP* sip) { }
         virtual void OnCallStreaming(SIP* sip) { }
@@ -48,11 +48,13 @@ class SIP {
             v_table_.call_state_changed = callStateChanged;
             v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_,NULL,NULL,this);
+
         }
 
         void SelectDevice(const size_t device_index)
         {
             const char** devs = linphone_core_get_sound_devices(lc_);
+            std::cout << "Device: " << devs[device_index] << std::endl;
             linphone_core_set_playback_device (lc_, devs[device_index]);
             linphone_core_set_capture_device (lc_, devs[device_index]);
         }
@@ -71,8 +73,8 @@ class SIP {
             linphone_proxy_config_set_identity(proxy_cfg, ("sip:" + username + "@" + address).c_str());
             linphone_proxy_config_set_server_addr(proxy_cfg, ("sip:" + address).c_str());
             linphone_proxy_config_enable_register(proxy_cfg,TRUE);
-            linphone_core_add_proxy_config(lc_, proxy_cfg); /*add proxy config to linphone core*/
-            linphone_core_set_default_proxy_config(lc_, proxy_cfg); /*set to default proxy*/
+            linphone_core_add_proxy_config(lc_, proxy_cfg);
+            linphone_core_set_default_proxy_config(lc_, proxy_cfg);
         }
 
         void Iterate()
@@ -190,9 +192,14 @@ class SIP {
                         break;
                     }
                     sip->call_ = call;
-                    linphone_core_accept_call(sip->lc_, call);
                     if (sip->handler_) {
-                        sip->handler_->OnInCallBegin(sip);
+                        if (sip->handler_->OnInCallBegin(sip)) {
+                            linphone_core_accept_call(sip->lc_, call);
+                        } else {
+                            linphone_core_decline_call(sip->lc_, call, LinphoneReason::LinphoneReasonDeclined);
+                        }
+                    } else {
+                        linphone_core_decline_call(sip->lc_, call, LinphoneReason::LinphoneReasonNotImplemented);
                     }
                 break;
                 default:

@@ -9,8 +9,8 @@ namespace Commutator {
     class SIPPoint : public Point, public SIPHandler {
         private:
             std::unique_ptr<SIP> sip_;
-	    volatile bool quit_;
-	    std::mutex mutex_;
+            volatile bool quit_;
+            std::mutex mutex_;
 
         public:
 
@@ -88,9 +88,9 @@ namespace Commutator {
                 Handler()->OnCallEnded(this);
             }
 
-            void OnInCallBegin(SIP* sip)
+            bool OnInCallBegin(SIP* sip)
             {
-                Handler()->OnCallReceived(this, sip->CallAddress());
+                return Handler()->OnCallReceived(this, sip->CallAddress());
             }
     };
 
