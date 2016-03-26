@@ -5,12 +5,12 @@
 #include <memory>
 #include <thread>
 #include <map>
-#include "include/Exception.h"
-#include "include/Storage.h"
-#include "include/Point.h"
-#include "include/SIPPoint.h"
-#include "include/DMRPoint.h"
-#include "include/Program.h"
+#include "Exception.h"
+#include "Storage.h"
+#include "Point.h"
+#include "SIPPoint.h"
+#include "DMRPoint.h"
+#include "Program.h"
 
 volatile bool quit = false;
 typedef std::shared_ptr<Commutator::PointFactory> PointFactoryPtr;
@@ -44,24 +44,27 @@ void signalRestartHandler(int signum)
 
 int main(int argc, char*argv[])
 {
-        std::string server;
-        std::string password;
-        std::string username;
-        std::string database;
+    std::string server;
+    std::string password;
+    std::string username;
+    std::string database;
+    std::string sip_config;
 
-    for (size_t i = 1; i < argc; ++i) {
-        if (!strcmp(argv[i], "-l")) {
-            auto devices = Commutator::SIPPoint::GetDevicesList();
-            std::cout << "Devices list:" << std::endl;
-            size_t idx = 0;
-            for (auto& p : devices) {
-              std::cout << "\t" << idx++ << ". " << p << std::endl;
-            }
-            return 0;
-        }
+    if (argc < 2 || (argc - 1) % 2 != 0) {
+        std::cout << "Usage: " << argv[0] << " <options>..." << std::endl;
+        std::cout << "  -s Database server name (required)" << std::endl;
+        std::cout << "  -u Database username (required)" << std::endl;
+        std::cout << "  -p Database password (required)" << std::endl;
+        std::cout << "  -d Database name (required)" << std::endl;
+        std::cout << "  -l Linphone config filename (required)" << std::endl;
+        return 1;
+    }
+
+    for (size_t i = 1; i < argc; i+=2) {
+
         if (!strcmp(argv[i], "-s")) {
             server = argv[i+1];
-                continue;
+            continue;
         }
         if (!strcmp(argv[i], "-p")) {
             password = argv[i+1];
@@ -75,12 +78,17 @@ int main(int argc, char*argv[])
             database = argv[i+1];
             continue;
         }
+
+        if (!strcmp(argv[i], "-l")) {
+            sip_config = argv[i+1];
+            continue;
+        }
     }
 
     signal(SIGINT, signalHandler);
     signal(SIGHUP, signalRestartHandler);
 
-    factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory())));
+    factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory(sip_config))));
     factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory(dmrAuthorizationKey, dmrAuthorizationDelta))));
 
     storage.reset(new Commutator::Storage(server, database, username, password));

@@ -1,0 +1,18 @@
+pcm.Acapture {
+    type dsnoop;
+    slave {
+        pcm "hw:1,0";
+        period_size 1024
+        buffer_size 4096
+        rate 44100
+        periods 0 
+        period_time 0
+    }
+    ipc_key 5978293;
+}
+
+pcm.Aplayback {
+    type hw
+    card 1
+    device 0
+}

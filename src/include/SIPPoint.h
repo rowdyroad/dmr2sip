@@ -14,14 +14,9 @@ namespace Commutator {
 
         public:
 
-            static std::vector<std::string> GetDevicesList()
-            {
-                return SIP::GetDevicesList();
-            }
-
-            SIPPoint(Storage::Point point, PointHandler* const handler)
+            SIPPoint(Storage::Point point, PointHandler* const handler, const std::string& config)
                 : Point(point, handler)
-		        , quit_(false)
+                        , quit_(false)
             {
                 std::string username = Storage::getValue(point.configuration, "authorization_username");
                 std::string password = Storage::getValue(point.configuration, "password");
@@ -32,7 +27,7 @@ namespace Commutator {
                 std::cout << "Configuration: " << std::endl
                             << "\tAuthorization Username = " << username << std::endl
                             << "\tPassword = " << "*********" << std::endl;
-                sip_.reset(new SIP(this));
+                sip_.reset(new SIP(this, config));
                 sip_->Connect(host, port, username, password);
             }
 
@@ -43,16 +38,16 @@ namespace Commutator {
 
             void Run()
             {
-        	   while (!quit_) {
-        	       {
+                   while (!quit_) {
+                       {
                         std::unique_lock<std::mutex> lock(mutex_);
                         sip_->Iterate();
-        		    }
-        		    usleep(50000);
-        		}
-        		if (sip_->IsCalling()) {
-        		    sip_->Hangup();
-        		}
+                            }
+                            usleep(50000);
+                        }
+                        if (sip_->IsCalling()) {
+                            sip_->Hangup();
+                        }
             }
 
             void Stop()
@@ -62,21 +57,20 @@ namespace Commutator {
 
             void Initiate(const std::string& number)
             {
-		        std::unique_lock<std::mutex> lock(mutex_);
+                std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Call(number);
             }
 
             void Hangup()
             {
-		        std::unique_lock<std::mutex> lock(mutex_);
+                std::unique_lock<std::mutex> lock(mutex_);
                 sip_->Hangup();
             }
 
             bool Link(PointPtr& point)
             {
                 try {
-                    size_t device_index = std::stoi(Storage::getValue(point->getConfiguration().configuration, "device_index"));
-                    sip_->SelectDevice(device_index);
+                    sip_->SelectDevice(Storage::getValue(point->getConfiguration().configuration, "device_index"));
                     return true;
                 } catch (Exception& e) {
                     return false;
@@ -92,12 +86,22 @@ namespace Commutator {
             {
                 return Handler()->OnCallReceived(this, sip->CallAddress());
             }
+
+            void SendCode(uint8_t code)
+            {
+               sip_->SendDTMF(code);
+            }
     };
 
     class SIPPointFactory: public PointFactory {
+        private:
+            std::string config_;
         public:
+            SIPPointFactory(const std::string& config)
+                :config_(config)
+            {}
             virtual PointPtr Create(Storage::Point point, PointHandler* const handler)  {
-                return PointPtr(new SIPPoint(point, handler));
+                return PointPtr(new SIPPoint(point, handler, config_));
             }
     };
 }

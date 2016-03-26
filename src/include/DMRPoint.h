@@ -1,5 +1,6 @@
 #pragma once
 #include "DMR/xnl_connection.h"
+#include "StreamDTMFDecoder.h"
 
 #include "Point.h"
 #include "Storage.h"
@@ -8,9 +9,12 @@
 
 namespace Commutator {
 
-    class DMRPoint : public Point, public CXNLConnectionHandler {
+    class DMRPoint : public Point, public CXNLConnectionHandler, public StreamDTMFDecoder::Handler {
         private:
             std::unique_ptr<CXNLConnection> connection_;
+
+            std::shared_ptr<Point> remote_point_;
+            std::unique_ptr<StreamDTMFDecoder> decoder_;
         public:
             DMRPoint(const std::string& auth_key, uint32_t delta, Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
@@ -34,24 +38,49 @@ namespace Commutator {
 
             void Initiate(const std::string& number)
             {
-                connection_->select_mic(1);
-                connection_->PTT(PTT_PUSH);
+                connection_->SelectChannel(std::stoi(number));
             }
 
             void Hangup()
             {
                 connection_->PTT(PTT_RELEASE);
-                connection_->select_mic(0);
+            }
+
+            void OnChannelSelected(CXNLConnection* connection, uint16_t channel)
+            {
+                std::cout << "Channel selected:" << channel << std::endl;
+                usleep(100000);
+
+                connection_->PTT(PTT_PUSH);
             }
 
             void OnCallInitiated(CXNLConnection* connection, const std::string& address)
             {
-               Handler()->OnCallReceived(this, address);
+               Point::Handler()->OnCallReceived(this, address);
             }
 
             void OnCallEnded(CXNLConnection* connection)
             {
-                Handler()->OnCallEnded(this);
+                Point::Handler()->OnCallEnded(this);
+            }
+
+            bool Link(PointPtr& point)
+            {
+                remote_point_ = point;
+                decoder_.reset(new StreamDTMFDecoder(this, Storage::getValue(getConfiguration().configuration, "device_index")));
+                return true;
+            }
+
+            void UnLink(PointPtr& point)
+            {
+                remote_point_.reset();
+                decoder_.reset();
+            }
+
+            void OnCode(StreamDTMFDecoder* const sender, uint8_t code)
+            {
+                printf("Code received: %c\n", code);
+                remote_point_->SendCode(code);
             }
     };
 

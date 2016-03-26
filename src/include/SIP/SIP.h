@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
+#include <sys/stat.h>
 #include <linphone/linphonecore.h>
 
 
@@ -17,29 +18,14 @@ class SIPHandler {
 
 class SIP {
     private:
-        std::string identity_;
-        std::string password_;
         LinphoneCoreVTable v_table_;
         LinphoneCore* lc_;
         LinphoneCall* call_;
         SIPHandler* handler_;
 
     public:
-        static std::vector<std::string> GetDevicesList()
-        {
-            LinphoneCoreVTable v = {0};
-            LinphoneCore* lc = linphone_core_new(&v,NULL,NULL,NULL);
-            const char** devs = linphone_core_get_sound_devices(lc);
-            size_t i = 0;
-            std::vector<std::string> list;
-            while (devs[i]) {
-              list.push_back(devs[i++]);
-            }
-            linphone_core_destroy(lc);
-            return std::move(list);
-        }
 
-        SIP(SIPHandler* handler)
+        SIP(SIPHandler* handler, const std::string& config)
             : v_table_({0})
             , call_(nullptr)
             , lc_(nullptr)
@@ -47,16 +33,15 @@ class SIP {
         {
             v_table_.call_state_changed = callStateChanged;
             v_table_.registration_state_changed = registrationStateChanged;
-            lc_ = linphone_core_new(&v_table_,NULL,NULL,this);
-
+            lc_ = linphone_core_new(&v_table_, nullptr, config.c_str(), this);
         }
 
-        void SelectDevice(const size_t device_index)
+        void SelectDevice(const std::string& device)
         {
-            const char** devs = linphone_core_get_sound_devices(lc_);
-            std::cout << "Device: " << devs[device_index] << std::endl;
-            linphone_core_set_playback_device (lc_, devs[device_index]);
-            linphone_core_set_capture_device (lc_, devs[device_index]);
+            std::string playback_device_name = "ALSA: plug:" + device + "playback";
+            std::string capture_device_name = "ALSA: plug:" + device + "capture";
+            linphone_core_set_playback_device (lc_, playback_device_name.c_str());
+            linphone_core_set_capture_device (lc_, capture_device_name.c_str());
         }
 
         ~SIP()
@@ -72,9 +57,10 @@ class SIP {
             linphone_core_add_auth_info(lc_, info);
             linphone_proxy_config_set_identity(proxy_cfg, ("sip:" + username + "@" + address).c_str());
             linphone_proxy_config_set_server_addr(proxy_cfg, ("sip:" + address).c_str());
-            linphone_proxy_config_enable_register(proxy_cfg,TRUE);
+            linphone_proxy_config_enable_register(proxy_cfg, true);
             linphone_core_add_proxy_config(lc_, proxy_cfg);
             linphone_core_set_default_proxy_config(lc_, proxy_cfg);
+            linphone_core_set_use_info_for_dtmf(lc_, true);
         }
 
         void Iterate()
@@ -112,10 +98,17 @@ class SIP {
             }
         }
 
-	bool IsCalling()
-	{
-	    return call_ != nullptr;
-	}
+        void SendDTMF(uint8_t code)
+        {
+            if (call_) {
+                linphone_call_send_dtmf(call_, code);
+            }
+        }
+
+    	bool IsCalling()
+    	{
+    	    return call_ != nullptr;
+    	}
 
     private:
 

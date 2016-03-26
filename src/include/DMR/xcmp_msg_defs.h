@@ -189,6 +189,16 @@ typedef struct {
 } xcmp_chan_zone_selection_request_t;
 
 typedef struct {
+    xnl_msg_hdr_t msg_hdr;
+    uint16_t xcmp_opcde;
+    uint8_t result;
+    uint8_t function;
+    uint16_t zone_num;
+    uint16_t channel_num;
+    uint8_t status[1];
+} xcmp_chan_zone_selection_reply_t;
+
+typedef struct {
     xnl_msg_hdr_t  msg_hdr;
     uint16_t xcmp_opcode;
     uint16_t zone_num;
@@ -226,6 +236,16 @@ typedef struct {
     uint8_t  signaling;
     uint8_t  gain;
 } xcmp_mic_ctrl_request_t;
+
+typedef struct {
+    xnl_msg_hdr_t  msg_hdr;
+    uint16_t xcmp_opcode;
+    uint8_t  result;
+    uint8_t  function;
+    uint8_t  mic;
+    uint8_t  signaling;
+    uint8_t  gain;
+} xcmp_mic_ctrl_reply_t;
 
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;

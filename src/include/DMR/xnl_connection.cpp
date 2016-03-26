@@ -59,7 +59,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     }
 
     for (size_t i = 0; i < 4; ++i) {
-	   m_auth_key[i] = strtoul(auth_key.substr(i* 10, 10).c_str(), NULL, 16);
+       m_auth_key[i] = strtoul(auth_key.substr(i* 10, 10).c_str(), NULL, 16);
     }
 
     encrypted_seed[0] = 0;
@@ -118,7 +118,8 @@ void CXNLConnection::Run()
     uint8_t *p_rcv_msg = NULL;
     bool bSocketErr = true;
     fd_set fdread;
-    struct timeval read_timeval = {0, 10000};/* wait 10ms */
+    struct timeval read_timeval;
+
     uint32_t StartTime = GetTickCount();
     uint32_t CurTime = 0;
     size_t retry = 0;
@@ -132,6 +133,7 @@ void CXNLConnection::Run()
         FD_ZERO(&fdread);
         /* Add m_socket to the read set */
         FD_SET(m_socket, &fdread);
+        read_timeval = {0, 50000};
 
         /* Non-blocking operation */
         ret = select(m_socket + 1, &fdread, NULL, NULL, &read_timeval);
@@ -164,7 +166,7 @@ void CXNLConnection::Run()
             {
                 p_send_msg = p_send_msg_node->p_msg;
 
-		m_handler->OnXnlMessageSent(this, p_send_msg, ((xnl_msg_hdr_t *)p_send_msg)->msg_len );
+                m_handler->OnXnlMessageSent(this, p_send_msg, ((xnl_msg_hdr_t *)p_send_msg)->msg_len );
                 /* Need to set the XNL flag and trans id */
                 ((xnl_msg_hdr_t *)p_send_msg)->xnl_flag = m_tx_xnl_flag;
                 *((uint8_t *)(&((xnl_msg_hdr_t *)p_send_msg)->trans_id)) = m_trans_id_base;
@@ -681,34 +683,67 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
     xnl_msg_hdr_t *p_xnl_hdr = (xnl_msg_hdr_t *)pBuf;
     xcmp_opcode = ntohs(*((unsigned short *)(pBuf + sizeof(xnl_msg_hdr_t))));
 
+    printf("Received XCMP: %04X\n", xcmp_opcode);
     switch (xcmp_opcode)
     {
         case XCMP_DEVICE_INIT_STATUS_BRDCST:
             decode_xcmp_dev_init_status(pBuf);
             break;
-	case XCMP_CALL_CTRL_BRDCST:
-	{
-		xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
-		uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
-		std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
+        case XCMP_CALL_CTRL_BRDCST:
+        {
+            xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
+            uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
+            std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
 
-        uint32_t * g_addr = (uint32_t*)((uint8_t*)&msg->rmt_addr + sizeof(xcmp_remote_addr_t) + msg->rmt_addr.addr_size + 1);
-        addr = std::to_string(ntohl(*g_addr & 0xFFFFFF00)) + ":" + addr;
+            uint32_t * g_addr = (uint32_t*)((uint8_t*)&msg->rmt_addr + sizeof(xcmp_remote_addr_t) + msg->rmt_addr.addr_size + 1);
+            addr = std::to_string(ntohl(*g_addr & 0xFFFFFF00)) + ":" + addr;
 
-		switch (msg->call_state) {
-		    case XCMP_CALL_INITIATED:
-		    case XCMP_CALL_DECODED:
-			m_handler->OnCallInitiated(this, addr);
-		    break;
-		    case XCMP_CALL_ENDED:
-			m_handler->OnCallEnded(this);
-		    break;
-		}
-        } break;
-        default: /* just forward the xcmp message to the application */
-            /* The XCMP message has already forwarded to the Main process, so do nothing here. */
+            switch (msg->call_state) {
+                case XCMP_CALL_INITIATED:
+                case XCMP_CALL_DECODED:
+                m_handler->OnCallInitiated(this, addr);
+                break;
+                case XCMP_CALL_ENDED:
+                m_handler->OnCallEnded(this);
+                break;
+            }
+        }
             break;
-    }
+        case XCMP_CHAN_SELECTION_REPLY:
+        {
+            xcmp_chan_zone_selection_reply_t* msg = (xcmp_chan_zone_selection_reply_t *)pBuf;
+            std::cout << "CH " << (size_t)msg->result << " " << (size_t)msg->function << " " << (size_t)msg->zone_num << " "  << (size_t)msg->channel_num << std::endl;
+            if (!msg->result) {
+                switch (msg->function) {
+                    case 0x06:
+                        m_handler->OnChannelSelected(this, msg->channel_num);
+                }
+            }
+        }
+            break;
+
+        case XCMP_TX_CTRL_REPLY:
+        {
+            xcmp_tx_ctrl_reply_t * msg = (xcmp_tx_ctrl_reply_t*)pBuf;
+            std::cout << "TX " << (size_t)msg->result << " " << (size_t)msg->function << " " << (size_t)msg->mode << " "  << (size_t)msg->state << std::endl;
+        }
+            break;
+
+        case XCMP_MIC_CTRL_REPLY:
+        {
+            xcmp_mic_ctrl_reply_t * msg = (xcmp_mic_ctrl_reply_t*)pBuf;
+            std::cout << "MIC REPLY:" <<  (size_t)msg->result << std::endl;
+            if (!msg->result) {
+                switch(msg->function) {
+                    case 0x03:
+                        m_handler->OnMicSelected(this, msg->mic);
+                }
+            }
+        }
+
+        default:
+            break;
+        }
 }
 
 
@@ -1103,7 +1138,12 @@ bool CXNLConnection::send_xcmp_chan_zone_selection_request(uint8_t function,
 
 }
 
-void CXNLConnection::select_mic(uint8_t mic)
+void CXNLConnection::SelectChannel(uint16_t channel)
+{
+    send_xcmp_chan_zone_selection_request(0x06, 0x0000, channel);
+}
+
+void CXNLConnection::SelectMic(uint8_t mic)
 {
 
     xcmp_mic_ctrl_request_t *p_msg = (xcmp_mic_ctrl_request_t *) malloc(sizeof(xcmp_mic_ctrl_request_t));

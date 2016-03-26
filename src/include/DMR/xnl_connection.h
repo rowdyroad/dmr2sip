@@ -95,6 +95,8 @@ class CXNLConnectionHandler
         virtual void OnConnectionFailure(CXNLConnection* connection) { }
         virtual void OnXnlMessageReceived(CXNLConnection* connection, uint8_t* msg, size_t len)  { }
         virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { }
+        virtual void OnChannelSelected(CXNLConnection* connection, uint16_t channel) { }
+        virtual void OnMicSelected(CXNLConnection* connection, uint8_t mic) { }
         virtual void OnCallInitiated(CXNLConnection* connection, const std::string& address)  { }
         virtual void OnCallEnded(CXNLConnection* connection) { }
 };
@@ -118,7 +120,8 @@ class CXNLConnection
     bool send_xcmp_radio_status_request(uint8_t condition);
 
 
-    void select_mic(uint8_t mic);
+    void SelectMic(uint8_t mic);
+    void SelectChannel(uint16_t channel);
     void Run();
     void Stop();
 

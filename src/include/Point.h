@@ -38,6 +38,8 @@ namespace Commutator {
             virtual bool Link(PointPtr& point) { return true; }
             virtual void UnLink(PointPtr& point) { }
 
+            virtual void SendCode(uint8_t code) { }
+
             virtual void Run() = 0;
             virtual void Stop() = 0;
             virtual void Initiate(const std::string& number) = 0;
