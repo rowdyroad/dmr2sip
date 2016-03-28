@@ -4,32 +4,23 @@
             <h2 class="section-header" data-translate="Events"></h2>
         </div>
         <div class="col-md-12">
-            <div class="panel panel-default">
-                <div class="panel-body">
-                    <table class="table no-margin">
-                        <thead>
-                            <tr>
-                                <th data-translate="Time"></th>
-                                <th data-translate="Source"></th>
-                                <th data-translate="Target"></th>
-                                <th data-translate="Number"></th>
-                                <th>&nbsp;</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr ng-repeat="item in items">
-                                <td>{{ item.time }}</td>
-                                <td>{{ item.route.source_point.name }}</td>
-                                <td>{{ item.route.destination_point.name }}</td>
-                                <td>{{ item.source_number}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+
+            <div class="ui-timline-container">
+                <section class="ui-timeline">
+                      <article class="tl-item" ng-class="$even ? 'alt' :'' " ng-repeat="item in items">
+                        <div class="tl-body">
+                            <div class="tl-entry">
+                                <div class="tl-time">{{item.time | timeago}}</div>
+                                <ng-include src="'/views/events/' + item.type +'.html'"></ng-include>
+                            </div>
+                        </div>
+                    </article>
+                </section>
             </div>
         </div>
     </div>
 </div>
+
 <div style="text-align:center;margin:20px" ng-if="page < pageCount">
     <div class="btn btn-default" ng-click="get()" data-translate="More"></div>
 </div>

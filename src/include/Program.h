@@ -132,7 +132,7 @@ class Program : public PointHandler
                             linked_points_.insert(std::make_pair(route.source_point_id, link));
                             linked_points_.insert(std::make_pair(route.destination_point_id, link));
                         }
-                        storage_.addEvent(route.route_id, number);
+                        storage_.addCallEvent(route.route_id, number);
                         link->getDestination()->Initiate(route.destination_number);
                         link_created = true;
                         break;
@@ -142,7 +142,7 @@ class Program : public PointHandler
             }
 
             if (!link_created) {
-                storage_.addEvent(0, point->getConfiguration().name + " " + number);
+                storage_.addCallEvent(0, point->getConfiguration().name + " " + number);
             }
             return link_created;
         }

@@ -12,7 +12,7 @@ class Event extends \yii\db\ActiveRecord
     public function rules()
     {
         return  [
-                    [['route_id','source_number'], 'required']
+                    [['route_id','source_number','type'], 'required']
                 ];
     }
 

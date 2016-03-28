@@ -52,11 +52,11 @@ int main(int argc, char*argv[])
 
     if (argc < 2 || (argc - 1) % 2 != 0) {
         std::cout << "Usage: " << argv[0] << " <options>..." << std::endl;
-        std::cout << "  -s Database server name (required)" << std::endl;
-        std::cout << "  -u Database username (required)" << std::endl;
-        std::cout << "  -p Database password (required)" << std::endl;
-        std::cout << "  -d Database name (required)" << std::endl;
-        std::cout << "  -l Linphone config filename (required)" << std::endl;
+        std::cout << "  -s Database server name" << std::endl;
+        std::cout << "  -u Database username" << std::endl;
+        std::cout << "  -p Database password" << std::endl;
+        std::cout << "  -d Database name" << std::endl;
+        std::cout << "  -l Linphone config filename" << std::endl;
         return 1;
     }
 

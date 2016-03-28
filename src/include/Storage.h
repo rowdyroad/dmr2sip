@@ -20,7 +20,7 @@ namespace Commutator {
     {
         private:
             std::unique_ptr<mysqlpp::Connection> db_;
-        std::mutex mutex_;
+            std::mutex mutex_;
         public:
             static std::string getValue(const std::string& haystack, const std::string& name)
             {
@@ -54,13 +54,21 @@ namespace Commutator {
                 std::string source_number;
                 size_t destination_point_id;
                 std::string destination_number;
-                regex_t source_number_regex;
+                std::shared_ptr<regex_t> source_number_regex;
                 bool checkSourceNumber(const std::string& number)
                 {
-                    if (!regexec(&source_number_regex, number.c_str(), 0, NULL, 0)) {
-                        printf("%s not matched with %s\n",number.c_str(), source_number.c_str());
-                        return false;
-        		    }
+                    if (source_number.empty()) {
+                        return true;
+                    }
+
+                    if (source_number_regex) {
+                        if (!regexec(source_number_regex.get(), number.c_str(), 0, NULL, 0)) {
+                            printf("%s not matched with %s\n",number.c_str(), source_number.c_str());
+                            return false;
+            		    }
+                    } else {
+                        return source_number == number;
+                    }
         		    return true;
                 }
             };
@@ -126,9 +134,14 @@ namespace Commutator {
                             r.route_id = row[0];
                             r.source_point_id = row[1];
                             r.source_number = row[2].c_str();
-                            if (regcomp(&r.source_number_regex, row[2], REG_EXTENDED)) {
-                                std::cout << "Incorrect regexp pattern '" << row[2] << "'" << std::endl;
-                                throw new std::exception();;
+                            if (!row[2].empty()) {
+                                if (row[2].at(0) == '/') {
+                                    r.source_number_regex.reset(new regex_t);
+                                    if (regcomp(r.source_number_regex.get(), row[2], REG_EXTENDED)) {
+                                        std::cout << "Incorrect regexp pattern '" << row[2] << "'. Ignoring route." << std::endl;
+                                        continue;
+                                    }
+                                }
                             }
                             r.destination_point_id = row[3];
                             r.destination_number = row[4].c_str();
@@ -139,11 +152,11 @@ namespace Commutator {
                 return std::move(routes);
             }
 
-            void addEvent(size_t route_id, const std::string& source_number)
+            void addCallEvent(size_t route_id, const std::string& source_number)
             {
                 std::lock_guard<std::mutex> lock(mutex_);
-                auto query = db_->query("INSERT INTO events (route_id, source_number)  VALUES(");
-                query << (int)route_id << ", '" << source_number << "')";
+                auto query = db_->query("INSERT INTO events (route_id, source_number,type)  VALUES(");
+                query << (int)route_id << ", '" << source_number << "','call')";
                 query.execute();
             }
     };

@@ -13,6 +13,7 @@ angular.module('ac', [
   'ngAnimate',
   'ngAria',
   'ngMessages',
+  'ngtimeago',
 
   // Custom modules
   'ac.i18n',
