@@ -3,7 +3,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <linphone/linphonecore.h>
-
+#include "../Debug.h"
 
 class SIP;
 
@@ -22,7 +22,7 @@ class SIP {
         LinphoneCore* lc_;
         LinphoneCall* call_;
         SIPHandler* handler_;
-
+        Debug debugger_;
     public:
 
         SIP(SIPHandler* handler, const std::string& config)
@@ -30,16 +30,25 @@ class SIP {
             , call_(nullptr)
             , lc_(nullptr)
             , handler_(handler)
+            , debugger_("sip")
         {
             v_table_.call_state_changed = callStateChanged;
             v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_, nullptr, config.c_str(), this);
+            // auto devices = linphone_core_get_sound_devices(lc_);
+            // size_t i = 0;
+            // debugger_ << "Device available: " << std::endl;
+            // while(devices[i]) {
+            //     debugger_ << "\t" << devices[i] << std::endl;
+            //     ++i;
+            // }
         }
 
         void SelectDevice(const std::string& device)
         {
             std::string playback_device_name = "ALSA: plug:" + device + "playback";
             std::string capture_device_name = "ALSA: plug:" + device + "capture";
+
             linphone_core_set_playback_device (lc_, playback_device_name.c_str());
             linphone_core_set_capture_device (lc_, capture_device_name.c_str());
         }
@@ -101,7 +110,7 @@ class SIP {
         void SendDTMF(uint8_t code)
         {
             if (call_) {
-                linphone_call_send_dtmf(call_, code);
+            //    linphone_call_send_dtmf(call_, code);
             }
         }
 
@@ -122,56 +131,57 @@ class SIP {
 
         static void globalStateChanged(LinphoneCore *lc, LinphoneGlobalState gstate, const char *message)
         {
-            printf("GLOBAL STATE: %d - %s\n", gstate, message);
-
+            SIP * sip = (SIP*)linphone_core_get_user_data(lc);
+            Debug& debugger_ = sip->debugger_;
+            debugger_ << debugger_.debug << "Global state changed - " << gstate << " " << message << std::endl;
         }
 
         static void registrationStateChanged(LinphoneCore *lc, LinphoneProxyConfig *cfg, LinphoneRegistrationState cstate, const char *message)
         {
-           printf("REGISTRAtION STATE: %d - %s\n", cstate, message);
+            SIP * sip = (SIP*)linphone_core_get_user_data(lc);
+            Debug& debugger_ = sip->debugger_;
+            debugger_ << debugger_.debug << "Registration state changed - " << cstate << " " << message << std::endl;
         }
 
-        static void callStateChanged(LinphoneCore *lc_, LinphoneCall *call, LinphoneCallState cstate, const char *msg)
+        static void callStateChanged(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cstate, const char *message)
         {
-
-            printf("CALL STATE: %d\n", cstate);
-
-            SIP * sip = (SIP*)linphone_core_get_user_data(lc_);
+            SIP * sip = (SIP*)linphone_core_get_user_data(lc);
+            Debug& debugger_ = sip->debugger_;
+            debugger_ << debugger_.debug << "Call state changed - " << cstate << " " << message << std::endl;
             switch(cstate) {
-
                 case LinphoneCallOutgoingInit:
-                    {
-                        printf("Outcomming call init\n");
-                        sip->call_ = call;
-                        if (sip->handler_) {
-                            sip->handler_->OnOutCallBegin(sip);
-                        }
+                {
+                    debugger_ << debugger_.debug << "Outcomming call init" << std::endl;
+                    sip->call_ = call;
+                    if (sip->handler_) {
+                        sip->handler_->OnOutCallBegin(sip);
                     }
+                }
                 break;
                 case LinphoneCallOutgoingRinging:
-                        printf("It is now ringing remotely !\n");
+                    debugger_ << debugger_.debug << "Outgoing call ringing" << std::endl;
                 break;
                 case LinphoneCallOutgoingEarlyMedia:
-                        printf("Receiving some early media\n");
+                    debugger_ << debugger_.debug << "Outgoing call early media" << std::endl;
                 break;
                 case LinphoneCallConnected:
-                    printf("We are connected !\n");
+                    debugger_ << debugger_.debug << "Call connected" << std::endl;
                 break;
                 case LinphoneCallStreamsRunning:
-                    printf("Media streams established !\n");
+                    debugger_ << debugger_.debug << "Call streams running" << std::endl;
                     if (sip->handler_) {
                         sip->handler_->OnCallStreaming(sip);
                     }
                 break;
                 case LinphoneCallEnd:
-                    printf("Call is terminated.\n");
+                    debugger_ << debugger_.debug << "Call ended" << std::endl;
                     if (sip->handler_) {
                         sip->handler_->OnCallEnd(sip);
                     }
                     sip->flushCall();
                 break;
                 case LinphoneCallError:
-                    printf("Call failure !");
+                    debugger_ << debugger_.debug << "Call error" << std::endl;
                     if (sip->handler_) {
                         sip->handler_->OnCallError(sip);
                     }
@@ -179,9 +189,10 @@ class SIP {
                 break;
 
                 case LinphoneCallIncomingReceived:
-                    printf("Call Icoming Received\n");
+                    debugger_ << debugger_.debug << "Incomming call received" << std::endl;
                     if (sip->call_) {
-                        printf("Busy. Ignoring call");
+                        debugger_ << debugger_.debug << "\tWe are busy. Ignoring call" << std::endl;
+                        linphone_core_decline_call(sip->lc_, call, LinphoneReason::LinphoneReasonBusy);
                         break;
                     }
                     sip->call_ = call;
@@ -196,7 +207,7 @@ class SIP {
                     }
                 break;
                 default:
-                    printf("Unhandled notification %i\n",cstate);
+                    debugger_ << debugger_.debug << "Unhandled notification" << std::endl;
             }
         }
 };

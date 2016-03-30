@@ -97,6 +97,7 @@ class DTMFDecoder
         Frequency ret = kUndefinedFrequency;
         for (auto f : frequencies) {
           double mag = 20.0 * log10(goertzelFunction(f , frames));
+          //printf("%f;", mag);
           if (mag > max) {
             max = mag;
             ret = f;
@@ -155,9 +156,10 @@ class DTMFDecoder
               for (size_t i = 0; i < framesCount_; ++i) {
                 resultedFrames[i] = windowFunctionTable_[i] * windowFrames_[i];
               }
+              //printf("%d;", timestamp_);
               Frequency low = getExistsFrequency(resultedFrames, kLowFreqs_),
                         high = getExistsFrequency(resultedFrames, kHighFreqs_);
-
+              //printf("\n");
               if (low == kUndefinedFrequency || high == kUndefinedFrequency) {
                 truncateDtmfStatTable();
               } else {

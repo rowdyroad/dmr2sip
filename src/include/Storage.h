@@ -11,6 +11,7 @@
 #include <regex.h>
 #include <regex>
 #include "Exception.h"
+#include "Debug.h"
 
 namespace Commutator {
 
@@ -21,6 +22,7 @@ namespace Commutator {
         private:
             std::unique_ptr<mysqlpp::Connection> db_;
             std::mutex mutex_;
+            Debug debugger_;
         public:
             static std::string getValue(const std::string& haystack, const std::string& name)
             {
@@ -74,6 +76,7 @@ namespace Commutator {
             };
 
             Storage(const std::string& host, const std::string& database, const std::string& username, const std::string& password, uint16_t port = 3306)
+                : debugger_("storage")
             {
                 try {
                     db_.reset(new mysqlpp::Connection());
@@ -138,7 +141,7 @@ namespace Commutator {
                                 if (row[2].at(0) == '/') {
                                     r.source_number_regex.reset(new regex_t);
                                     if (regcomp(r.source_number_regex.get(), row[2], REG_EXTENDED)) {
-                                        std::cout << "Incorrect regexp pattern '" << row[2] << "'. Ignoring route." << std::endl;
+                                        debugger_ <<  debugger_.warn << "Incorrect regexp pattern '" << row[2] << "'. Ignoring route." << std::endl;
                                         continue;
                                     }
                                 }

@@ -16,6 +16,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <unistd.h>
+#include <fcntl.h>
+
 uint32_t GetTickCount()
 {
     struct timespec ts;
@@ -44,6 +47,7 @@ enum CALL_STATE {
 };
 
 CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler)
+    : debugger_("dmr")
 {
     m_handler = handler;
     m_delta = delta;
@@ -66,7 +70,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     encrypted_seed[1] = 0;
     m_trans_id_base = 0;
     m_bWaitForAck = false;
-    m_bCloseSocket = false;
+    stop_ = false;
     conn_retry = 0;
     encrypted_seed[0] = 0;
     encrypted_seed[1] = 0;
@@ -85,9 +89,8 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     struct hostent *he = gethostbyname(host.c_str());
     struct sockaddr_in  target;
     m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
     if (m_socket == -1) {
-        throw CXNLConnectionException();
+        throw CXNLConnectionInternalException(errno, strerror(errno));
     }
 
     target.sin_family = AF_INET;
@@ -95,7 +98,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
     auto error = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
     if (error) {
-        throw CXNLConnectionException();
+        throw CXNLConnectionConnectionException(errno, strerror(errno));
     }
 }
 
@@ -106,13 +109,15 @@ CXNLConnection::~CXNLConnection(void)
 
 void CXNLConnection::Stop()
 {
-    m_bCloseSocket = true;
+    stop_ = true;
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 void CXNLConnection::Run()
 {
+
+
     MSG_QUEUE_T *p_send_msg_node = NULL;
     uint8_t *p_send_msg = NULL;
     uint8_t *p_rcv_msg = NULL;
@@ -125,7 +130,7 @@ void CXNLConnection::Run()
     size_t retry = 0;
     int ret = 0;
 
-    while (!m_bCloseSocket)
+    while (!stop_)
     {
         /* Receive a Message first */
 
@@ -359,6 +364,7 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
 
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
+    debugger_ << debugger_.debug << "Received XNL opcode - " << std::hex << xnl_opcode << std::endl;
     switch (xnl_opcode)
     {
         case XNL_MASTER_STATUS_BROADCAST:
@@ -683,7 +689,7 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
     xnl_msg_hdr_t *p_xnl_hdr = (xnl_msg_hdr_t *)pBuf;
     xcmp_opcode = ntohs(*((unsigned short *)(pBuf + sizeof(xnl_msg_hdr_t))));
 
-    printf("Received XCMP: %04X\n", xcmp_opcode);
+    debugger_ << "Received XCMP opcode - " << std::hex << xcmp_opcode << std::endl;
     switch (xcmp_opcode)
     {
         case XCMP_DEVICE_INIT_STATUS_BRDCST:

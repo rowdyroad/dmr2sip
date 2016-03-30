@@ -11,6 +11,7 @@
 #include "SIPPoint.h"
 #include "DMRPoint.h"
 #include "Program.h"
+#include "Debug.h"
 
 volatile bool quit = false;
 typedef std::shared_ptr<Commutator::PointFactory> PointFactoryPtr;
@@ -59,7 +60,6 @@ int main(int argc, char*argv[])
         std::cout << "  -l Linphone config filename" << std::endl;
         return 1;
     }
-
     for (size_t i = 1; i < argc; i+=2) {
 
         if (!strcmp(argv[i], "-s")) {
@@ -87,20 +87,21 @@ int main(int argc, char*argv[])
 
     signal(SIGINT, signalHandler);
     signal(SIGHUP, signalRestartHandler);
+    Debug debugger("main");
 
     factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory(sip_config))));
     factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory(dmrAuthorizationKey, dmrAuthorizationDelta))));
 
     storage.reset(new Commutator::Storage(server, database, username, password));
     while (!quit) {
-        std::cout << "Starting..." << std::endl;
+        debugger << "Starting..." << std::endl;
         try {
             program.reset(new Commutator::Program(*storage, factories));
             program->Run();
         } catch (std::exception& e) {
-            std::cout << "Catched exception: " << e.what() << std::endl;
+            debugger << "Catched exception: " << e.what() << std::endl;
         }
-        std::cout << "Wait for 3 seconds to restart..." << std::endl;
+        debugger << "Wait for 3 seconds to restart..." << std::endl;
         sleep(3);
     }
     return 0;

@@ -12,7 +12,6 @@ pcm.Acapture {
 }
 
 pcm.Aplayback {
-    type hw
-    card 1
-    device 0
+    type plug
+    slave.pcm "hw:1,0"
 }

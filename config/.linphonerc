@@ -1,5 +1,5 @@
 [sound]
-alsadev=plug:Acapture,plug:Aplayback
+alsadev=plug:Aplayback,plug:Acapture
 
 [video]
 enabled=0

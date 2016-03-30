@@ -2,6 +2,7 @@
 #include "DMR/xnl_connection.h"
 #include "StreamDTMFDecoder.h"
 
+#include "Debug.h"
 #include "Point.h"
 #include "Storage.h"
 #include <regex>
@@ -12,16 +13,17 @@ namespace Commutator {
     class DMRPoint : public Point, public CXNLConnectionHandler, public StreamDTMFDecoder::Handler {
         private:
             std::unique_ptr<CXNLConnection> connection_;
-
             std::shared_ptr<Point> remote_point_;
             std::unique_ptr<StreamDTMFDecoder> decoder_;
+            Debug debugger_;
         public:
             DMRPoint(const std::string& auth_key, uint32_t delta, Storage::Point point, PointHandler* const handler)
                 : Point(point, handler)
+                , debugger_("dmrpoint")
             {
                 std::string address = Storage::getValue(point.configuration, "address");
                 uint16_t port =  std::stoi(Storage::getValue(point.configuration, "port"));
-                std::cout << "Configuration: " << std::endl
+                debugger_ << "Configuration: " << std::endl
                             << "\tAddress = " << address << ":" << port << std::endl;
                 connection_.reset(new CXNLConnection(address, port, auth_key, delta, this));
             }
@@ -48,7 +50,7 @@ namespace Commutator {
 
             void OnChannelSelected(CXNLConnection* connection, uint16_t channel)
             {
-                std::cout << "Channel selected:" << channel << std::endl;
+                debugger_ << "Channel selected:" << channel << std::endl;
                 usleep(100000);
 
                 connection_->PTT(PTT_PUSH);
@@ -79,7 +81,7 @@ namespace Commutator {
 
             void OnCode(StreamDTMFDecoder* const sender, uint8_t code)
             {
-                printf("Code received: %c\n", code);
+                debugger_ << "DTMF Code received:" << (char)code << std::endl;
                 remote_point_->SendCode(code);
             }
     };

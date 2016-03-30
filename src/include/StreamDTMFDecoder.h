@@ -60,7 +60,7 @@ namespace Commutator {
 				snd_pcm_hw_params(snd_, hw_params);
 				snd_pcm_hw_params_free (hw_params);
 				snd_pcm_prepare (snd_);
-				decoder_.reset(new DTMFDecoder<>(this));
+				decoder_.reset(new DTMFDecoder<>(this, 8000, 80, 20, -20));
 				thread_.reset(new std::thread(&Commutator::StreamDTMFDecoder::run, this));
 			}
 

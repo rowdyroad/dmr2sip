@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mutex>
+#include "Debug.h"
 
 namespace Commutator {
 
@@ -63,15 +64,17 @@ class Program : public PointHandler
         std::vector<Commutator::PointPtr> points_;
         std::vector<Commutator::Storage::Route> routes_;
         std::map<size_t, std::shared_ptr<Link>> linked_points_;
+        Debug debugger_;
 
     public:
         Program(Commutator::Storage& storage, std::map<std::string, std::shared_ptr<PointFactory>>& factories)
             : storage_(storage)
+            , debugger_("program")
         {
             storage.UpdateAllPointsStatus(Commutator::Storage::Point::Status::psInvactive);
-            std::cout << "Initialize points" << std::endl;
+            debugger_ << "Initialize points" << std::endl;
             for (auto& point : storage.GetPoints()) {
-                std::cout << "\tPoint id: " << point.point_id << std::endl
+                debugger_ << "\tPoint id: " << point.point_id << std::endl
                           << "\tType: " << point.type << std::endl
                           << "\tName: " << point.name << std::endl;
                 Commutator::PointPtr p = factories.at(point.type)->Create(point, this);
@@ -81,9 +84,9 @@ class Program : public PointHandler
                 pool_.push_back(thread);
             }
             routes_ = storage_.GetRoutes();
-            std::cout << "Routes" << std::endl;
+            debugger_ << "Routes" << std::endl;
             for (auto& route : routes_) {
-                std::cout << "\tRoute id: " << route.route_id << std::endl
+                debugger_ << "\tRoute id: " << route.route_id << std::endl
                           << "\tRoute: " << route.source_point_id << "(" << route.source_number << ") -> " << route.destination_point_id << "(" << route.destination_number << ")" << std::endl;
 
             }
@@ -112,21 +115,21 @@ class Program : public PointHandler
 
         bool OnCallReceived(Commutator::Point* const point, const std::string& number)
         {
-            std::cout << "RECEIVED point:" << point->getConfiguration().point_id << " number:" << number << std::endl;
+            debugger_ << "RECEIVED point:" << point->getConfiguration().point_id << " number:" << number << std::endl;
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 if (linked_points_.find(point->getConfiguration().point_id) != linked_points_.end()) {
-                    std::cout << "\tIgnore incomming call, point in actived route now" << std::endl;
+                    debugger_ << "\tIgnore incomming call, point in actived route now" << std::endl;
                     return false;
                 }
             }
             bool link_created = false;
             for (auto route : routes_) {
-                std::cout << "\tCHECK point: " << route.source_point_id << " number: " << route.source_number << std::endl;
+                debugger_ << "\tCHECK point: " << route.source_point_id << " number: " << route.source_number << std::endl;
                 if (route.source_point_id == point->getConfiguration().point_id && route.checkSourceNumber(number)) {
                     std::shared_ptr<Link> link(new Link(route, number));
                     if (link->Connected()) {
-                        std::cout << "\t\tLinked" << std::endl;
+                        debugger_ << "\t\tLinked" << std::endl;
                         {
                             std::unique_lock<std::mutex> lock(mutex_);
                             linked_points_.insert(std::make_pair(route.source_point_id, link));
@@ -149,33 +152,33 @@ class Program : public PointHandler
 
         void OnCallEnded(Commutator::Point* const point)
         {
-            std::cout << "ENDED point: " << point->getConfiguration().point_id << std::endl;
+            debugger_ << "ENDED point: " << point->getConfiguration().point_id << std::endl;
 
             std::map<size_t, std::shared_ptr<Link>>::iterator link;
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 link = linked_points_.find(point->getConfiguration().point_id);
                 if (link == linked_points_.end()) {
-                    std::cout << "\tNot found actived route for "<< point->getConfiguration().point_id << std::endl;
+                    debugger_ << "\tNot found actived route for "<< point->getConfiguration().point_id << std::endl;
                     return;
                 }
             }
 
             if (point == link->second->getDestination().get()) {
-                std::cout << "Source hanguping" << std::endl;
+                debugger_ << "Source hanguping" << std::endl;
                 link->second->getSource()->Hangup();
-                std::cout << "Source hangup successfully" << std::endl;
+                debugger_ << "Source hangup successfully" << std::endl;
             } else {
-                std::cout << "Destination hanguping" << std::endl;
+                debugger_ << "Destination hanguping" << std::endl;
                 link->second->getDestination()->Hangup();
-                std::cout << "Destination hanguping  successfully" << std::endl;
+                debugger_ << "Destination hanguping  successfully" << std::endl;
             }
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 linked_points_.erase(link->second->getRoute().source_point_id);
                 linked_points_.erase(link->second->getRoute().destination_point_id);
             }
-            std::cout << "Call end successfully" << std::endl;
+            debugger_ << "Call end successfully" << std::endl;
         }
     };
 }

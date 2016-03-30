@@ -3,6 +3,7 @@
 #include "Storage.h"
 #include "SIP/SIP.h"
 #include "Exception.h"
+#include "Debug.h"
 
 namespace Commutator {
 
@@ -11,12 +12,13 @@ namespace Commutator {
             std::unique_ptr<SIP> sip_;
             volatile bool quit_;
             std::mutex mutex_;
-
+            Debug debugger_;
         public:
 
             SIPPoint(Storage::Point point, PointHandler* const handler, const std::string& config)
                 : Point(point, handler)
-                        , quit_(false)
+                , quit_(false)
+                , debugger_("sippoint")
             {
                 std::string username = Storage::getValue(point.configuration, "authorization_username");
                 std::string password = Storage::getValue(point.configuration, "password");
@@ -24,7 +26,7 @@ namespace Commutator {
                 std::string host = Storage::getValue(point.configuration, "host");
                 uint16_t port = std::stoi(Storage::getValue(point.configuration, "port"));
 
-                std::cout << "Configuration: " << std::endl
+                debugger_ << "Configuration: " << std::endl
                             << "\tAuthorization Username = " << username << std::endl
                             << "\tPassword = " << "*********" << std::endl;
                 sip_.reset(new SIP(this, config));

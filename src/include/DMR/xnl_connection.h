@@ -18,6 +18,7 @@
 #include <exception>
 #include <string.h>
 #include <errno.h>
+#include "../Debug.h"
 
 typedef enum
 {
@@ -88,6 +89,20 @@ class CXNLConnectionException : public std::exception
         }
 };
 
+class CXNLConnectionInternalException : public CXNLConnectionException {
+    public:
+        CXNLConnectionInternalException(int code, const std::string& message) noexcept
+            : CXNLConnectionException(code, message)
+            {}
+
+};
+class CXNLConnectionConnectionException : public CXNLConnectionException {
+    public:
+        CXNLConnectionConnectionException(int code, const std::string& message) noexcept
+            : CXNLConnectionException(code, message)
+            {}
+
+};
 class CXNLConnectionHandler
 {
     public:
@@ -154,11 +169,12 @@ class CXNLConnection
     uint32_t m_XCMP_ver; /* XCMP version */
 
   private:
+    Debug debugger_;
     CXNLConnectionHandler* m_handler;
     int  m_socket;
   //    bool    m_bIsDisplayRadio;
     volatile bool    m_bWaitForAck;
-    volatile bool    m_bCloseSocket;
+    volatile bool    stop_;
     int conn_retry;
     uint32_t m_delta;
     XNL_CONNECTION_STATE m_XnlState;
