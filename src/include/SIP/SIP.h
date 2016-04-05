@@ -35,13 +35,6 @@ class SIP {
             v_table_.call_state_changed = callStateChanged;
             v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_, nullptr, config.c_str(), this);
-            // auto devices = linphone_core_get_sound_devices(lc_);
-            // size_t i = 0;
-            // debugger_ << "Device available: " << std::endl;
-            // while(devices[i]) {
-            //     debugger_ << "\t" << devices[i] << std::endl;
-            //     ++i;
-            // }
         }
 
         void SelectDevice(const std::string& device)
@@ -70,6 +63,7 @@ class SIP {
             linphone_core_add_proxy_config(lc_, proxy_cfg);
             linphone_core_set_default_proxy_config(lc_, proxy_cfg);
             linphone_core_set_use_info_for_dtmf(lc_, true);
+            linphone_core_set_use_rfc2833_for_dtmf(lc_, false);
         }
 
         void Iterate()
