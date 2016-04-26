@@ -13,9 +13,14 @@
 #include "Exception.h"
 #include "Debug.h"
 
+#include "json.hh"
+
 namespace Commutator {
 
     class StorageException : public Exception { };
+
+    typedef JSON::Value PointConfiguration;
+    typedef JSON::Value DestinationNumber;
 
     class Storage
     {
@@ -24,21 +29,6 @@ namespace Commutator {
             std::mutex mutex_;
             Debug debugger_;
         public:
-            static std::string getValue(const std::string& haystack, const std::string& name)
-            {
-                std::string search = "\"" + name + "\":\"";
-                size_t pos = haystack.find(search);
-                if (pos == std::string::npos) {
-                    throw new Exception(2000, "Name not found in haystack.");
-                }
-
-                size_t last_pos = haystack.find("\"", pos + search.size());
-                if (pos == std::string::npos) {
-                    throw new Exception(2000, "haystack format incorrect.");
-                }
-                return  haystack.substr(pos + search.size(), last_pos - (pos + search.size()));
-            }
-
             struct Point {
                 enum Status {
                     psInvactive = 0,
@@ -47,7 +37,7 @@ namespace Commutator {
                 size_t point_id;
                 std::string type;
                 std::string name;
-                std::string configuration;
+                PointConfiguration configuration;
             };
 
             struct Route {
@@ -55,7 +45,7 @@ namespace Commutator {
                 size_t source_point_id;
                 std::string source_number;
                 size_t destination_point_id;
-                std::string destination_number;
+                DestinationNumber destination_number;
                 std::shared_ptr<regex_t> source_number_regex;
                 bool checkSourceNumber(const std::string& number)
                 {
@@ -118,7 +108,7 @@ namespace Commutator {
                             p.point_id = row[0];
                             p.type = row[1].c_str();
                             p.name = row[2].c_str();
-                            p.configuration = row[3].c_str();
+                            p.configuration = parse_string(row[3].c_str());
                             points.push_back(p);
                         }
                     }
@@ -147,7 +137,7 @@ namespace Commutator {
                                 }
                             }
                             r.destination_point_id = row[3];
-                            r.destination_number = row[4].c_str();
+                            r.destination_number = parse_string(row[4].c_str());
                             routes.push_back(r);
                         }
                     }

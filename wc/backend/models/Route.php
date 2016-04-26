@@ -12,7 +12,8 @@ class Route extends \yii\db\ActiveRecord
     public function rules()
     {
         return  [
-                    [['source_point_id','source_number', 'destination_point_id', 'destination_number'], 'required']
+                    [['source_point_id','source_number', 'destination_point_id', 'destination_number'], 'required'],
+                    ['destination_number', 'filter', 'filter'=>'json_encode']
                 ];
     }
 
@@ -29,5 +30,12 @@ class Route extends \yii\db\ActiveRecord
     public function fields()
     {
         return array_merge(parent::fields(),['source_point','destination_point']);
+    }
+
+    public function toArray( $fields = [], $expand = [], $recursive = true )
+    {
+       $arr = parent::toArray($fields, $expand, $recursive);
+       $arr['destination_number'] = json_decode($arr['destination_number'],true);
+       return $arr;
     }
 }

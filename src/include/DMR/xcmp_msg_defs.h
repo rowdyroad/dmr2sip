@@ -149,6 +149,14 @@ typedef struct {
 typedef struct {
     xnl_msg_hdr_t msg_hdr;
     uint16_t xcmp_opcode;
+    uint8_t result;
+    uint8_t function;
+    uint8_t call_state;
+} xcmp_call_ctrl_reply_t;
+
+typedef struct {
+    xnl_msg_hdr_t msg_hdr;
+    uint16_t xcmp_opcode;
     uint8_t  call_type;
     uint8_t  call_state;
     xcmp_remote_addr_t rmt_addr;

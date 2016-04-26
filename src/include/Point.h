@@ -11,8 +11,9 @@ namespace Commutator {
 
     class PointHandler {
         public:
-            virtual bool OnCallReceived(Point* const point, const std::string& number) = 0;
-            virtual void OnCallEnded(Point* const point) = 0;
+            virtual void OnReady(Point* const point) { };
+            virtual bool OnCallReceived(Point* const point, const std::string& number) {};
+            virtual void OnCallEnded(Point* const point) {};
     };
 
     class Point {
@@ -42,12 +43,12 @@ namespace Commutator {
 
             virtual void Run() = 0;
             virtual void Stop() = 0;
-            virtual void Initiate(const std::string& number) = 0;
+            virtual void Initiate(const DestinationNumber& number) = 0;
             virtual void Hangup() = 0;
     };
 
     class PointFactory {
         public:
-            virtual PointPtr Create(Storage::Point point, PointHandler* const handler) = 0;
+            virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler) = 0;
     };
 }

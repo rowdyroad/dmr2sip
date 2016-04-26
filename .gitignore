@@ -3,3 +3,5 @@ bin
 upload
 run
 log
+src/vendor/include/*
+src/vendor/lib/*

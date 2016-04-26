@@ -65,7 +65,7 @@ class CXNLConnectionException : public std::exception
     public:
         CXNLConnectionException(int code, const std::string& message)  noexcept
             : code_(code)
-            , message_(message_)
+            , message_(message)
         {}
 
         CXNLConnectionException() noexcept
@@ -94,15 +94,15 @@ class CXNLConnectionInternalException : public CXNLConnectionException {
         CXNLConnectionInternalException(int code, const std::string& message) noexcept
             : CXNLConnectionException(code, message)
             {}
-
 };
+
 class CXNLConnectionConnectionException : public CXNLConnectionException {
     public:
         CXNLConnectionConnectionException(int code, const std::string& message) noexcept
             : CXNLConnectionException(code, message)
             {}
-
 };
+
 class CXNLConnectionHandler
 {
     public:

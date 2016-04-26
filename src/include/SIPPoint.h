@@ -13,20 +13,26 @@ namespace Commutator {
             volatile bool quit_;
             std::mutex mutex_;
             Debug debugger_;
+            std::unique_ptr<DestinationNumber> number_;
         public:
 
-            SIPPoint(Storage::Point point, PointHandler* const handler, const std::string& config)
+            SIPPoint(const Storage::Point& point, PointHandler* const handler, const std::string& config)
                 : Point(point, handler)
                 , quit_(false)
                 , debugger_("sippoint")
             {
-                std::string username = Storage::getValue(point.configuration, "authorization_username");
-                std::string password = Storage::getValue(point.configuration, "password");
+                std::string username = point.configuration["authorization_username"].as_string();
+                std::string password = point.configuration["password"].as_string();
 
-                std::string host = Storage::getValue(point.configuration, "host");
-                uint16_t port = std::stoi(Storage::getValue(point.configuration, "port"));
+                std::string host = point.configuration["host"].as_string();
+
+
+                auto& pv = point.configuration["port"];
+                uint16_t port = pv.type() == JSON::STRING ? std::stoi(pv.as_string()) : pv.as_int();
 
                 debugger_ << "Configuration: " << std::endl
+                            << "\tAddress = " << host << std::endl
+                            << "\tPort = " << port << std::endl
                             << "\tAuthorization Username = " << username << std::endl
                             << "\tPassword = " << "*********" << std::endl;
                 sip_.reset(new SIP(this, config));
@@ -57,10 +63,11 @@ namespace Commutator {
                 quit_ = true;
             }
 
-            void Initiate(const std::string& number)
+            void Initiate(const DestinationNumber& number)
             {
                 std::unique_lock<std::mutex> lock(mutex_);
-                sip_->Call(number);
+                number_.reset(new DestinationNumber(number));
+                sip_->Call(number["number"].as_string());
             }
 
             void Hangup()
@@ -72,7 +79,7 @@ namespace Commutator {
             bool Link(PointPtr& point)
             {
                 try {
-                    sip_->SelectDevice(Storage::getValue(point->getConfiguration().configuration, "device_index"));
+                    sip_->SelectDevice(point->getConfiguration().configuration["device_index"].as_string());
                     return true;
                 } catch (Exception& e) {
                     return false;
@@ -81,11 +88,18 @@ namespace Commutator {
 
             void OnCallEnd(SIP* sip)
             {
+                number_.reset();
                 Handler()->OnCallEnded(this);
             }
 
             bool OnInCallBegin(SIP* sip)
             {
+                if (number_) {
+                    try {
+                        std::string extension = (*number_)["extension"].as_string();
+
+                    } catch(std::logic_error& e) { }
+                }
                 return Handler()->OnCallReceived(this, sip->CallAddress());
             }
 
@@ -102,7 +116,7 @@ namespace Commutator {
             SIPPointFactory(const std::string& config)
                 :config_(config)
             {}
-            virtual PointPtr Create(Storage::Point point, PointHandler* const handler)  {
+            virtual PointPtr Create(const Storage::Point& point, PointHandler* const handler)  {
                 return PointPtr(new SIPPoint(point, handler, config_));
             }
     };

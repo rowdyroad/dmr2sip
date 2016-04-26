@@ -18,7 +18,10 @@ angular
 .controller('RouteFormCtrl', function($scope, $http,$routeParams, $uibModal) {
   $scope.points = [];
   $http.get('/api/points').success(function(data) {
-    $scope.points = data;
+    $scope.points = {};
+    for (var i in data) {
+      $scope.points[data[i].point_id] = data[i];
+    }
   });
 
 	FormController('/api/routes', 'route_id', $scope, $http, $routeParams, $uibModal);

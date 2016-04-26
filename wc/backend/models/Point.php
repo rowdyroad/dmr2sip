@@ -13,21 +13,15 @@ class Point extends \yii\db\ActiveRecord
     {
         return  [
                     [['type','name'], 'required'],
-		    ['configuration', 'jsonEncode']
+		            ['configuration', 'filter', 'filter'=>'json_encode']
                 ];
-    }
-
-
-    public function jsonEncode($attribute, $params)
-    {
-	$this->configuration = json_encode($this->configuration);
     }
 
     public function toArray( $fields = [], $expand = [], $recursive = true )
     {
-	$arr = parent::toArray($fields, $expand, $recursive);
-	$arr['configuration'] = json_decode($arr['configuration'],true);
-	return $arr;
+	   $arr = parent::toArray($fields, $expand, $recursive);
+	   $arr['configuration'] = json_decode($arr['configuration'],true);
+	   return $arr;
     }
 
 }

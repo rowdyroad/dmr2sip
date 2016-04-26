@@ -44,18 +44,12 @@
                                     </md-input-container>
                                 </div>
                                 <div class="col-md-8">
-                                    <md-input-container class="md-block">
-                                        <label data-translate="Target number"></label>
-                                        <input required
-                                               type="text"
-                                               autocomplete="off"
-                                               ng-model="current.destination_number"
-                                               />
-                                    </md-input-container>
+                                        <ng-include
+                                          ng-if="current.destination_point_id"
+                                          src="'/views/routes/target/' +points[current.destination_point_id].type +'.html'"></ng-include>
                                 </div>
                               </div>
                                     <div class="divider divider-md"></div>
-
                                     <div class="row">
                                         <div class="col-md-4 col-sm-4">
                                             <md-button type="submit"

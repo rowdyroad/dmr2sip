@@ -1,14 +1,15 @@
 CC=g++
 CFLAGS=-std=c++11 -g
 LIBS=-lpthread -lasound
-SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -Isrc/include -I/usr/include/mysql/ -lmysqlpp -L/usr/local/lib
+SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -I/usr/include/mysql/ -lmysqlpp -L/usr/local/lib -Isrc/include -Isrc/vendor/include -Lsrc/vendor/lib -ljson
 BUILD_DIR=build
 
-TARGET=commutator
-
 SOURCES=$(wildcard src/include/**/*.cpp)
-all: $(TARGET)
 
-$(TARGET):
-	$(CC) src/commutator.cpp $(SOURCES) $(CFLAGS) $(LIBS) $(SIP_LIBS) -o $(BUILD_DIR)/$(TARGET)
+all: commutator dmr
 
+commutator:
+	$(CC) src/commutator.cpp $(SOURCES) $(CFLAGS)  $(LIBS) $(SIP_LIBS) -o $(BUILD_DIR)/commutator
+
+dmr:
+	$(CC) src/dmr.cpp $(SOURCES) $(CFLAGS) $(LIBS) $(SIP_LIBS)  -o $(BUILD_DIR)/dmr

@@ -747,9 +747,13 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
             }
         }
 
-        default:
-            break;
+        case XCMP_CALL_CTRL_REPLY:
+        {
+            xcmp_call_ctrl_reply_t * msg = (xcmp_call_ctrl_reply_t*)pBuf;
+            std::cout << "CALL REPLY:" <<  (size_t)msg->result << std::endl;
         }
+        break;
+    }
 }
 
 
@@ -1241,6 +1245,10 @@ void CXNLConnection::send_xnl_data_msg_ack(uint8_t * p_xcmp_data_msg)
 
 bool CXNLConnection::send_xnl_message(uint8_t *p_msg_buf)
 {
+    xnl_msg_hdr_t *p_xnl_hdr = (xnl_msg_hdr_t *)p_msg_buf;
+    uint16_t xcmp_opcode = ntohs(*((unsigned short *)(p_msg_buf + sizeof(xnl_msg_hdr_t))));
+    debugger_ << "Send XCMP opcode - " << std::hex << xcmp_opcode << std::endl;
+
     int len = 0;
     int n_left = 0;
     unsigned short msg_len = 0;

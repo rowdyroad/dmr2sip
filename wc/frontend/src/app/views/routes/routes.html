@@ -26,7 +26,10 @@
         			    <tbody>
             				<tr ng-repeat="item in items">
             				    <td>{{item.source_point.name}}: {{item.source_number}}</td>
-            				    <td>{{item.destination_point.name}}: {{item.destination_number}}</td>
+            				    <td>{{item.destination_point.name}}:
+                                      <ng-include
+                                          src="'/views/routes/target/' + item.destination_point.type +'.preview.html'"></ng-include>
+                                 </td>
             				    <td class="text-right">
                                     <a href="/routes/{{item.route_id}}">
                                         <button class="md-icon-button md-button md-ink-ripple">
