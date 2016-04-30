@@ -32,6 +32,7 @@ class SIP {
             , handler_(handler)
             , debugger_("sip")
         {
+            debugger_ << "Config file: " << config << std::endl;
             v_table_.call_state_changed = callStateChanged;
             v_table_.registration_state_changed = registrationStateChanged;
             lc_ = linphone_core_new(&v_table_, nullptr, config.c_str(), this);
@@ -41,6 +42,11 @@ class SIP {
         {
             std::string playback_device_name = "ALSA: plug:" + device + "playback";
             std::string capture_device_name = "ALSA: plug:" + device + "capture";
+            auto devices = linphone_core_get_sound_devices(lc_);
+            debugger_ << "Available devices list:" << std::endl;
+            for(size_t i = 0; devices[i] != NULL; ++i) {
+                debugger_ << "\t" << devices[i] << std::endl;
+            }
 
             linphone_core_set_playback_device (lc_, playback_device_name.c_str());
             linphone_core_set_capture_device (lc_, capture_device_name.c_str());

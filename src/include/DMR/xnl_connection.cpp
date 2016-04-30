@@ -43,7 +43,8 @@ enum CALL_STATE {
     XCMP_CALL_DECODED = 0x01,
     XCMP_CALL_IN_PROGRESS,
     XCMP_CALL_ENDED,
-    XCMP_CALL_INITIATED
+    XCMP_CALL_INITIATED,
+    XCMP_CALL_HANG = 0x07
 };
 
 CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler)
@@ -364,7 +365,6 @@ void CXNLConnection::OnXnlMessageProcess(uint8_t* pBuf)
 
     /* Get the xnl_opcode, byte 3 and byte 4 is the xnl opcode */
     xnl_opcode = ntohs(*((unsigned short *)(pBuf + 2)));
-    debugger_ << debugger_.debug << "Received XNL opcode - " << std::hex << xnl_opcode << std::endl;
     switch (xnl_opcode)
     {
         case XNL_MASTER_STATUS_BROADCAST:
@@ -694,23 +694,25 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
     {
         case XCMP_DEVICE_INIT_STATUS_BRDCST:
             decode_xcmp_dev_init_status(pBuf);
-            break;
+        break;
         case XCMP_CALL_CTRL_BRDCST:
         {
             xcmp_call_ctrl_broadcast_t *msg = (xcmp_call_ctrl_broadcast_t *)pBuf;
             uint32_t* d_addr = (uint32_t*)&msg->rmt_addr.rmt_addr[0];
-            std::string addr =  std::to_string(ntohl(*d_addr) >> 8);
+            std::string d_addr_str =  std::to_string(ntohl(*d_addr) >> 8);
 
             uint32_t * g_addr = (uint32_t*)((uint8_t*)&msg->rmt_addr + sizeof(xcmp_remote_addr_t) + msg->rmt_addr.addr_size + 1);
-            addr = std::to_string(ntohl(*g_addr & 0xFFFFFF00)) + ":" + addr;
+            std::string g_addr_str = std::to_string(ntohl(*g_addr & 0xFFFFFF00));
 
+            debugger_ << "Call broadcast: state="<< (size_t)msg->call_state << " type=" << (size_t)msg->call_type <<  " addr=" << d_addr_str << " group=" << g_addr_str << std::endl;
             switch (msg->call_state) {
-                case XCMP_CALL_INITIATED:
-                case XCMP_CALL_DECODED:
-                m_handler->OnCallInitiated(this, addr);
+                case XCMP_CALL_IN_PROGRESS:
+                    m_handler->OnCallEstablished(this, msg->call_type, d_addr_str, g_addr_str);
                 break;
                 case XCMP_CALL_ENDED:
-                m_handler->OnCallEnded(this);
+                break;
+                case XCMP_CALL_HANG:
+                    m_handler->OnCallEnded(this);
                 break;
             }
         }
@@ -718,7 +720,7 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
         case XCMP_CHAN_SELECTION_REPLY:
         {
             xcmp_chan_zone_selection_reply_t* msg = (xcmp_chan_zone_selection_reply_t *)pBuf;
-            std::cout << "CH " << (size_t)msg->result << " " << (size_t)msg->function << " " << (size_t)msg->zone_num << " "  << (size_t)msg->channel_num << std::endl;
+            debugger_ << "Channel selection reply: result=" << (size_t)msg->result << " function=" << (size_t)msg->function << " zone=" << (size_t)msg->zone_num << " channel="<< (size_t)msg->channel_num << std::endl;
             if (!msg->result) {
                 switch (msg->function) {
                     case 0x06:
@@ -726,23 +728,31 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
                 }
             }
         }
-            break;
+        break;
 
         case XCMP_TX_CTRL_REPLY:
         {
             xcmp_tx_ctrl_reply_t * msg = (xcmp_tx_ctrl_reply_t*)pBuf;
-            std::cout << "TX " << (size_t)msg->result << " " << (size_t)msg->function << " " << (size_t)msg->mode << " "  << (size_t)msg->state << std::endl;
+            debugger_ << "TX control reply: result=" << (size_t)msg->result << " function=" << (size_t)msg->function << " mode=" << (size_t)msg->mode << " state="  << (size_t)msg->state << std::endl;
         }
-            break;
+        break;
+        case XCMP_TX_CTRL_BRDCST:
+        {
+             xcmp_tx_ctrl_broadcast_t * msg= (xcmp_tx_ctrl_broadcast_t*)pBuf;
+             debugger_ << "TX broadcast: mode=" << (size_t)msg->mode << " state=" << (size_t)msg->state << " state change reason=" << (size_t)msg->state_change_reason << std::endl;
+
+        }
+        break;
 
         case XCMP_MIC_CTRL_REPLY:
         {
             xcmp_mic_ctrl_reply_t * msg = (xcmp_mic_ctrl_reply_t*)pBuf;
-            std::cout << "MIC REPLY:" <<  (size_t)msg->result << std::endl;
+            debugger_  << "Mic reply: result=" <<  (size_t)msg->result << std::endl;
             if (!msg->result) {
                 switch(msg->function) {
                     case 0x03:
                         m_handler->OnMicSelected(this, msg->mic);
+                    break;
                 }
             }
         }
@@ -750,7 +760,14 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
         case XCMP_CALL_CTRL_REPLY:
         {
             xcmp_call_ctrl_reply_t * msg = (xcmp_call_ctrl_reply_t*)pBuf;
-            std::cout << "CALL REPLY:" <<  (size_t)msg->result << std::endl;
+            debugger_ << "Call reply: result=" << (size_t)msg->result << " function="<< (size_t)msg->function << " state=" << (size_t)msg->call_state << std::endl;
+            if (!msg->result) {
+                switch (msg->function) {
+                    case 0x01:
+                        m_handler->OnCallReady(this);
+                    break;
+                }
+            }
         }
         break;
     }
@@ -1247,8 +1264,9 @@ bool CXNLConnection::send_xnl_message(uint8_t *p_msg_buf)
 {
     xnl_msg_hdr_t *p_xnl_hdr = (xnl_msg_hdr_t *)p_msg_buf;
     uint16_t xcmp_opcode = ntohs(*((unsigned short *)(p_msg_buf + sizeof(xnl_msg_hdr_t))));
-    debugger_ << "Send XCMP opcode - " << std::hex << xcmp_opcode << std::endl;
-
+    if (xcmp_opcode) {
+        debugger_ << "Send XCMP opcode - " << std::hex << xcmp_opcode << std::endl;
+    }
     int len = 0;
     int n_left = 0;
     unsigned short msg_len = 0;

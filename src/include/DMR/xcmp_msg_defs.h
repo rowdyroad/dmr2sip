@@ -233,6 +233,14 @@ typedef struct {
 typedef struct {
     xnl_msg_hdr_t  msg_hdr;
     uint16_t xcmp_opcode;
+    uint8_t  mode;
+    uint8_t  state;
+    uint8_t  state_change_reason;
+} xcmp_tx_ctrl_broadcast_t;
+
+typedef struct {
+    xnl_msg_hdr_t  msg_hdr;
+    uint16_t xcmp_opcode;
     uint8_t  condition;
 } xcmp_radio_status_request_t;
 

@@ -49,7 +49,14 @@
                                           src="'/views/routes/target/' +points[current.destination_point_id].type +'.html'"></ng-include>
                                 </div>
                               </div>
-                                    <div class="divider divider-md"></div>
+                              <div class="row">
+                                <div class="col-md-12">
+                                  <md-input-container class="md-block">
+                                    <md-checkbox ng-model="current.phone_mode" aria-label="Phone mode" ng-true-value="1"><span data-translate="Phone mode"></span></md-checkbox>
+                                    </md-input-container>
+                                  </div>
+                              </div>
+                                <div class="divider divider-md"></div>
                                     <div class="row">
                                         <div class="col-md-4 col-sm-4">
                                             <md-button type="submit"

@@ -26,21 +26,28 @@ class DMRHandler : public PointHandler {
         }
         virtual void OnReady(Point* const point)
         {
-            ((DMRPoint*)point)->Initiate("1");
+            //((DMRPoint*)point)->Initiate("{\"type\":\"group\", \"number\":\"2077001\"}");
         }
 };
 
 int main(int argc, char*argv[])
 {
-    const char* dmrAuthorizationKey = "0x152C7E9D0x38BE41C70x71E96CA40x6CAC1AFC0x9E3779B9";
-    const size_t dmrAuthorizationDelta = 0x9E3779B9;
-    Storage::Point config;
-    DMRHandler handler;
-    config.configuration = "{\"address\":\"192.168.10.1\",\"port\":\"8002\",\"device_index\":\"A\"}";
-    JSON::Value v = parse_string("{\"address\":\"192.168.10.1\"}");
-    std::cout << v << std::endl;
-    DMRPoint dmr(dmrAuthorizationKey, dmrAuthorizationDelta, config, &handler);
+    JSON::Object configuration;
+    configuration["address"] = "192.168.10.1";
+    configuration["port"] = 8002;
+    configuration["device_index"] = "A";
+    JSON::Object phone_mode;
+    phone_mode["code"] = "##";
+    phone_mode["duration"] = 2000;
+    configuration["phone_mode"] = phone_mode;
 
+
+
+    Storage::Point config;
+    config.configuration = configuration;
+
+    DMRHandler handler;
+    DMRPoint dmr("0x152C7E9D0x38BE41C70x71E96CA40x6CAC1AFC0x9E3779B9", 0x9E3779B9, config, &handler);
     dmr.Run();
 
     return 0;

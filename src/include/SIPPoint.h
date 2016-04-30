@@ -1,19 +1,49 @@
 #pragma once
+#include <string>
 #include "Point.h"
 #include "Storage.h"
 #include "SIP/SIP.h"
 #include "Exception.h"
 #include "Debug.h"
 
+#include "json.hh"
+
 namespace Commutator {
 
     class SIPPoint : public Point, public SIPHandler {
+        public:
+            struct Number {
+                std::string number;
+                std::string extension;
+                Number(const std::string& json)
+                {
+                    auto value = parse_string(json);
+                    auto& nv = value["number"];
+                    number = nv.type() == JSON::STRING ? nv.as_string() : std::to_string(nv.as_int());
+                    extension = value["extension"].as_string();
+                }
+
+                Number(const std::string& number, const std::string& extension)
+                    : number(number)
+                    , extension(extension)
+                {}
+
+                std::string asString() const
+                {
+                    std::stringstream ss;
+                    JSON::Object ret;
+                    ret["number"] = number;
+                    ret["extension"] = extension;
+                    ss << ret;
+                    return ss.str();
+                }
+            };
         private:
             std::unique_ptr<SIP> sip_;
             volatile bool quit_;
             std::mutex mutex_;
             Debug debugger_;
-            std::unique_ptr<DestinationNumber> number_;
+            std::unique_ptr<Number> number_;
         public:
 
             SIPPoint(const Storage::Point& point, PointHandler* const handler, const std::string& config)
@@ -63,11 +93,11 @@ namespace Commutator {
                 quit_ = true;
             }
 
-            void Initiate(const DestinationNumber& number)
+            void Initiate(const std::string& number)
             {
+                number_.reset(new Number(number));
                 std::unique_lock<std::mutex> lock(mutex_);
-                number_.reset(new DestinationNumber(number));
-                sip_->Call(number["number"].as_string());
+                sip_->Call(number_->number);
             }
 
             void Hangup()
@@ -92,13 +122,15 @@ namespace Commutator {
                 Handler()->OnCallEnded(this);
             }
 
+            bool PhoneModeMaster()
+            {
+                return true;
+            }
+
             bool OnInCallBegin(SIP* sip)
             {
                 if (number_) {
-                    try {
-                        std::string extension = (*number_)["extension"].as_string();
-
-                    } catch(std::logic_error& e) { }
+                    //todo send DTMF
                 }
                 return Handler()->OnCallReceived(this, sip->CallAddress());
             }

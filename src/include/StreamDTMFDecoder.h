@@ -5,6 +5,8 @@
 #include <alsa/asoundlib.h>
 #include "DTMFDecoder/DTMFDecoder.h"
 
+
+#include "Debug.h"
 namespace Commutator {
 	class StreamDTMFDecoder : public DTMFDecoder<>::Handler {
 		public:
@@ -21,7 +23,7 @@ namespace Commutator {
 			StreamDTMFDecoder::Handler* handler_ = nullptr;
 			std::unique_ptr<std::thread> thread_;
 			std::unique_ptr<DTMFDecoder<>> decoder_;
-
+			Debug debugger_;
 			void run()
 			{
 				std::vector<int16_t> frames(400);
@@ -43,9 +45,11 @@ namespace Commutator {
 
 			StreamDTMFDecoder(Handler* handler, const std::string& device)
 				: handler_(handler)
+				, debugger_("StreamDTMFDecoder")
 			{
 				snd_pcm_hw_params_t *hw_params;
 				std::string name = "plug:" + device + "capture";
+				debugger_ << "Device name:" << name << std::endl;
 				int err;
 				if ((err = snd_pcm_open (&snd_, name.c_str(), SND_PCM_STREAM_CAPTURE, 0)) < 0) {
 					fprintf (stderr, "cannot open audio device %s %d (%s)\n", name.c_str(), err, snd_strerror (err));

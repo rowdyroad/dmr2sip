@@ -164,21 +164,27 @@ class Program : public PointHandler
                 }
             }
 
-            if (point == link->second->getDestination().get()) {
-                debugger_ << "Source hanguping" << std::endl;
-                link->second->getSource()->Hangup();
-                debugger_ << "Source hangup successfully" << std::endl;
+            bool callback = link->second->getRoute().phone_mode && !point->PhoneModeMaster();
+
+            if (callback) {
+                debugger_ << "Phone mode is on: need to callback" << std::endl;
+                point->Callback();
             } else {
-                debugger_ << "Destination hanguping" << std::endl;
-                link->second->getDestination()->Hangup();
-                debugger_ << "Destination hanguping  successfully" << std::endl;
+                debugger_ << "Ending call now" << std::endl;
+                debugger_ << "\tHanguping remote point";
+                (point == link->second->getSource().get()
+                            ? link->second->getDestination()
+                            : link->second->getSource())->Hangup();
+                debugger_ << " Done" << std::endl;
+                debugger_ << "\tDestroing link";
+                {
+                    std::unique_lock<std::mutex> lock(mutex_);
+                    linked_points_.erase(link->second->getRoute().source_point_id);
+                    linked_points_.erase(link->second->getRoute().destination_point_id);
+                }
+                debugger_ << " Done" << std::endl;
+                debugger_ << "Call end successfully" << std::endl;
             }
-            {
-                std::unique_lock<std::mutex> lock(mutex_);
-                linked_points_.erase(link->second->getRoute().source_point_id);
-                linked_points_.erase(link->second->getRoute().destination_point_id);
-            }
-            debugger_ << "Call end successfully" << std::endl;
         }
     };
 }

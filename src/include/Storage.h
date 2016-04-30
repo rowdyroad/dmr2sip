@@ -20,7 +20,6 @@ namespace Commutator {
     class StorageException : public Exception { };
 
     typedef JSON::Value PointConfiguration;
-    typedef JSON::Value DestinationNumber;
 
     class Storage
     {
@@ -45,8 +44,9 @@ namespace Commutator {
                 size_t source_point_id;
                 std::string source_number;
                 size_t destination_point_id;
-                DestinationNumber destination_number;
+                std::string destination_number;
                 std::shared_ptr<regex_t> source_number_regex;
+                bool phone_mode;
                 bool checkSourceNumber(const std::string& number)
                 {
                     if (source_number.empty()) {
@@ -119,7 +119,7 @@ namespace Commutator {
             std::vector<Route> GetRoutes()
             {
                 std::vector<Route> routes;
-                auto query = db_->query("SELECT route_id, source_point_id, source_number, destination_point_id, destination_number FROM routes");
+                auto query = db_->query("SELECT route_id, source_point_id, source_number, destination_point_id, destination_number, phone_mode FROM routes");
                 if (auto res = query.store()) {
                     if (res.num_rows() > 0) {
                         for (auto& row: res) {
@@ -137,7 +137,8 @@ namespace Commutator {
                                 }
                             }
                             r.destination_point_id = row[3];
-                            r.destination_number = parse_string(row[4].c_str());
+                            r.destination_number = row[4].c_str();
+                            r.phone_mode = row[5];
                             routes.push_back(r);
                         }
                     }

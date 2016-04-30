@@ -40,10 +40,12 @@ namespace Commutator {
             virtual void UnLink(PointPtr& point) { }
 
             virtual void SendCode(uint8_t code) { }
+            virtual bool PhoneModeMaster() { return false; }
 
             virtual void Run() = 0;
             virtual void Stop() = 0;
-            virtual void Initiate(const DestinationNumber& number) = 0;
+            virtual void Initiate(const std::string& number) = 0;
+            virtual void Callback() {}
             virtual void Hangup() = 0;
     };
 

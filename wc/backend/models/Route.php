@@ -12,7 +12,7 @@ class Route extends \yii\db\ActiveRecord
     public function rules()
     {
         return  [
-                    [['source_point_id','source_number', 'destination_point_id', 'destination_number'], 'required'],
+                    [['source_point_id','source_number', 'destination_point_id', 'destination_number', 'phone_mode'], 'required'],
                     ['destination_number', 'filter', 'filter'=>'json_encode']
                 ];
     }

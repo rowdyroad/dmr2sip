@@ -54,7 +54,7 @@ int main(int argc, char*argv[])
     signal(SIGHUP, signalRestartHandler);
     Debug debugger("main");
 
-    factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory(config["sip"]["config_file"].as_string()))));
+    factories.insert(std::make_pair("sip", PointFactoryPtr(new Commutator::SIPPointFactory(config["sip"]["config_filename"].as_string()))));
     factories.insert(std::make_pair("dmr", PointFactoryPtr(new Commutator::DMRPointFactory(config["dmr"]["authorization_key"].as_string(), config["dmr"]["delta"].as_int()))));
 
     storage.reset(new Commutator::Storage(  config["database"]["address"].as_string(),

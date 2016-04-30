@@ -108,11 +108,17 @@ class CXNLConnectionHandler
     public:
         virtual void OnConnectionSuccess(CXNLConnection* connection) { }
         virtual void OnConnectionFailure(CXNLConnection* connection) { }
+
         virtual void OnXnlMessageReceived(CXNLConnection* connection, uint8_t* msg, size_t len)  { }
         virtual void OnXnlMessageSent(CXNLConnection* connection, uint8_t* msg, size_t len) { }
+
         virtual void OnChannelSelected(CXNLConnection* connection, uint16_t channel) { }
+
         virtual void OnMicSelected(CXNLConnection* connection, uint8_t mic) { }
-        virtual void OnCallInitiated(CXNLConnection* connection, const std::string& address)  { }
+
+        virtual void OnCallReady(CXNLConnection* connection)  { }
+        virtual void OnCallEstablished(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group)  { }
+
         virtual void OnCallEnded(CXNLConnection* connection) { }
 };
 
