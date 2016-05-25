@@ -125,7 +125,7 @@ class CXNLConnectionHandler
 class CXNLConnection
 {
   public:
-    CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler);
+    CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler, size_t timeout = 3);
     ~CXNLConnection();
 
 

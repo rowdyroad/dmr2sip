@@ -13,27 +13,38 @@ namespace Commutator {
     class SIPPoint : public Point, public SIPHandler {
         public:
             struct Number {
-                std::string number;
+                std::string to;
                 std::string extension;
+                
+                std::string from;
+                
                 Number(const std::string& json)
                 {
                     auto value = parse_string(json);
-                    auto& nv = value["number"];
-                    number = nv.type() == JSON::STRING ? nv.as_string() : std::to_string(nv.as_int());
-                    extension = value["extension"].as_string();
+                    try {
+                        from = value["from"].as_string();
+                    } catch (...) {}
+                    try {
+                        to = value["to"].as_string();                    
+                    } catch (...) {}
+                    try {
+                        extension = value["extension"].as_string();
+                    } catch (...) {}                    
                 }
 
-                Number(const std::string& number, const std::string& extension)
-                    : number(number)
+                Number(const std::string& to, const std::string& extension, const std::string& from)
+                    : to(to)
                     , extension(extension)
+                    , from(from)
                 {}
 
                 std::string asString() const
                 {
                     std::stringstream ss;
                     JSON::Object ret;
-                    ret["number"] = number;
                     ret["extension"] = extension;
+                    ret["to"] = to;
+                    ret["from"] = from;
                     ss << ret;
                     return ss.str();
                 }
@@ -97,7 +108,7 @@ namespace Commutator {
             {
                 number_.reset(new Number(number));
                 std::unique_lock<std::mutex> lock(mutex_);
-                sip_->Call(number_->number);
+                sip_->Call(number_->to);
             }
 
             void Hangup()
@@ -127,12 +138,17 @@ namespace Commutator {
                 return true;
             }
 
-            bool OnInCallBegin(SIP* sip)
+            bool OnInCallBegin(SIP* sip, const std::string& from, const std::string& to)
             {
                 if (number_) {
                     //todo send DTMF
                 }
-                return Handler()->OnCallReceived(this, sip->CallAddress());
+                return Handler()->OnCallReceived(this, Number(to,std::string(),from).asString());
+            }
+
+            void OnRegistered(SIP* sip)
+            {
+                Handler()->OnReady(this);
             }
 
             void SendCode(uint8_t code)

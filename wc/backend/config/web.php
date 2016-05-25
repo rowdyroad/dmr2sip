@@ -5,7 +5,7 @@ $params = require(__DIR__ . '/params.php');
 $config = [
     'id' => 'basic',
     'basePath' => dirname(__DIR__),
-    'bootstrap' => ['log',[
+    'bootstrap' => ['log','service',[
 
             'class' => 'yii\filters\ContentNegotiator',
             'formats' => [
@@ -15,6 +15,10 @@ $config = [
 
     ]],
     'components' => [
+        'service'=> [
+            'class'=>'\app\components\Service',
+            'service'=>'commutator'
+        ],
         'request' => [
             // !!! insert a secret key in the following (if it is empty) - this is required by cookie validation
             'cookieValidationKey' => 'E5TZYQ7aOX5mYSr7ErHe0f88lFrPWP-l',
@@ -64,8 +68,7 @@ $config = [
                 ],
                 ['class' => 'yii\web\UrlRule', 'route'=>'configuration/network', 'pattern'=>'configuration/network', 'verb'=>'GET'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'configuration/network/update', 'pattern'=>'configuration/network', 'verb'=>'POST'],
-                ['class' => 'yii\web\UrlRule', 'route'=>'commutator/state', 'pattern'=>'commutator/state', 'verb'=>'GET'],
-                ['class' => 'yii\web\UrlRule', 'route'=>'commutator/reload', 'pattern'=>'commutator/reload', 'verb'=>'POST'],
+              
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/check', 'pattern'=>'user/check'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/login', 'pattern'=>'user/login','verb'=>'POST'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/logout', 'pattern'=>'user/logout', 'verb'=>'POST'],

@@ -47,7 +47,7 @@ enum CALL_STATE {
     XCMP_CALL_HANG = 0x07
 };
 
-CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler)
+CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std::string& auth_key, uint32_t delta, CXNLConnectionHandler* handler, size_t timeout)
     : debugger_("dmr")
 {
     m_handler = handler;
@@ -86,10 +86,9 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     m_pLastSendMsg = NULL;
     m_XCMP_ver = 0;
 
-
     struct hostent *he = gethostbyname(host.c_str());
     struct sockaddr_in  target;
-    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
     if (m_socket == -1) {
         throw CXNLConnectionInternalException(errno, strerror(errno));
     }
@@ -97,9 +96,23 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     target.sin_family = AF_INET;
     target.sin_port = htons(port);
     memcpy(&target.sin_addr, he->h_addr_list[0], he->h_length);
-    auto error = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
-    if (error) {
-        throw CXNLConnectionConnectionException(errno, strerror(errno));
+    int flags = fcntl(m_socket, F_GETFL, 0);
+    fcntl(m_socket, F_SETFL, flags | O_NONBLOCK);
+    auto res = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
+    if (res < 0) { 
+        if (errno == EINPROGRESS) {
+            struct timeval tv; 
+            fd_set fdset; 
+            tv.tv_sec = timeout; 
+            tv.tv_usec = 0; 
+            FD_ZERO(&fdset); 
+            FD_SET(m_socket, &fdset); 
+            if (select(m_socket + 1, NULL, &fdset, NULL, &tv) <= 0) {              
+                throw CXNLConnectionConnectionException(errno, strerror(errno));
+            } else {
+                 fcntl(m_socket, F_SETFL, flags);
+            }         
+        }
     }
 }
 

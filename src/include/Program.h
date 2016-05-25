@@ -10,21 +10,15 @@ class Program : public PointHandler
     private:
         class Link {
             private:
-                static std::vector<Commutator::PointPtr> points_;
                 Commutator::Storage::Route route_;
                 Commutator::PointPtr source_;
                 Commutator::PointPtr destination_;
                 std::string number_;
-            public:
-                static void SetPoints(const std::vector<Commutator::PointPtr>& points)
-                {
-                    points_ = points;
-                }
-
-                Link(const Commutator::Storage::Route& route, const std::string& number)
+            public:        
+                Link(const Commutator::Storage::Route& route, const std::string& number, const std::list<Commutator::PointPtr>& points)
                     : route_(route)
                 {
-                    for (auto p : Link::points_) {
+                    for (auto& p : points) {
                         if (p->getConfiguration().point_id == route.source_point_id) {
                             source_ = p;
                         } else if (p->getConfiguration().point_id == route.destination_point_id) {
@@ -61,7 +55,8 @@ class Program : public PointHandler
         std::mutex mutex_;
         Commutator::Storage& storage_;
         std::vector<std::shared_ptr<std::thread>> pool_;
-        std::vector<Commutator::PointPtr> points_;
+        std::list<Commutator::PointPtr> points_;
+        std::list<Commutator::PointPtr> ready_points_;
         std::vector<Commutator::Storage::Route> routes_;
         std::map<size_t, std::shared_ptr<Link>> linked_points_;
         Debug debugger_;
@@ -78,8 +73,7 @@ class Program : public PointHandler
                           << "\tType: " << point.type << std::endl
                           << "\tName: " << point.name << std::endl;
                 Commutator::PointPtr p = factories.at(point.type)->Create(point, this);
-                points_.push_back(p);
-                storage.UpdatePointStatus(point.point_id, Commutator::Storage::Point::Status::psActive);
+                points_.push_back(p);                
                 std::shared_ptr<std::thread> thread(new std::thread(&Commutator::Point::Run, p));
                 pool_.push_back(thread);
             }
@@ -87,10 +81,9 @@ class Program : public PointHandler
             debugger_ << "Routes" << std::endl;
             for (auto& route : routes_) {
                 debugger_ << "\tRoute id: " << route.route_id << std::endl
-                          << "\tRoute: " << route.source_point_id << "(" << route.source_number << ") -> " << route.destination_point_id << "(" << route.destination_number << ")" << std::endl;
+                          << "\tRoute: " << route.source_point_id << "(" << route.source_number_string << ") -> " << route.destination_point_id << "(" << route.destination_number_string << ")" << std::endl;
 
             }
-            Link::SetPoints(points_);
         }
 
         ~Program()
@@ -125,9 +118,11 @@ class Program : public PointHandler
             }
             bool link_created = false;
             for (auto route : routes_) {
-                debugger_ << "\tCHECK point: " << route.source_point_id << " number: " << route.source_number << std::endl;
-                if (route.source_point_id == point->getConfiguration().point_id && route.checkSourceNumber(number)) {
-                    std::shared_ptr<Link> link(new Link(route, number));
+                debugger_ << "\tCHECK point: " << route.source_point_id << " number: " << route.source_number_string << std::endl;
+                std::string destination;
+                if (route.source_point_id == point->getConfiguration().point_id && route.checkSourceNumber(number, destination)) {
+                    debugger_ << "\t\t destination:" << destination << std::endl;
+                    std::shared_ptr<Link> link(new Link(route, number, ready_points_));
                     if (link->Connected()) {
                         debugger_ << "\t\tLinked" << std::endl;
                         {
@@ -136,7 +131,7 @@ class Program : public PointHandler
                             linked_points_.insert(std::make_pair(route.destination_point_id, link));
                         }
                         storage_.addCallEvent(route.route_id, number);
-                        link->getDestination()->Initiate(route.destination_number);
+                        link->getDestination()->Initiate(destination);
                         link_created = true;
                         break;
                     }
@@ -145,7 +140,7 @@ class Program : public PointHandler
             }
 
             if (!link_created) {
-                storage_.addCallEvent(0, point->getConfiguration().name + " " + number);
+                storage_.addCallEvent(0, number);
             }
             return link_created;
         }
@@ -185,6 +180,18 @@ class Program : public PointHandler
                 debugger_ << " Done" << std::endl;
                 debugger_ << "Call end successfully" << std::endl;
             }
+        }
+
+        void OnReady(Commutator::Point* const point)
+        {
+            debugger_ << "Point " << point->getConfiguration().name << "(" << point->getConfiguration().point_id << ") is ready to work" << std::endl;           
+            for (auto it = points_.begin(); it != points_.end(); ++it) {
+                if (it->get() == point) {
+                    storage_.UpdatePointStatus(point->getConfiguration().point_id, Commutator::Storage::Point::Status::psActive);
+                    ready_points_.push_back(*it);
+                    break;
+                }
+            }       
         }
     };
 }

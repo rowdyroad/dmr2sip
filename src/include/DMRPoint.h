@@ -23,7 +23,9 @@ namespace Commutator {
                     CHANNEL
                 };
                 Type type;
-                size_t number;
+                std::string id;
+                std::string group_id;                
+                uint8_t channel;
                 std::string extension;
 
                 Number(const std::string& json)
@@ -32,29 +34,35 @@ namespace Commutator {
                     auto tv = value["type"].as_string();
                     if (tv == "private") {
                         type = PRIVATE;
+                        id = value["id"].as_string();
                     } else if (tv == "group") {
                         type = GROUP;
+                        group_id = value["group_id"].as_string();
                     } else if (tv == "channel") {
                         type = CHANNEL;
+                        channel = value["channel"].type() == JSON::STRING ? std::stoi(value["channel"].as_string()) : value["channel"].as_int();
                     } else {
                         throw new std::logic_error("Incorrect destination number type");
                     }
-
-                    auto& nv = value["number"];
-                    number = nv.type() == JSON::STRING ? std::stoi(nv.as_string()) : nv.as_int();
                     extension = value["extension"].as_string();
                 }
 
-                Number(Type type, size_t number, const std::string& extension)
-                    : type(type)
-                    , number(number)
-                    , extension(extension)
-                {}
-
-                Number(Type type, size_t number)
-                    : type(type)
-                    , number(number)
-                {}
+                Number(Type type, const std::string& a, const std::string& b = std::string(), const std::string& c = std::string())
+                    : type(type)                
+                {
+                    switch(type) {
+                        case PRIVATE:
+                        case GROUP:
+                            id = a;
+                            group_id = b;
+                            extension = c;
+                        break;
+                        case CHANNEL:
+                            channel = std::stoi(a);
+                            extension = b;
+                        break;
+                    };
+                }
 
                 std::string asString() const
                 {
@@ -71,7 +79,9 @@ namespace Commutator {
                             ret["type"] = "channel";
                         break;
                     };
-                    ret["number"] = std::to_string(number);
+
+                    ret["id"] = id;
+                    ret["group_id"] = group_id;
                     ret["extension"] = extension;
                     ss << ret;
                     return ss.str();
@@ -86,6 +96,7 @@ namespace Commutator {
 
             std::unique_ptr<Number> destination_number_;
             std::unique_ptr<Number> source_number_;
+
             class DTMFCodeState
             {
                 size_t first_time_ = 0;
@@ -128,10 +139,17 @@ namespace Commutator {
             };
 
             std::unique_ptr<DTMFCodeState> dmtf_state_;
+            std::string auth_key_;
+            uint32_t delta_;
+            std::string address_;
+            uint16_t port_;
+            volatile bool stop_ = false;
         public:
             DMRPoint(const std::string& auth_key, uint32_t delta, const Storage::Point& point, PointHandler* const handler)
                 : Point(point, handler)
                 , debugger_("dmrpoint")
+                , auth_key_(auth_key)
+                , delta_(delta)
             {
                 try {
                     auto& dv = point.configuration["phone_mode"]["duration"];
@@ -141,22 +159,34 @@ namespace Commutator {
                     debugger_ << "Phone mode is disabled: incorrect configuration" << std::endl;
                 }
 
-                std::string address = point.configuration["address"].as_string();
+                address_ = point.configuration["address"].as_string();
                 auto& pv = point.configuration["port"];
-                uint16_t port = pv.type() == JSON::STRING ? std::stoi(pv.as_string()) : pv.as_int();
+                port_ = pv.type() == JSON::STRING ? std::stoi(pv.as_string()) : pv.as_int();
                 debugger_ << "Configuration: " << std::endl
-                            << "\tAddress = " << address << ":" << port << std::endl;
-                connection_.reset(new CXNLConnection(address, port, auth_key, delta, this));
+                            << "\tAddress = " << address_ << ":" << port_ << std::endl;
+                
             }
 
             void Run()
             {
-                connection_->Run();
+                while (!stop_ && !connection_) {
+                    try {
+                        connection_.reset(new CXNLConnection(address_, port_, auth_key_, delta_, this));
+                    } catch (CXNLConnectionConnectionException& e) {
+                        debugger_ << "Need to reconnect" << std::endl;
+                    }
+                }
+                if (connection_) {
+                    connection_->Run();
+                }
             }
 
             void Stop()
             {
-                connection_->Stop();
+                stop_ = true;
+                if (connection_) {
+                    connection_->Stop();
+                }
             }
 
             void Initiate(const std::string& number)
@@ -167,13 +197,13 @@ namespace Commutator {
                 debugger_ << "Call to " << destination_number_->asString() << std::endl;
                 switch(destination_number_->type) {
                     case Number::PRIVATE:
-                        connection_->send_xcmp_call_ctrl_request(0x01, 0x04, 0x01, destination_number_->number, 0);
+                        connection_->send_xcmp_call_ctrl_request(0x01, 0x04, 0x01, std::stoi(destination_number_->id), 0);
                     break;
                     case Number::GROUP:
-                        connection_->send_xcmp_call_ctrl_request(0x01, 0x06, 0x01, 0, destination_number_->number);
+                        connection_->send_xcmp_call_ctrl_request(0x01, 0x06, 0x01, 0, std::stoi(destination_number_->group_id));
                     break;
                     case Number::CHANNEL:
-                        connection_->SelectChannel(destination_number_->number);
+                        connection_->SelectChannel(destination_number_->channel);
                     break;
                 }
             }
@@ -209,19 +239,16 @@ namespace Commutator {
 
                 if (!destination_number_) {
                     Number::Type type;
-                    std::string nmbr;
                     switch (call_type) {
                         case 0x04:
                             type = Number::PRIVATE;
-                            nmbr = number;
                         break;
                         case 0x06:
                             type = Number::GROUP;
-                            nmbr = group;
                         break;
                     };
-                    source_number_.reset(new Number(type, std::stoi(nmbr)));
-                    Point::Handler()->OnCallReceived(this, group + ":" + number);
+                    source_number_.reset(new Number(type, number, group));
+                    Point::Handler()->OnCallReceived(this, source_number_->asString());
                 }
                 decoder_.reset(new StreamDTMFDecoder(this, getConfiguration().configuration["device_index"].as_string()));
             }

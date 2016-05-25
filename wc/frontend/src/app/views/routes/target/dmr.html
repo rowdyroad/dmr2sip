@@ -7,11 +7,26 @@
     </md-radio-group>
 </md-input-container>
 
-<md-input-container class="md-block">
-    <label data-translate="Target number"></label>
+<md-input-container class="md-block" ng-if="current.destination_number.type=='private'">
+    <label data-translate="Radio ID"></label>
     <input required
            type="text"
-           ng-model="current.destination_number.number"
+           ng-model="current.destination_number.id"
+           />
+</md-input-container>
+<md-input-container class="md-block" ng-if="current.destination_number.type=='group'">
+    <label data-translate="Group ID"></label>
+    <input required
+           type="text"
+           ng-model="current.destination_number.group_id"
+           />
+</md-input-container>
+
+<md-input-container class="md-block" ng-if="current.destination_number.type=='channel'">
+    <label data-translate="Channel index"></label>
+    <input required
+           type="text"
+           ng-model="current.destination_number.channel"
            />
 </md-input-container>
 

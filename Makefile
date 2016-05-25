@@ -1,7 +1,7 @@
 CC=g++
 CFLAGS=-std=c++11 -g
 LIBS=-lpthread -lasound
-SIP_LIBS=-llinphone -lmediastreamer_base -lconfig++ -I/usr/include/mysql/ -lmysqlpp -L/usr/local/lib -Isrc/include -Isrc/vendor/include -Lsrc/vendor/lib -ljson
+SIP_LIBS=-llinphone -lmediastreamer_base -I/usr/include/mysql/ -lmysqlpp -L/usr/local/lib -Isrc/include -Isrc/vendor/include -Lsrc/vendor/lib -ljson
 BUILD_DIR=build
 
 SOURCES=$(wildcard src/include/**/*.cpp)

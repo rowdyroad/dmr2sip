@@ -22,11 +22,11 @@ PATH=/sbin:/usr/sbin:/bin:/usr/bin
 DESC="DMR Commutator Service"
 NAME=commutator
 DAEMON=/opt/dmr/bin/$NAME
-DAEMON_ARGS="-s localhost -d commutator -u root -p root -l /opt/dmr/config/.linphonerc > /opt/dmr/log/$NAME.log 2>&1"
+DAEMON_ARGS=" /opt/dmr/config/commutator.conf > /opt/dmr/log/$NAME.log 2>&1"
 PIDFILE=/opt/dmr/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-GROUP=root
-USER=root
+GROUP=user
+USER=user
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0

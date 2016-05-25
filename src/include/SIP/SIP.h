@@ -10,10 +10,11 @@ class SIP;
 class SIPHandler {
     public:
         virtual void OnOutCallBegin(SIP* sip) { }
-        virtual bool OnInCallBegin(SIP* sip) { return true; }
+        virtual bool OnInCallBegin(SIP* sip, const std::string& from, const std::string& to) { return true; }
         virtual void OnCallEnd(SIP* sip) { }
         virtual void OnCallError(SIP* sip) { }
         virtual void OnCallStreaming(SIP* sip) { }
+        virtual void OnRegistered(SIP* sip) { }
 };
 
 class SIP {
@@ -40,6 +41,7 @@ class SIP {
 
         void SelectDevice(const std::string& device)
         {
+            debugger_ << "Selecting a device " << device << std::endl;
             std::string playback_device_name = "ALSA: plug:" + device + "playback";
             std::string capture_device_name = "ALSA: plug:" + device + "capture";
             auto devices = linphone_core_get_sound_devices(lc_);
@@ -89,16 +91,6 @@ class SIP {
             }
         }
 
-
-        const char * CallAddress() const
-        {
-            if (!call_) {
-                return nullptr;
-            }
-            auto p = linphone_call_get_remote_address(call_);
-            return  linphone_address_get_username(p);
-        }
-
         void Hangup()
         {
             if (call_) {
@@ -110,7 +102,7 @@ class SIP {
         void SendDTMF(uint8_t code)
         {
             if (call_) {
-            //    linphone_call_send_dtmf(call_, code);
+               linphone_call_send_dtmf(call_, code);
             }
         }
 
@@ -141,6 +133,11 @@ class SIP {
             SIP * sip = (SIP*)linphone_core_get_user_data(lc);
             Debug& debugger_ = sip->debugger_;
             debugger_ << debugger_.debug << "Registration state changed - " << cstate << " " << message << std::endl;
+            if (cstate == 2) {
+                if (sip->handler_) {
+                    sip->handler_->OnRegistered(sip);
+                }
+            }
         }
 
         static void callStateChanged(LinphoneCore *lc, LinphoneCall *call, LinphoneCallState cstate, const char *message)
@@ -189,15 +186,19 @@ class SIP {
                 break;
 
                 case LinphoneCallIncomingReceived:
+                {
                     debugger_ << debugger_.debug << "Incomming call received" << std::endl;
                     if (sip->call_) {
                         debugger_ << debugger_.debug << "\tWe are busy. Ignoring call" << std::endl;
                         linphone_core_decline_call(sip->lc_, call, LinphoneReason::LinphoneReasonBusy);
                         break;
                     }
+                    auto cl = linphone_call_get_call_log(call);
+                    std::string from = linphone_address_get_username(linphone_call_log_get_from_address(cl));
+                    std::string to = linphone_address_get_username(linphone_call_log_get_to_address(cl));
                     sip->call_ = call;
                     if (sip->handler_) {
-                        if (sip->handler_->OnInCallBegin(sip)) {
+                        if (sip->handler_->OnInCallBegin(sip, from, to)) {
                             linphone_core_accept_call(sip->lc_, call);
                         } else {
                             linphone_core_decline_call(sip->lc_, call, LinphoneReason::LinphoneReasonDeclined);
@@ -205,6 +206,7 @@ class SIP {
                     } else {
                         linphone_core_decline_call(sip->lc_, call, LinphoneReason::LinphoneReasonNotImplemented);
                     }
+                }
                 break;
                 default:
                     debugger_ << debugger_.debug << "Unhandled notification" << std::endl;

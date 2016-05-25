@@ -19,11 +19,19 @@ class Event extends \yii\db\ActiveRecord
 
     public function getRoute()
     {
-	return $this->hasOne(Route::className(), ['route_id'=>'route_id']);
+	   return $this->hasOne(Route::className(), ['route_id'=>'route_id']);
     }
 
     public function fields()
     {
-	return array_merge(parent::fields(),['route']);
+	   return array_merge(parent::fields(),['route']);
     }
+
+    public function toArray( $fields = [], $expand = [], $recursive = true )
+    {
+       $arr = parent::toArray($fields, $expand, $recursive);
+       $arr['source_number'] = json_decode($arr['source_number'],true);
+       return $arr;
+    }
+
 }

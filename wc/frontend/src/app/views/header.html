@@ -17,23 +17,6 @@
     </div>
 
     <div class="top-nav">
-        <ul class="nav-left list-unstyled" ng-controller="CommutatorCtrl">
-            <li>
-                <a href="#/" data-toggle-nav-collapsed-min
-                   md-button aria-label="toggle-nav-collapsed-min"
-                   class="toggle-min"><i class="zmdi zmdi-menu"></i></a>
-            </li>
-            <li>
-                 <a href="javascript:void(0)" ng-if="state">
-                    <span ng-if="state.active" class="label label-success" data-translate="Active"></span>
-                    <span ng-if="!state.active" class="label label-danger" data-translate="Inactive"></span>
-                 </a>
-            </li>
-            <li ng-if="user.is_admin">
-                <a href="javascript:void(0)" ng-click="reload()" md-button><i class="zmdi zmdi-refresh-sync"></i></a>
-            </li>
-        </ul>
-
         <ul class="nav-right pull-right list-unstyled" ng-controller="LoginCtrl">
 
             <li class="dropdown text-normal nav-profile"    uib-dropdown is-open="status.isopenProfile">

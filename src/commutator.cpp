@@ -18,8 +18,6 @@
 volatile bool quit = false;
 typedef std::shared_ptr<Commutator::PointFactory> PointFactoryPtr;
 
-std::vector<Commutator::PointPtr> Commutator::Program::Link::points_;
-
 std::unique_ptr<Commutator::Storage> storage;
 std::unique_ptr<Commutator::Program> program;
 std::map<std::string, PointFactoryPtr> factories;
@@ -60,7 +58,7 @@ int main(int argc, char*argv[])
     storage.reset(new Commutator::Storage(  config["database"]["address"].as_string(),
                                             config["database"]["name"].as_string(),
                                             config["database"]["username"].as_string(),
-                                            config["database"]["password"].as_string()));
+                                            config["database"]["password"].as_string()));    
     while (!quit) {
         debugger << "Starting..." << std::endl;
         try {
@@ -70,7 +68,7 @@ int main(int argc, char*argv[])
             debugger << "Catched exception: " << e.what() << std::endl;
         }
         debugger << "Wait for 3 seconds to restart..." << std::endl;
-        sleep(3);
+        sleep(1);
     }
     return 0;
 }

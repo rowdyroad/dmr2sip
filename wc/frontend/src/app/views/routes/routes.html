@@ -18,6 +18,7 @@
         			<table class="table no-margin">
         			    <thead>
         				    <tr>
+                                <th data-translate="Name"></th>
                                 <th data-translate="Source"></th>
                                 <th data-translate="Target"></th>
                                 <th>&nbsp;</th>
@@ -25,11 +26,9 @@
         			    </thead>
         			    <tbody>
             				<tr ng-repeat="item in items">
-            				    <td>{{item.source_point.name}}: {{item.source_number}}</td>
-            				    <td>{{item.destination_point.name}}:
-                                      <ng-include
-                                          src="'/views/routes/target/' + item.destination_point.type +'.preview.html'"></ng-include>
-                                 </td>
+                                <td>{{item.name}}</td>
+            				    <td>{{item.source_point.name}} ({{item.source_point.type}})</td>
+                                <td>{{item.destination_point.name}} ({{item.destination_point.type}})</td>
             				    <td class="text-right">
                                     <a href="/routes/{{item.route_id}}">
                                         <button class="md-icon-button md-button md-ink-ripple">

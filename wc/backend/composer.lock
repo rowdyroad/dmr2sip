@@ -9,16 +9,16 @@
     "packages": [
         {
             "name": "bower-asset/jquery",
-            "version": "2.2.3",
+            "version": "2.2.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jquery/jquery-dist.git",
-                "reference": "af22a351b2ea5801ffb1695abb3bb34d5bed9198"
+                "reference": "c0185ab7c75aab88762c5aae780b9d83b80eda72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jquery/jquery-dist/zipball/af22a351b2ea5801ffb1695abb3bb34d5bed9198",
-                "reference": "af22a351b2ea5801ffb1695abb3bb34d5bed9198",
+                "url": "https://api.github.com/repos/jquery/jquery-dist/zipball/c0185ab7c75aab88762c5aae780b9d83b80eda72",
+                "reference": "c0185ab7c75aab88762c5aae780b9d83b80eda72",
                 "shasum": ""
             },
             "type": "bower-asset-library",
@@ -256,12 +256,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/francoispluchino/composer-asset-plugin.git",
-                "reference": "c3d803cc890fad5a7fb61a4036c5d973faae34af"
+                "reference": "f10cfad0e9748aeb50c7e8befd4ee0011d6a2ba0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/francoispluchino/composer-asset-plugin/zipball/c3d803cc890fad5a7fb61a4036c5d973faae34af",
-                "reference": "c3d803cc890fad5a7fb61a4036c5d973faae34af",
+                "url": "https://api.github.com/repos/francoispluchino/composer-asset-plugin/zipball/f10cfad0e9748aeb50c7e8befd4ee0011d6a2ba0",
+                "reference": "f10cfad0e9748aeb50c7e8befd4ee0011d6a2ba0",
                 "shasum": ""
             },
             "require": {
@@ -275,7 +275,7 @@
             "extra": {
                 "class": "Fxp\\Composer\\AssetPlugin\\FxpAssetPlugin",
                 "branch-alias": {
-                    "dev-master": "1.1-dev"
+                    "dev-master": "1.2-dev"
                 }
             },
             "autoload": {
@@ -304,7 +304,7 @@
                 "npm",
                 "package"
             ],
-            "time": "2016-04-22 08:48:58"
+            "time": "2016-05-11 07:45:42"
         },
         {
             "name": "yiisoft/yii2",
@@ -312,12 +312,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-framework.git",
-                "reference": "a1c625b5f64a54ca930810992121d9f2168da996"
+                "reference": "e42649aafe2bf98e7ee115949c75e06a1df9716e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/a1c625b5f64a54ca930810992121d9f2168da996",
-                "reference": "a1c625b5f64a54ca930810992121d9f2168da996",
+                "url": "https://api.github.com/repos/yiisoft/yii2-framework/zipball/e42649aafe2bf98e7ee115949c75e06a1df9716e",
+                "reference": "e42649aafe2bf98e7ee115949c75e06a1df9716e",
                 "shasum": ""
             },
             "require": {
@@ -398,7 +398,7 @@
                 "framework",
                 "yii2"
             ],
-            "time": "2016-04-25 20:57:56"
+            "time": "2016-05-20 11:13:42"
         },
         {
             "name": "yiisoft/yii2-composer",
@@ -531,12 +531,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "ccef6542a4f9c1098fce823c42da7aab4264d385"
+                "reference": "df56110269ffaaea78295290c74d0bd1b3ac176f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/ccef6542a4f9c1098fce823c42da7aab4264d385",
-                "reference": "ccef6542a4f9c1098fce823c42da7aab4264d385",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/df56110269ffaaea78295290c74d0bd1b3ac176f",
+                "reference": "df56110269ffaaea78295290c74d0bd1b3ac176f",
                 "shasum": ""
             },
             "require": {
@@ -573,7 +573,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2016-04-25 07:44:40"
+            "time": "2016-05-19 20:16:37"
         },
         {
             "name": "phpspec/php-diff",
@@ -808,12 +808,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/yiisoft/yii2-gii.git",
-                "reference": "62eddfcbf377353777742b3ceaf2b75dc81178e3"
+                "reference": "ad215b7f8c679e11e70ff3dc29c7306f28cef576"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yiisoft/yii2-gii/zipball/62eddfcbf377353777742b3ceaf2b75dc81178e3",
-                "reference": "62eddfcbf377353777742b3ceaf2b75dc81178e3",
+                "url": "https://api.github.com/repos/yiisoft/yii2-gii/zipball/ad215b7f8c679e11e70ff3dc29c7306f28cef576",
+                "reference": "ad215b7f8c679e11e70ff3dc29c7306f28cef576",
                 "shasum": ""
             },
             "require": {
@@ -853,7 +853,7 @@
                 "gii",
                 "yii2"
             ],
-            "time": "2016-04-21 13:19:47"
+            "time": "2016-05-12 20:54:42"
         }
     ],
     "aliases": [],

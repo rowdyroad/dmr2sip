@@ -1,0 +1,35 @@
+<md-input-container class="md-block">
+    <label style="padding-bottom:16px" data-translate="Type"></label>
+    <md-radio-group class="ui-md-radio-group-inline" ng-model="current.source_number.type">
+      <md-radio-button value="private"><span data-translate="Private"></span></md-radio-button>
+      <md-radio-button value="group"><span data-translate="Group"></span></md-radio-button>
+      <md-radio-button value="channel"><span data-translate="Channel"></span></md-radio-button>
+    </md-radio-group>
+</md-input-container>
+
+<div> 
+  <label data-translate="Radio ID" ng-init="current.source_number.id = current.source_number.id || []"></label>
+  <md-chips ng-model="current.source_number.id" md-enable-chip-edit="true" md-transform-chip="addSourceMask($chip)">
+    <md-chip-template ng-style="$chip.id && {'font-weight':'bold'}">
+      <span ng-if="$chip.id">
+        {{$chip.value}}<sup>{{$chip.id}}</sup>
+      </span>
+      <span ng-if="!$chip.id">
+        {{$chip.value}}
+      </span>
+  </md-chips>
+  <br/>
+</div>
+<div> 
+  <label data-translate="Group ID" ng-init="current.source_number.group_id = current.source_number.group_id || []"></label>
+  <md-chips ng-model="current.source_number.group_id" md-enable-chip-edit="true" md-transform-chip="addSourceMask($chip)">
+    <md-chip-template ng-style="$chip.id && {'font-weight':'bold'}">
+      <span ng-if="$chip.id">
+        {{$chip.value}}<sup>{{$chip.id}}</sup>
+      </span>
+      <span ng-if="!$chip.id">
+        {{$chip.value}}
+      </span>
+  </md-chips>
+  <br/>
+</div>

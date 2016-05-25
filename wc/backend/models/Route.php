@@ -12,8 +12,9 @@ class Route extends \yii\db\ActiveRecord
     public function rules()
     {
         return  [
-                    [['source_point_id','source_number', 'destination_point_id', 'destination_number', 'phone_mode'], 'required'],
-                    ['destination_number', 'filter', 'filter'=>'json_encode']
+                    [['name','source_point_id','source_number', 'destination_point_id', 'destination_number'], 'required'],
+                    [['source_number','destination_number'], 'filter', 'filter'=>'json_encode'],
+                    ['phone_mode', 'safe']
                 ];
     }
 
@@ -36,6 +37,7 @@ class Route extends \yii\db\ActiveRecord
     {
        $arr = parent::toArray($fields, $expand, $recursive);
        $arr['destination_number'] = json_decode($arr['destination_number'],true);
+       $arr['source_number'] = json_decode($arr['source_number'],true);
        return $arr;
     }
 }

@@ -23,5 +23,4 @@ class Point extends \yii\db\ActiveRecord
 	   $arr['configuration'] = json_decode($arr['configuration'],true);
 	   return $arr;
     }
-
 }

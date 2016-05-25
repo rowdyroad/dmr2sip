@@ -8,26 +8,15 @@
             <div class="panel panel-default">
                 <div class="panel-body padding-xl form-validation" ng-cloak>
                     <div class="row">
-                        <div class="col-lg-6 col-lg-offset-3">
+                        <div class="col-lg-8 col-lg-offset-2">
                             <div class="form-horizontal form-validation">
                               <div class="row">
-                                <div class="col-md-4">
-                                    <md-input-container flex>
-                                      <label data-translate="Source"></label>
-                                      <md-select ng-model="current.source_point_id">
-                                          <md-option ng-repeat="item in points" value="{{item.point_id}}">
-                                              {{item.name}}
-                                          </md-option>
-                                      </md-select>
-                                    </md-input-container>
-                                </div>
-                                <div class="col-md-8">
-                                    <md-input-container class="md-block">
-                                        <label data-translate="Source number"></label>
+                                <div class="col-md-12">
+                                  <md-input-container class="md-block">
+                                        <label data-translate="Name"></label>
                                         <input required
-                                               type="text"
-                                               autocomplete="off"
-                                               ng-model="current.source_number"
+                                               type="text"                                               
+                                               ng-model="current.name"
                                                />
                                     </md-input-container>
                                 </div>
@@ -35,10 +24,30 @@
                               <div class="row">
                                 <div class="col-md-4">
                                     <md-input-container flex>
+                                      <label data-translate="Source"></label>
+                                      <md-select ng-model="current.source_point_id">
+                                          <md-option ng-repeat="item in points" value="{{item.point_id}}">
+                                              {{item.name}} ({{item.type}})
+                                          </md-option>
+                                      </md-select>
+                                    </md-input-container>
+                                </div>
+                                <div class="col-md-8">
+                                     <ng-include
+                                          ng-if="current.source_point_id"
+                                          src="'/views/routes/source/' +points[current.source_point_id].type +'.html'"></ng-include>
+                                </div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-12"><br/></div>
+                              </div>
+                              <div class="row">
+                                <div class="col-md-4">
+                                    <md-input-container flex>
                                       <label data-translate="Target"></label>
                                       <md-select ng-model="current.destination_point_id">
                                           <md-option ng-repeat="item in points" value="{{item.point_id}}">
-                                              {{item.name}}
+                                              {{item.name}} ({{item.type}})
                                           </md-option>
                                       </md-select>
                                     </md-input-container>
