@@ -24,7 +24,7 @@ namespace Commutator {
                 };
                 Type type;
                 std::string id;
-                std::string group_id;                
+                std::string group_id;
                 uint8_t channel;
                 std::string extension;
 
@@ -48,7 +48,7 @@ namespace Commutator {
                 }
 
                 Number(Type type, const std::string& a, const std::string& b = std::string(), const std::string& c = std::string())
-                    : type(type)                
+                    : type(type)
                 {
                     switch(type) {
                         case PRIVATE:
@@ -164,7 +164,7 @@ namespace Commutator {
                 port_ = pv.type() == JSON::STRING ? std::stoi(pv.as_string()) : pv.as_int();
                 debugger_ << "Configuration: " << std::endl
                             << "\tAddress = " << address_ << ":" << port_ << std::endl;
-                
+
             }
 
             void Run()

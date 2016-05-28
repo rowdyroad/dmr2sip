@@ -27,8 +27,10 @@
         			    <tbody>
             				<tr ng-repeat="item in items">
                                 <td>{{item.name}}</td>
-            				    <td>{{item.source_point.name}} ({{item.source_point.type}})</td>
-                                <td>{{item.destination_point.name}} ({{item.destination_point.type}})</td>
+            				    <td>
+                                <i class="fa fa-circle" ng-class="item.source_point.status ? 'color-success' : 'color-danger'"></i> {{item.source_point.name}} ({{item.source_point.type}})</td>
+                                <td>
+                                <i class="fa fa-circle" ng-class="item.destination_point.status ? 'color-success' : 'color-danger'"></i> {{item.destination_point.name}} ({{item.destination_point.type}})</td>
             				    <td class="text-right">
                                     <a href="/routes/{{item.route_id}}">
                                         <button class="md-icon-button md-button md-ink-ripple">

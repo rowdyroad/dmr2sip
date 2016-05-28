@@ -1,1 +1,1 @@
-www-data  ALL = (root) NOPASSWD: /etc/init.d/commutator reload
+www-data  ALL = (root) NOPASSWD: /etc/init.d/commutator reload, /etc/init.d/commutator restart, /etc/init.d/commutator status 

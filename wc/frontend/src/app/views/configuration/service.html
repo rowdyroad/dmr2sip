@@ -1,0 +1,33 @@
+ <div class="page page-form">
+    <div class="row ui-section">
+        <div class="col-lg-8 clearfix">
+            <h2 class="section-header" data-translate="Configuration: Service"></h2>
+        </div>
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="panel panel-default" style="padding:1em">
+				<div class="row">
+					<div class="col-md-12">
+					 <md-button
+					 	type="button"
+						class="md-raised btn-w-md md-default"
+						data-translate="Reload"
+						ng-click="reload()"
+						>
+					</md-button>
+					<md-button
+					 	type="button"
+						class="md-raised btn-w-md md-danger"
+						data-translate="Restart"
+						ng-click="restart()"
+						>
+					</md-button>
+					<div class="divider divider-md"></div>
+					<pre>
+					{{log}}
+					</pre>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -88,7 +88,7 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
 
     struct hostent *he = gethostbyname(host.c_str());
     struct sockaddr_in  target;
-    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); 
+    m_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (m_socket == -1) {
         throw CXNLConnectionInternalException(errno, strerror(errno));
     }
@@ -99,19 +99,20 @@ CXNLConnection::CXNLConnection(const std::string& host, uint16_t port, const std
     int flags = fcntl(m_socket, F_GETFL, 0);
     fcntl(m_socket, F_SETFL, flags | O_NONBLOCK);
     auto res = connect(m_socket, (struct sockaddr *)&target, sizeof(target));
-    if (res < 0) { 
+    if (res < 0) {
         if (errno == EINPROGRESS) {
-            struct timeval tv; 
-            fd_set fdset; 
-            tv.tv_sec = timeout; 
-            tv.tv_usec = 0; 
-            FD_ZERO(&fdset); 
-            FD_SET(m_socket, &fdset); 
-            if (select(m_socket + 1, NULL, &fdset, NULL, &tv) <= 0) {              
+            struct timeval tv;
+            fd_set fdset;
+            tv.tv_sec = timeout;
+            tv.tv_usec = 0;
+            FD_ZERO(&fdset);
+            FD_SET(m_socket, &fdset);
+            if (select(m_socket + 1, NULL, &fdset, NULL, &tv) <= 0) {
+                close(m_socket);
                 throw CXNLConnectionConnectionException(errno, strerror(errno));
             } else {
                  fcntl(m_socket, F_SETFL, flags);
-            }         
+            }
         }
     }
 }

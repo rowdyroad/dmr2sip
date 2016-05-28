@@ -68,7 +68,10 @@ $config = [
                 ],
                 ['class' => 'yii\web\UrlRule', 'route'=>'configuration/network', 'pattern'=>'configuration/network', 'verb'=>'GET'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'configuration/network/update', 'pattern'=>'configuration/network', 'verb'=>'POST'],
-              
+                ['class' => 'yii\web\UrlRule', 'route'=>'state/states', 'pattern'=>'state/states', 'verb'=>'GET'],
+                ['class' => 'yii\web\UrlRule', 'route'=>'state/log', 'pattern'=>'state/log', 'verb'=>'GET'],
+                ['class' => 'yii\web\UrlRule', 'route'=>'state/reload', 'pattern'=>'state/reload', 'verb'=>'POST'],
+                ['class' => 'yii\web\UrlRule', 'route'=>'state/restart', 'pattern'=>'state/restart', 'verb'=>'POST'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/check', 'pattern'=>'user/check'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/login', 'pattern'=>'user/login','verb'=>'POST'],
                 ['class' => 'yii\web\UrlRule', 'route'=>'user/logout', 'pattern'=>'user/logout', 'verb'=>'POST'],

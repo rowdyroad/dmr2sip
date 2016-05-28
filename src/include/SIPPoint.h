@@ -15,9 +15,9 @@ namespace Commutator {
             struct Number {
                 std::string to;
                 std::string extension;
-                
+
                 std::string from;
-                
+
                 Number(const std::string& json)
                 {
                     auto value = parse_string(json);
@@ -25,11 +25,11 @@ namespace Commutator {
                         from = value["from"].as_string();
                     } catch (...) {}
                     try {
-                        to = value["to"].as_string();                    
+                        to = value["to"].as_string();
                     } catch (...) {}
                     try {
                         extension = value["extension"].as_string();
-                    } catch (...) {}                    
+                    } catch (...) {}
                 }
 
                 Number(const std::string& to, const std::string& extension, const std::string& from)
