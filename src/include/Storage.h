@@ -157,7 +157,7 @@ namespace Commutator {
             {
                 debugger_ << "Getting routes" << std::endl;
                 std::vector<Route> routes;
-                auto query = db_->query("SELECT route_id, source_point_id, source_number, destination_point_id, destination_number, phone_mode, name FROM routes");
+                auto query = db_->query("SELECT route_id, source_point_id, source_number, destination_point_id, destination_number, phone_mode, name FROM routes ORDER BY `order`");
                 if (auto res = query.store()) {
                     debugger_ << "Routes count: " << res.num_rows() << std::endl;
                     if (res.num_rows() > 0) {

@@ -58,7 +58,7 @@ int main(int argc, char*argv[])
     storage.reset(new Commutator::Storage(  config["database"]["address"].as_string(),
                                             config["database"]["name"].as_string(),
                                             config["database"]["username"].as_string(),
-                                            config["database"]["password"].as_string()));    
+                                            config["database"]["password"].as_string()));
     while (!quit) {
         debugger << "Starting..." << std::endl;
         try {
@@ -67,7 +67,7 @@ int main(int argc, char*argv[])
         } catch (std::exception& e) {
             debugger << "Catched exception: " << e.what() << std::endl;
         }
-        debugger << "Wait for 3 seconds to restart..." << std::endl;
+        debugger << "Wait for 1 seconds to restart..." << std::endl;
         sleep(1);
     }
     return 0;
