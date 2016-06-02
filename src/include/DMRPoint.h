@@ -18,8 +18,8 @@ namespace Commutator {
             struct Number
             {
                 enum Type {
-                    PRIVATE,
-                    GROUP,
+                    PRIVATE = 0x04,
+                    GROUP = 0x06,
                     CHANNEL
                 };
                 Type type;
@@ -40,7 +40,7 @@ namespace Commutator {
                         group_id = value["group_id"].as_string();
                     } else if (tv == "channel") {
                         type = CHANNEL;
-                        channel = value["channel"].type() == JSON::STRING ? std::stoi(value["channel"].as_string()) : value["channel"].as_int();
+                        channel = value["channel"] .type() == JSON::STRING ? std::stoi(value["channel"].as_string()) : value["channel"].as_int();
                     } else {
                         throw new std::logic_error("Incorrect destination number type");
                     }
@@ -64,7 +64,7 @@ namespace Commutator {
                     };
                 }
 
-                std::string asString() const
+                operator std::string() const
                 {
                     std::stringstream ss;
                     JSON::Object ret;
@@ -83,20 +83,13 @@ namespace Commutator {
                     ret["id"] = id;
                     ret["group_id"] = group_id;
                     ret["extension"] = extension;
+                    ret["channel"] = channel;
                     ss << ret;
                     return ss.str();
                 }
             };
 
         private:
-            std::unique_ptr<CXNLConnection> connection_;
-            std::shared_ptr<Point> remote_point_;
-            std::unique_ptr<StreamDTMFDecoder> decoder_;
-            Debug debugger_;
-
-            std::unique_ptr<Number> destination_number_;
-            std::unique_ptr<Number> source_number_;
-
             class DTMFCodeState
             {
                 size_t first_time_ = 0;
@@ -137,13 +130,25 @@ namespace Commutator {
                         return code_ == wait_code_;
                     }
             };
-
-            std::unique_ptr<DTMFCodeState> dmtf_state_;
+            Debug debugger_;
             std::string auth_key_;
             uint32_t delta_;
+
+
+            std::unique_ptr<CXNLConnection> connection_;
+            std::shared_ptr<Point> remote_point_;
+            std::unique_ptr<StreamDTMFDecoder> decoder_;
+            std::unique_ptr<DTMFCodeState> dmtf_state_;
+
             std::string address_;
             uint16_t port_;
+
             volatile bool stop_ = false;
+
+            volatile bool call_holding_ = false;
+            volatile bool ptt_pressed_ = false;
+
+
         public:
             DMRPoint(const std::string& auth_key, uint32_t delta, const Storage::Point& point, PointHandler* const handler)
                 : Point(point, handler)
@@ -191,19 +196,17 @@ namespace Commutator {
 
             void Initiate(const std::string& number)
             {
-                source_number_.reset();
-                destination_number_.reset(new Number(number));
-
-                debugger_ << "Call to " << destination_number_->asString() << std::endl;
-                switch(destination_number_->type) {
+                Number num(number);
+                debugger_ << "Call to " << (std::string)num << std::endl;
+                switch(num.type) {
                     case Number::PRIVATE:
-                        connection_->send_xcmp_call_ctrl_request(0x01, 0x04, 0x01, std::stoi(destination_number_->id), 0);
+                        connection_->send_xcmp_call_ctrl_request(0x01, XNL_PRIVATE_CALL, 0x01, std::stoi(num.id), 0);
                     break;
                     case Number::GROUP:
-                        connection_->send_xcmp_call_ctrl_request(0x01, 0x06, 0x01, 0, std::stoi(destination_number_->group_id));
+                        connection_->send_xcmp_call_ctrl_request(0x01, XNL_GROUP_CALL, 0x01, 0, std::stoi(num.group_id));
                     break;
                     case Number::CHANNEL:
-                        connection_->SelectChannel(destination_number_->channel);
+                        connection_->SelectChannel(num.channel);
                     break;
                 }
             }
@@ -237,35 +240,45 @@ namespace Commutator {
             {
                 debugger_ << "OnCallEstablished: type=" << (size_t)call_type << " number=" << number << " group=" << group << std::endl;
 
-                if (!destination_number_) {
-                    Number::Type type;
-                    switch (call_type) {
-                        case 0x04:
-                            type = Number::PRIVATE;
-                        break;
-                        case 0x06:
-                            type = Number::GROUP;
-                        break;
-                    };
-                    source_number_.reset(new Number(type, number, group));
-                    Point::Handler()->OnCallReceived(this, source_number_->asString());
+                if (!ptt_pressed_) {
+                    if (!call_holding_) {
+                        Point::Handler()->OnCallReceived(this, Number((Number::Type)call_type, number, group));
+                    }
                 }
-                decoder_.reset(new StreamDTMFDecoder(this, getConfiguration().configuration["device_index"].as_string()));
+
+                if (!decoder_) {
+                    decoder_.reset(new StreamDTMFDecoder(this, getConfiguration().configuration["device_index"].as_string()));
+                }
             }
 
             void Callback()
             {
-                if (source_number_) {
-                    debugger_ << "Callback to source number " << source_number_->asString() << std::endl;
-                    Initiate(source_number_->asString());
+                debugger_ << "Callback" << std::endl;
+                call_holding_ = true;
+                if (!ptt_pressed_) {
+                    connection_->PTT(PTT_PUSH);
                 }
             }
 
-            void OnCallEnded(CXNLConnection* connection)
+            void OnCallEnded(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group)
             {
-                connection_->PTT(PTT_RELEASE);
-                destination_number_.reset();
+                debugger_ << "OnCallEnded: call_type=" << (size_t)call_type << " number=" << number << " group=" << group << std::endl;
+            }
+
+            void OnCallHanged(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group)
+            {
+                call_holding_ = false;
+                debugger_ << "OnHangedOut: call_type=" << (size_t)call_type << " number=" << number << " group=" << group << std::endl;
+                if (ptt_pressed_) {
+                    connection_->PTT(PTT_RELEASE);
+                }
                 Point::Handler()->OnCallEnded(this);
+            }
+
+            void OnPTTStateChanged(CXNLConnection* connection, bool pressed)
+            {
+                debugger_ << "OnPTTStateChanged: " << pressed << std::endl;
+                ptt_pressed_ = pressed;
             }
 
             bool Link(PointPtr& point)

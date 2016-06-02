@@ -37,6 +37,12 @@ typedef enum {
     PTT_RELEASE
 } PTT_FUNCTION;
 
+
+typedef enum {
+    XNL_PRIVATE_CALL = 0x04,
+    XNL_GROUP_CALL = 0x06
+} XNL_CALL_TYPE;
+
 typedef struct msg_queue{
     uint8_t * p_msg;
     struct msg_queue *next;
@@ -116,10 +122,14 @@ class CXNLConnectionHandler
 
         virtual void OnMicSelected(CXNLConnection* connection, uint8_t mic) { }
 
+        virtual void OnPTTStateChanged(CXNLConnection* connection, bool pressed) { }
+
         virtual void OnCallReady(CXNLConnection* connection)  { }
         virtual void OnCallEstablished(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group)  { }
 
-        virtual void OnCallEnded(CXNLConnection* connection) { }
+        virtual void OnCallEnded(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group) { }
+        virtual void OnCallHanged(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group) { }
+
 };
 
 class CXNLConnection

@@ -724,13 +724,15 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
                     m_handler->OnCallEstablished(this, msg->call_type, d_addr_str, g_addr_str);
                 break;
                 case XCMP_CALL_ENDED:
+                    m_handler->OnCallEnded(this, msg->call_type, d_addr_str, g_addr_str);
                 break;
                 case XCMP_CALL_HANG:
-                    m_handler->OnCallEnded(this);
+                    m_handler->OnCallHanged(this, msg->call_type, d_addr_str, g_addr_str);
                 break;
             }
         }
-            break;
+        break;
+
         case XCMP_CHAN_SELECTION_REPLY:
         {
             xcmp_chan_zone_selection_reply_t* msg = (xcmp_chan_zone_selection_reply_t *)pBuf;
@@ -748,13 +750,14 @@ void CXNLConnection::OnXCMPMessageProcess(uint8_t * pBuf)
         {
             xcmp_tx_ctrl_reply_t * msg = (xcmp_tx_ctrl_reply_t*)pBuf;
             debugger_ << "TX control reply: result=" << (size_t)msg->result << " function=" << (size_t)msg->function << " mode=" << (size_t)msg->mode << " state="  << (size_t)msg->state << std::endl;
+            m_handler->OnPTTStateChanged(this, msg->state);
         }
         break;
         case XCMP_TX_CTRL_BRDCST:
         {
              xcmp_tx_ctrl_broadcast_t * msg= (xcmp_tx_ctrl_broadcast_t*)pBuf;
              debugger_ << "TX broadcast: mode=" << (size_t)msg->mode << " state=" << (size_t)msg->state << " state change reason=" << (size_t)msg->state_change_reason << std::endl;
-
+             m_handler->OnPTTStateChanged(this, msg->state);
         }
         break;
 

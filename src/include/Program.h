@@ -190,7 +190,7 @@ class Program : public PointHandler
 
         bool OnCallReceived(Commutator::Point* const point, const std::string& number)
         {
-            debugger_ << "RECEIVED point:" << point->getConfiguration().point_id << " number:" << number << std::endl;
+            debugger_ << "OnCallReceived: point:" << point->getConfiguration().point_id << " number:" << number << std::endl;
             {
                 std::unique_lock<std::mutex> lock(mutex_);
                 if (linked_points_.find(point->getConfiguration().point_id) != linked_points_.end()) {
@@ -229,7 +229,7 @@ class Program : public PointHandler
 
         void OnCallEnded(Commutator::Point* const point)
         {
-            debugger_ << "ENDED point: " << point->getConfiguration().point_id << std::endl;
+            debugger_ << "OnCallEnded: point: " << point->getConfiguration().point_id << std::endl;
 
             std::map<size_t, std::shared_ptr<Link>>::iterator link;
             {
@@ -244,10 +244,10 @@ class Program : public PointHandler
             bool callback = link->second->getRoute().phone_mode && !point->PhoneModeMaster();
 
             if (callback) {
-                debugger_ << "Phone mode is on: need to callback" << std::endl;
+                debugger_ << "OnCallEnded: Phone mode is on: need to callback" << std::endl;
                 point->Callback();
             } else {
-                debugger_ << "Ending call now" << std::endl;
+                debugger_ << "OnCallEnded: Ending call now" << std::endl;
                 debugger_ << "\tHanguping remote point";
                 (point == link->second->getSource().get()
                             ? link->second->getDestination()
@@ -260,13 +260,13 @@ class Program : public PointHandler
                     linked_points_.erase(link->second->getRoute().destination_point_id);
                 }
                 debugger_ << " Done" << std::endl;
-                debugger_ << "Call end successfully" << std::endl;
+                debugger_ << "OnCallEnded: Call end successfully" << std::endl;
             }
         }
 
         void OnReady(Commutator::Point* const point)
         {
-            debugger_ << "Point " << point->getConfiguration().name << "(" << point->getConfiguration().point_id << ") is ready to work" << std::endl;
+            debugger_ << "OnReady: Point " << point->getConfiguration().name << "(" << point->getConfiguration().point_id << ") is ready to work" << std::endl;
             for (auto it = points_.begin(); it != points_.end(); ++it) {
                 if (it->get() == point) {
                     storage_.UpdatePointStatus(point->getConfiguration().point_id, Commutator::Storage::Point::Status::psActive);
