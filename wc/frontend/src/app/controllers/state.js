@@ -15,6 +15,7 @@ angular
         setTimeout(function() {
             $http.get('/api/state/states',{ignoreLoadingBar: true}).success(function(data) {
                 $scope.state = data;
+                $scope.$broadcast('points:states', $scope.state.points);
                 states();
             });
         },1000);

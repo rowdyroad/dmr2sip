@@ -7,9 +7,9 @@
     </md-radio-group>
 </md-input-container>
 
-<div> 
+<div>
   <label data-translate="Radio ID" ng-init="current.source_number.id = current.source_number.id || []"></label>
-  <md-chips ng-model="current.source_number.id" md-enable-chip-edit="true" md-transform-chip="addSourceMask($chip)">
+  <md-chips ng-model="current.source_number.id" md-on-remove="removeSourceMask($chip)" md-enable-chip-edit="true" md-transform-chip="addSourceMask($chip)">
     <md-chip-template ng-style="$chip.id && {'font-weight':'bold'}">
       <span ng-if="$chip.id">
         {{$chip.value}}<sup>{{$chip.id}}</sup>
@@ -17,12 +17,13 @@
       <span ng-if="!$chip.id">
         {{$chip.value}}
       </span>
+    </md-chip-template>
   </md-chips>
   <br/>
 </div>
-<div> 
+<div>
   <label data-translate="Group ID" ng-init="current.source_number.group_id = current.source_number.group_id || []"></label>
-  <md-chips ng-model="current.source_number.group_id" md-enable-chip-edit="true" md-transform-chip="addSourceMask($chip)">
+  <md-chips ng-model="current.source_number.group_id" md-on-remove="removeSourceMask($chip)" md-enable-chip-edit="true" md-transform-chip="addSourceMask($chip)">
     <md-chip-template ng-style="$chip.id && {'font-weight':'bold'}">
       <span ng-if="$chip.id">
         {{$chip.value}}<sup>{{$chip.id}}</sup>

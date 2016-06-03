@@ -85,6 +85,12 @@ namespace Commutator {
                     std::map<size_t, size_t> placeholders;
                 };
 
+                struct DestinationPlaceholder
+                {
+                    std::string text;
+                    size_t placeholder;
+                };
+
                 ~Route()
                 {
                     for (auto& kv : source_number) {
@@ -98,7 +104,7 @@ namespace Commutator {
                 std::string source_number_string;
                 size_t destination_point_id;
                 std::string destination_number_string;
-                PlaceholderedPhoneNumber destination_number;
+                std::map<std::string, std::vector<DestinationPlaceholder>> destination_number;
                 bool phone_mode;
             };
 
@@ -209,7 +215,19 @@ namespace Commutator {
                             r.destination_number_string = row[4].c_str();
                             auto destination_number = (JSON::Object)parse_string(r.destination_number_string);
                             for (auto& kv : destination_number) {
-                                r.destination_number.insert(std::make_pair(kv.first, kv.second.as_string()));
+                                if (kv.second.type() == JSON::ARRAY) {
+                                    std::vector<Route::DestinationPlaceholder> placeholders;
+                                    for (auto& ph : (JSON::Array)kv.second) {
+                                        if (ph["id"].type() == JSON::NIL) {
+                                            placeholders.push_back(Route::DestinationPlaceholder({JSONAlwaysString(ph["value"]), 0}));
+                                        } else {
+                                            placeholders.push_back(Route::DestinationPlaceholder({std::string(), (size_t)JSONAlwaysInt(ph["id"])}));
+                                        }
+                                    }
+                                    r.destination_number.insert(std::make_pair(kv.first, placeholders));
+                                } else {
+                                    r.destination_number.insert(std::make_pair(kv.first, std::vector<Route::DestinationPlaceholder>({Route::DestinationPlaceholder({JSONAlwaysString(kv.second), 0})})));
+                                }
                             }
                             r.phone_mode = row[5];
                             r.name = row[6].c_str();

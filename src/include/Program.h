@@ -71,7 +71,8 @@ class Program : public PointHandler
         {
             JSON::Object nmbr = parse_string(number);
             std::cout << "Source number check: " << nmbr << std::endl;
-            auto dst_map = route.destination_number;
+            std::map<size_t, std::string> matches;
+
             for (auto& kv : route.source_number) {
                 std::string str;
                 try {
@@ -84,35 +85,22 @@ class Program : public PointHandler
 
                 if (kv.second.regex) {
                     std::cout << "\tchecking for regex - '" << str << "'" << std::endl;
-                    std::list<std::string> matches;
                     regmatch_t match;
                     int error;
                     const char* bp = str.c_str();
                     size_t offset = 0;
+                    size_t i = 1;
                     while (!regexec(kv.second.regex.get(), bp + offset, 1, &match, REG_ICASE | REG_EXTENDED)) {
-                        matches.push_back(str.substr(match.rm_so + offset, match.rm_eo - match.rm_so));
+                        auto it = kv.second.placeholders.find(i++);
+                        if (it != kv.second.placeholders.end()) {
+                            matches.insert(std::make_pair(it->second, str.substr(match.rm_so + offset, match.rm_eo - match.rm_so)));
+                        }
                         offset = match.rm_eo;
                     }
 
                     if (matches.empty()) {
                         std::cout << "\t\tNo matched" << std::endl;
                         return false;
-                    }
-
-                    size_t i = 1;
-                    for (auto& match : matches) {
-                        std::cout << "Match " << i << " " << match << std::endl;
-                        auto it = kv.second.placeholders.find(i++);
-                        if (it != kv.second.placeholders.end()) {
-                            std::string placeholder = std::to_string(it->second);
-                            placeholder = "\\" + placeholder;
-                            std::cout << "placeholder " << placeholder << std::endl;
-                            for (auto& kv : dst_map) {
-                                std::cout << "replacing " << kv.second << " " << placeholder << "->" << match << std::endl;
-                                replace_all(kv.second, placeholder, match);
-
-                            }
-                        }
                     }
                 } else if (!kv.second.plain.empty()) {
                     std::cout << "\tchecking for plain - '" << str << "'" << std::endl;
@@ -124,8 +112,19 @@ class Program : public PointHandler
             }
 
             JSON::Object dst;
-            for(auto& kv : dst_map) {
-                dst[kv.first] = kv.second;
+            for(auto& kv : route.destination_number) {
+                std::string value;
+                for (auto& v : kv.second) {
+                    if (!v.placeholder) {
+                        value += v.text;
+                    } else {
+                       auto it = matches.find(v.placeholder);
+                       if (it != matches.end()) {
+                            value += it->second;
+                       }
+                    }
+                }
+                dst[kv.first] = value;
             }
             std::stringstream ss;
             ss << dst;
