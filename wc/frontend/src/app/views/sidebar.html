@@ -26,5 +26,23 @@
             <div class="md-ripple-container"></div>
         </a>
     </li>
+    <li class=" nav-divider" ng-if="user.is_admin"></li>
+    <li class=" nav-title" ng-if="user.is_admin">
+        <span  data-translate="Configuration" class=""></span>
+    </li>
+    <li class="" ng-if="user.is_admin">
+        <a class="md-button  md-ink-ripple" md-button="" aria-label="meanu" href="/configuration/service">
+            <i  class="zmdi zmdi-play-circle"></i>
+            <span data-translate="Service" class=""></span>
+            <div class="md-ripple-container"></div>
+        </a>
+    </li>
+    <li class="" ng-if="user.is_admin">
+        <a class="md-button  md-ink-ripple" md-button="" aria-label="meanu" href="/configuration/network">
+            <i  class="zmdi zmdi-network"></i>
+            <span data-translate="Network" class=""></span>
+            <div class="md-ripple-container"></div>
+        </a>
+    </li>
     </ul>
 </div>
