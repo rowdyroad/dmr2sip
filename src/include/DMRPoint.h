@@ -129,6 +129,11 @@ namespace Commutator {
                     {
                         return code_ == wait_code_;
                     }
+
+                    void clear()
+		    {
+			code_ = std::string();
+		    }
             };
             Debug debugger_;
             std::string auth_key_;
@@ -138,7 +143,7 @@ namespace Commutator {
             std::unique_ptr<CXNLConnection> connection_;
             std::shared_ptr<Point> remote_point_;
             std::unique_ptr<StreamDTMFDecoder> decoder_;
-            std::unique_ptr<DTMFCodeState> dmtf_state_;
+            std::unique_ptr<DTMFCodeState> dtmf_state_;
 
             std::string address_;
             uint16_t port_;
@@ -159,7 +164,7 @@ namespace Commutator {
                 try {
                     auto& dv = point.configuration["phone_mode"]["duration"];
                     auto& cd = point.configuration["phone_mode"]["code"];
-                    dmtf_state_.reset( new DTMFCodeState(dv.type() == JSON::STRING ? std::stoi(dv.as_string()) : dv.as_int(), cd.as_string()));
+                    dtmf_state_.reset( new DTMFCodeState(dv.type() == JSON::STRING ? std::stoi(dv.as_string()) : dv.as_int(), cd.as_string()));
                 } catch (std::logic_error& e) {
                     debugger_ << "Phone mode is disabled: incorrect configuration" << std::endl;
                 }
@@ -263,6 +268,7 @@ namespace Commutator {
             void OnCallEnded(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group)
             {
                 debugger_ << "OnCallEnded: call_type=" << (size_t)call_type << " number=" << number << " group=" << group << std::endl;
+                decoder_.reset();
             }
 
             void OnCallHanged(CXNLConnection* connection, uint8_t call_type, const std::string& number, const std::string& group)
@@ -295,14 +301,19 @@ namespace Commutator {
 
             bool PhoneModeMaster()
             {
-                return dmtf_state_ && *dmtf_state_;
+                bool phone = dtmf_state_ && *dtmf_state_;
+		if (phone) {
+		    dtmf_state_->clear();
+		}
+		debugger_ << "Phonemode " << phone << std::endl;
+		return phone;
             }
 
             void OnCode(StreamDTMFDecoder* const sender, uint8_t code)
             {
                 debugger_ << "DTMF Code received:" << (char)code << std::endl;
-                if (dmtf_state_ ) {
-                    (*dmtf_state_)+=code;
+                if (dtmf_state_ ) {
+                    (*dtmf_state_)+=code;
                 }
                 if (remote_point_) {
                     remote_point_->SendCode(code);
