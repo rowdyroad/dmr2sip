@@ -25,8 +25,8 @@ DAEMON=/opt/dmr/bin/$NAME
 DAEMON_ARGS=" /opt/dmr/config/commutator.conf > /opt/dmr/log/$NAME.log 2>&1"
 PIDFILE=/opt/dmr/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-GROUP=user
-USER=user
+GROUP=root
+USER=root
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0

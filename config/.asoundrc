@@ -2,10 +2,10 @@ pcm.Acapture {
     type dsnoop;
     slave {
         pcm "hw:1,0";
-        period_size 1024
-        buffer_size 4096
-        rate 44100
-        periods 0 
+        period_size 8192
+        buffer_size 40906
+        rate 8000
+        periods 8
         period_time 0
     }
     ipc_key 5978293;
