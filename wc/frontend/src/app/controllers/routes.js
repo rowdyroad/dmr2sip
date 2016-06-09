@@ -49,7 +49,6 @@ angular
               angular.forEach(value, function(v, k) {
                 if (v.id && v.id == mask.id) {
                   v.error = true;
-                  console.log(v);
                 }
               });
           }

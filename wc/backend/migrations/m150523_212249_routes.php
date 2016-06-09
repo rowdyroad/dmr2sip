@@ -14,8 +14,6 @@ class m150523_212249_routes extends Migration
           'destination_point_id' => 'integer NOT NULL',
           'destination_number' => 'string(200) NOT NULL'
         ]);
-        $this->createIndex('routes_unique','routes',['source_point_id','destination_point_id'],true);
-
     }
 
     public function down()
