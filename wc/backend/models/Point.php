@@ -20,8 +20,8 @@ class Point extends \yii\db\ActiveRecord
     public function toArray( $fields = [], $expand = [], $recursive = true )
     {
 	   $arr = parent::toArray($fields, $expand, $recursive);
-       $arr['status'] = \Yii::$app->service->isRunning() ? $arr['status'] : false;
-	   $arr['configuration'] = json_decode($arr['configuration'],true);
+	   $arr['status'] = \Yii::$app->service->isRunning() ? @$arr['status'] : false;
+	   $arr['configuration'] = json_decode(@$arr['configuration'],true);
 	   return $arr;
     }
 }
