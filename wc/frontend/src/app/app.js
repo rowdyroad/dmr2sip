@@ -74,8 +74,9 @@ angular.module('ac', [
               }
               k+='</ul>';
           }
-
-          growl.error(k, {ttl: 3000});
+          if (response.status != 401) {
+            growl.error(k, {ttl: 3000});
+          }
           return $q.reject(response);
         }
     }});
