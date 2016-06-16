@@ -37,7 +37,7 @@
     "echarts": "~2.2.7",
     "ngECharts": "ngecharts#~0.1.1",
     "angular-wizard": "^0.6.1",
-    "angular-growl": "^0.4.0"
+    "angular-growl-v2": "~0.7.3"
   },
   "devDependencies": {
     "bourbon": "~4.2.0",

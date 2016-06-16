@@ -74,6 +74,8 @@ angular.module('ac', [
               }
               k+='</ul>';
           }
+
+          growl.error(k, {ttl: 3000});
           return $q.reject(response);
         }
     }});
