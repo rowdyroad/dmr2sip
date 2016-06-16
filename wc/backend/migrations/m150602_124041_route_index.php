@@ -7,7 +7,6 @@ class m150602_124041_route_index extends Migration
 {
     public function up()
     {
-	$this->dropIndex('routes_unique', 'routes');
 	$this->createIndex('routes_unique', 'routes',['source_point_id','source_number'], true);
     }
 

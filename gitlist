@@ -1,4 +1,9 @@
 JSON library
 ------------
 https://github.com/tunnuz/json.git
+https://github.com/BelledonneCommunications/bctoolbox.git
+git://git.linphone.org/bzrtp
+https://github.com/BelledonneCommunications/belle-sip.git
+git://git.linphone.org/linphone.git --recursive
+
 
