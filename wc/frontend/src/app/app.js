@@ -62,7 +62,7 @@ angular.module('ac', [
      $httpProvider.interceptors.push(function($q, $location, $rootScope,growl) {
       return {
         responseError: function(response) {
-          if (response.status == 403) {
+          if (response.status == 403 || response.status == 401) {
             return $q.reject(response);
           }
 
@@ -74,9 +74,9 @@ angular.module('ac', [
               }
               k+='</ul>';
           }
-          if (response.status != 401) {
-            growl.error(k, {ttl: 3000});
-          }
+
+          growl.error(k, {ttl: 3000});
+
           return $q.reject(response);
         }
     }});
