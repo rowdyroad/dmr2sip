@@ -27,7 +27,7 @@ class Event extends \yii\db\ActiveRecord
 	   return array_merge(parent::fields(),['route']);
     }
 
-    public function toArray( $fields = [], $expand = [], $recursive = true )
+    public function toArray(array $fields = [],array $expand = [], $recursive = true )
     {
        $arr = parent::toArray($fields, $expand, $recursive);
        $arr['source_number'] = json_decode($arr['source_number'],true);

@@ -35,7 +35,7 @@ class Service extends \yii\base\Component
 
     public function log()
     {
-        return file_get_contents("/opt/dmr/log/commutator.log");
+        return @file_get_contents("/opt/dmr/log/commutator.log") ?: "";
     }
 
     public function init()

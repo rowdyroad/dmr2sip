@@ -17,7 +17,7 @@ class Point extends \yii\db\ActiveRecord
                 ];
     }
 
-    public function toArray( $fields = [], $expand = [], $recursive = true )
+    public function toArray(array $fields = [],array $expand = [], $recursive = true )
     {
 	   $arr = parent::toArray($fields, $expand, $recursive);
 	   $arr['status'] = \Yii::$app->service->isRunning() ? @$arr['status'] : false;

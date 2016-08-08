@@ -33,7 +33,7 @@ class Route extends \yii\db\ActiveRecord
         return array_merge(parent::fields(),['source_point','destination_point']);
     }
 
-    public function toArray( $fields = [], $expand = [], $recursive = true )
+    public function toArray(array $fields = [],array $expand = [], $recursive = true )
     {
        $arr = parent::toArray($fields, $expand, $recursive);
        $arr['destination_number'] = json_decode($arr['destination_number'],true);
