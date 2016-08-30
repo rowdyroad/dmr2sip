@@ -1,0 +1,25 @@
+FROM ubuntu:16.04
+
+RUN \
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -y upgrade && \
+  apt-get install -y \
+	alsa \
+	git \
+	software-properties-common python-software-properties && \
+  add-apt-repository -y ppa:linphone/release && \
+  apt-get -y update && \
+  apt-get -y install liblinphone-dev libmysql++-dev cmake bison flex doxygen && \
+  git clone https://github.com/tunnuz/json.git /tmp/json && \
+	cd /tmp/json && cmake . && \
+	(make || sed -i -E 's/if \(\(int\) \(\(yy_n_chars\) \+ number_to_move\) > YY_CURRENT_BUFFER_LVALUE->yy_buf_size\) \{/if ((int) ((yy_n_chars) + number_to_move) > (int)YY_CURRENT_BUFFER_LVALUE->yy_buf_size) {/' lex.yy.cc ) && \
+	make && \
+	mkdir /usr/include/json && \
+	cp *.hh /usr/include/json && \
+	cp *.a /usr/lib && \
+	rm -rf /tmp/json
+
+COPY etc/* /etc/
+
+CMD ["init"]

@@ -1,0 +1,22 @@
+FROM ubuntu:16.04
+
+RUN \
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -y upgrade && \
+  apt-get install -y \
+	git \
+	supervisor \
+	alsa \
+	libmysql++3v5 \
+	software-properties-common \
+	python-software-properties && \
+  add-apt-repository -y ppa:linphone/release && \
+  apt-get -y update && \
+  apt-get -y install linphone && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+COPY etc/* /etc/
+
+CMD ["/opt/commutator/bin/commutator", "/opt/commutator/etc/commutator.conf"]

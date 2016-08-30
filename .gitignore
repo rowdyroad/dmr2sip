@@ -1,7 +1,4 @@
-build/*
-bin
-upload
-run
-log
-src/vendor/include/*
-src/vendor/lib/*
+commutator/build
+wc/upload
+db
+wc/backend/composer.lock
