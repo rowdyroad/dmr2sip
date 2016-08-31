@@ -11,19 +11,20 @@ DATABASE=$(PROJECT)-database
 COMMUTATOR=$(PROJECT)-commutator
 COMMUTATOR_SANDBOX=$(PROJECT)-commutator-sandbox
 
-build: build-backend build-frontend
 
-build-backend: 
+docker-purge:
+	-docker rm $$(docker ps -q -f status=exited -f status=created -f status=restarting -f status=paused)
+
+wc: wc-backend-image wc-frontend-image run-db run-wc-backend composer migrate run-wc-frontend prepare-front front
+
+wc-backend-image: 
 	$(BUILD) -t $(BACKEND)-image deploy/backend
 
-build-frontend:
+wc-frontend-image:
 	$(BUILD) -t $(FRONTEND)-image deploy/frontend
 
-run: run-database run-backend composer migrate run-frontend front
-
-rerun: stop-frontend stop-backend stop-database run
-
-run-database:
+run-db: docker-purge
+	docker ps -f status=running | grep $(DATABASE) || \
 	$(RUN) -d --name $(DATABASE) \
 		-v $(PWD)/db:/var/lib/mysql \
 		-p 3306:3306 \
@@ -32,28 +33,32 @@ run-database:
 		-t mysql \
 		--character-set-server=utf8mb4 \
 		--collation-server=utf8mb4_unicode_ci
-stop-database:
+stop-db:
 	-$(STOP) $(DATABASE)
 	-$(REMOVE) $(DATABASE)
 
-run-backend:
+run-wc-backend: docker-purge
+	docker ps -f status=running | grep $(BACKEND) || \
 	$(RUN) -d --name $(BACKEND) \
 		-v $(PWD)/wc/backend:/opt/backend \
 		-v $(PWD)/wc/upload:/opt/upload \
 		-p 8022:80 \
 		--link $(DATABASE):mysql \
 		-t $(BACKEND)-image
-stop-backend:
+
+stop-wc-backend:
 	-$(STOP) $(BACKEND)
 	-$(REMOVE) $(BACKEND)
 
-run-frontend:
+run-wc-frontend: docker-purge
+	docker ps -f status=running | grep $(FRONTEND) || \
 	$(RUN) -d --name $(FRONTEND) \
 		-v $(PWD)/wc/frontend:/opt/frontend \
 		-p 8023:80 \
 		--link $(BACKEND):backend \
 		-t $(FRONTEND)-image
-stop-frontend:
+
+stop-wc-frontend:
 	-$(STOP) $(FRONTEND)
 	-$(REMOVE) $(FRONTEND)
 
@@ -72,30 +77,40 @@ front:
 composer:
 	$(EXEC) -it $(BACKEND) bash -c "cd /opt/backend && composer update"
 
-build-commutator-sandbox:
+sandbox: sandbox-image run-sandbox
+
+sandbox-image:
 	$(BUILD) -t $(COMMUTATOR_SANDBOX)-image -f deploy/commutator/Dockerfile.sandbox deploy/commutator
 
-run-commutator-sandbox:
-	$(RUN) -d --name $(COMMUTATOR_SANDBOX) -v $(PWD)/commutator:/opt --link $(DATABASE):mysql -t $(COMMUTATOR_SANDBOX)-image
+run-sandbox: docker-purge run-db
+	docker ps -f status=running | grep $(COMMUTATOR_SANDBOX) || \
+	$(RUN) -d --name $(COMMUTATOR_SANDBOX) \
+		-v $(PWD)/commutator:/opt \
+		--link $(DATABASE):mysql \
+		-t $(COMMUTATOR_SANDBOX)-image
 
-stop-commutator-sandbox:
+stop-sandbox:
 	-$(STOP) $(COMMUTATOR_SANDBOX)
 	-$(REMOVE) $(COMMUTATOR_SANDBOX)
 
-commutator:
+commutator: docker-purge
+	docker ps -f status=running | grep $(COMMUTATOR_SANDBOX) || make sandbox
 	$(EXEC) -it $(COMMUTATOR_SANDBOX) bash -c "cd /opt && make"
 
-build-commutator:
+service: service-image run-service
+
+service-image:
 	$(BUILD) -t $(COMMUTATOR)-image -f deploy/commutator/Dockerfile.service deploy/commutator
 
-stop-commutator:
+stop-service:
 	-$(STOP) $(COMMUTATOR)
 	-$(REMOVE) $(COMMUTATOR)
 
-run-commutator:
+run-service: docker-purge run-db
+	docker ps -f status=running | grep $(COMMUTATOR) || \
 	$(RUN) -d --name $(COMMUTATOR) \
-	    -v $(PWD)/commutator/build:/opt/commutator/bin \
-	    -v $(PWD)/commutator/config:/opt/commutator/etc \
-	    --device /dev/snd \
-	    --link $(DATABASE):mysql \
-	    -t $(COMMUTATOR)-image
+		-v $(PWD)/commutator/build:/opt/commutator/bin \
+		-v $(PWD)/commutator/config:/opt/commutator/etc \
+		--device /dev/snd \
+		--link $(DATABASE):mysql \
+		-t $(COMMUTATOR)-image
