@@ -11,11 +11,12 @@ DATABASE=$(PROJECT)-database
 SERVICE=$(PROJECT)-service
 SANDBOX=$(PROJECT)-sandbox
 
+all: wc start-wc service
 
 docker-purge:
 	-docker rm $$(docker ps -q -f status=exited -f status=created -f status=restarting -f status=paused)
 
-wc: wc-backend-image wc-frontend-image run-db run-wc-backend composer migrate run-wc-frontend prepare-front front
+wc: wc-backend-image wc-frontend-image start-db start-wc-backend composer migrate start-wc-frontend prepare-front front
 
 wc-backend-image: 
 	$(BUILD) -t $(BACKEND)-image deploy/backend
@@ -23,9 +24,9 @@ wc-backend-image:
 wc-frontend-image:
 	$(BUILD) -t $(FRONTEND)-image deploy/frontend
 
-run-wc: run-db run-wc-backend run-wc-frontend
+start-wc: start-db start-wc-backend start-wc-frontend
 
-run-db: docker-purge
+start-db: docker-purge
 	docker ps -f status=running | grep $(DATABASE) || \
 	$(RUN) -d --name $(DATABASE) \
 		-v $(PWD)/db:/var/lib/mysql \
@@ -36,10 +37,9 @@ run-db: docker-purge
 		--character-set-server=utf8mb4 \
 		--collation-server=utf8mb4_unicode_ci
 stop-db:
-	-$(STOP) $(DATABASE)
-	-$(REMOVE) $(DATABASE)
+	-$(STOP) $(DATABASE) || $(REMOVE) $(DATABASE)
 
-run-wc-backend: docker-purge
+start-wc-backend: docker-purge
 	docker ps -f status=running | grep $(BACKEND) || \
 	$(RUN) -d --name $(BACKEND) \
 		-v $(PWD)/wc/backend:/opt/backend \
@@ -51,20 +51,18 @@ run-wc-backend: docker-purge
 		-t $(BACKEND)-image
 
 stop-wc-backend:
-	-$(STOP) $(BACKEND)
-	-$(REMOVE) $(BACKEND)
+	-$(STOP) $(BACKEND) || $(REMOVE) $(BACKEND)
 
-run-wc-frontend: docker-purge
+start-wc-frontend: docker-purge
 	docker ps -f status=running | grep $(FRONTEND) || \
 	$(RUN) -d --name $(FRONTEND) \
 		-v $(PWD)/wc/frontend:/opt/frontend \
-		-p 8023:80 \
+		-p 80:80 \
 		--link $(BACKEND):backend \
 		-t $(FRONTEND)-image
 
 stop-wc-frontend:
-	-$(STOP) $(FRONTEND)
-	-$(REMOVE) $(FRONTEND)
+	-$(STOP) $(FRONTEND) || $(REMOVE) $(FRONTEND)
 
 migrate:
 	$(EXEC) -it $(BACKEND) bash -c "cd /opt/backend && ./yii migrate --interactive=0"
@@ -81,12 +79,12 @@ front:
 composer:
 	$(EXEC) -it $(BACKEND) bash -c "cd /opt/backend && composer update"
 
-sandbox: sandbox-image run-sandbox
+sandbox: sandbox-image start-sandbox
 
 sandbox-image:
 	$(BUILD) -t $(SANDBOX)-image -f deploy/commutator/Dockerfile.sandbox deploy/commutator
 
-run-sandbox: docker-purge run-db
+start-sandbox: docker-purge start-db
 	docker ps -f status=running | grep $(SANDBOX) || \
 	$(RUN) -d --name $(SANDBOX) \
 		-v $(PWD)/commutator:/opt \
@@ -94,23 +92,21 @@ run-sandbox: docker-purge run-db
 		-t $(SANDBOX)-image
 
 stop-sandbox:
-	-$(STOP) $(SANDBOX)
-	-$(REMOVE) $(SANDBOX)
+	-$(STOP) $(SANDBOX) || $(REMOVE) $(SANDBOX)
 
 commutator: docker-purge
 	docker ps -f status=running | grep $(SANDBOX) || make sandbox
 	$(EXEC) -it $(SANDBOX) bash -c "cd /opt && make"
 
-service: service-image commutator run-service
+service: service-image commutator start-service
 
 service-image:
 	$(BUILD) -t $(SERVICE)-image -f deploy/commutator/Dockerfile.service deploy/commutator
 
 stop-service:
-	-$(STOP) $(SERVICE)
-	-$(REMOVE) $(SERVICE)
+	-$(STOP) $(SERVICE) || $(REMOVE) $(SERVICE)
 
-run-service: docker-purge run-db
+start-service: docker-purge start-db
 	docker ps -f status=running | grep $(SERVICE) || \
 	$(RUN) -d --name $(SERVICE) \
 		-v $(PWD)/commutator/build:/opt/commutator/bin \
@@ -119,6 +115,10 @@ run-service: docker-purge run-db
 		--link $(DATABASE):mysql \
 		-t $(SERVICE)-image
 
-run-all: run-db run-wc run-service
+start-all: start-db start-wc start-service
 
-stop-all: stop-service stop-frontend stop-backend stop-db
+stop-all: stop-service stop-wc-frontend stop-wc-backend stop-db
+
+install:
+	sudo ln -fs $(PWD)/config/dmr2sip /etc/init.d/dmr2sip && \
+	sudo ln -fs $(PWD)/config/dmr2sip /etc/rc$$(runlevel | sed 's/N //').d/S99dmr2sip

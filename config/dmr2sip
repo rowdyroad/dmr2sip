@@ -1,0 +1,33 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:          single
+# Required-Start:    $local_fs $all killprocs
+# Required-Stop:
+# Default-Start:     1
+# Default-Stop:
+# Short-Description: executed by init(8) upon entering runlevel 1 (single).
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/bin
+
+. /lib/lsb/init-functions
+
+case "$1" in
+  start)
+	cd /opt/dmr && make start-all
+	;;
+  restart)
+	cd /opt/dmr && make stop-all
+	cd /opt/dmr && make start-all
+	;;
+  stop)
+	cd /opt/dmr && make stop-all
+	;;
+  status)
+	/usr/bin/docker ps
+	;;
+  *)
+	echo "Usage: $0 start|stop|restart|status" >&2
+	exit 3
+	;;
+esac
