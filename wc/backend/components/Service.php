@@ -38,10 +38,10 @@ class Service extends \yii\base\Component
     public function init()
     {
         \yii\base\Event::on(\yii\db\ActiveRecord::className(),
-                            \yii\db\ActiveRecord::EVENT_AFTER_DELETE, [$this, 'reload']);
+                            \yii\db\ActiveRecord::EVENT_AFTER_DELETE, [$this, 'restart']);
         \yii\base\Event::on(\yii\db\ActiveRecord::className(),
-                            \yii\db\ActiveRecord::EVENT_AFTER_INSERT, [$this, 'reload']);
+                            \yii\db\ActiveRecord::EVENT_AFTER_INSERT, [$this, 'restart']);
         \yii\base\Event::on(\yii\db\ActiveRecord::className(),
-                            \yii\db\ActiveRecord::EVENT_AFTER_UPDATE, [$this, 'reload']);
+                            \yii\db\ActiveRecord::EVENT_AFTER_UPDATE, [$this, 'restart']);
     }
 }
