@@ -8,8 +8,8 @@ REMOVE=$(DOCKER) rm
 BACKEND=$(PROJECT)-backend
 FRONTEND=$(PROJECT)-frontend
 DATABASE=$(PROJECT)-database
-COMMUTATOR=$(PROJECT)-commutator
-COMMUTATOR_SANDBOX=$(PROJECT)-commutator-sandbox
+SERVICE=$(PROJECT)-service
+SANDBOX=$(PROJECT)-sandbox
 
 
 docker-purge:
@@ -22,6 +22,8 @@ wc-backend-image:
 
 wc-frontend-image:
 	$(BUILD) -t $(FRONTEND)-image deploy/frontend
+
+run-wc: run-db run-wc-backend run-wc-frontend
 
 run-db: docker-purge
 	docker ps -f status=running | grep $(DATABASE) || \
@@ -42,6 +44,8 @@ run-wc-backend: docker-purge
 	$(RUN) -d --name $(BACKEND) \
 		-v $(PWD)/wc/backend:/opt/backend \
 		-v $(PWD)/wc/upload:/opt/upload \
+		-v /var/run:/var/run/docker \
+		-e "COMMUTATOR_SERVICE=$(SERVICE)" \
 		-p 8022:80 \
 		--link $(DATABASE):mysql \
 		-t $(BACKEND)-image
@@ -80,37 +84,37 @@ composer:
 sandbox: sandbox-image run-sandbox
 
 sandbox-image:
-	$(BUILD) -t $(COMMUTATOR_SANDBOX)-image -f deploy/commutator/Dockerfile.sandbox deploy/commutator
+	$(BUILD) -t $(SANDBOX)-image -f deploy/commutator/Dockerfile.sandbox deploy/commutator
 
 run-sandbox: docker-purge run-db
-	docker ps -f status=running | grep $(COMMUTATOR_SANDBOX) || \
-	$(RUN) -d --name $(COMMUTATOR_SANDBOX) \
+	docker ps -f status=running | grep $(SANDBOX) || \
+	$(RUN) -d --name $(SANDBOX) \
 		-v $(PWD)/commutator:/opt \
 		--link $(DATABASE):mysql \
-		-t $(COMMUTATOR_SANDBOX)-image
+		-t $(SANDBOX)-image
 
 stop-sandbox:
-	-$(STOP) $(COMMUTATOR_SANDBOX)
-	-$(REMOVE) $(COMMUTATOR_SANDBOX)
+	-$(STOP) $(SANDBOX)
+	-$(REMOVE) $(SANDBOX)
 
 commutator: docker-purge
-	docker ps -f status=running | grep $(COMMUTATOR_SANDBOX) || make sandbox
-	$(EXEC) -it $(COMMUTATOR_SANDBOX) bash -c "cd /opt && make"
+	docker ps -f status=running | grep $(SANDBOX) || make sandbox
+	$(EXEC) -it $(SANDBOX) bash -c "cd /opt && make"
 
-service: service-image run-service
+service: service-image commutator run-service
 
 service-image:
-	$(BUILD) -t $(COMMUTATOR)-image -f deploy/commutator/Dockerfile.service deploy/commutator
+	$(BUILD) -t $(SERVICE)-image -f deploy/commutator/Dockerfile.service deploy/commutator
 
 stop-service:
-	-$(STOP) $(COMMUTATOR)
-	-$(REMOVE) $(COMMUTATOR)
+	-$(STOP) $(SERVICE)
+	-$(REMOVE) $(SERVICE)
 
 run-service: docker-purge run-db
-	docker ps -f status=running | grep $(COMMUTATOR) || \
-	$(RUN) -d --name $(COMMUTATOR) \
+	docker ps -f status=running | grep $(SERVICE) || \
+	$(RUN) -d --name $(SERVICE) \
 		-v $(PWD)/commutator/build:/opt/commutator/bin \
 		-v $(PWD)/commutator/config:/opt/commutator/etc \
-		--device /dev/snd \
+		--device /d4ev/snd \
 		--link $(DATABASE):mysql \
-		-t $(COMMUTATOR)-image
+		-t $(SERVICE)-image

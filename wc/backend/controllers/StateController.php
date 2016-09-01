@@ -15,13 +15,6 @@ class StateController extends Controller
         ];
     }
 
-    public function actionReload()
-    {
-        if (!\Yii::$app->service->reload()) {
-            throw new \yii\web\ServerErrorHttpException("Reload failure", 509);
-        }
-    }
-
     public function actionRestart()
     {
         if (!\Yii::$app->service->restart()) {

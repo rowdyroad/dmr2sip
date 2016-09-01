@@ -8,6 +8,7 @@ RUN \
 	git \
 	nginx \
 	supervisor \
+	sudo \
 	net-tools \
 	unzip \
 	curl \
@@ -46,6 +47,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 COPY etc/nginx.conf /etc/nginx/sites-available/default
 COPY etc/supervisord.conf /etc/supervisord.conf
+COPY etc/sudoers.d /etc/sudoers.d/
 
 CMD ["/usr/bin/supervisord", "-n" ,"-c","/etc/supervisord.conf"]
 

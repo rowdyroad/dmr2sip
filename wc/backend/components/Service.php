@@ -15,27 +15,24 @@ class Service extends \yii\base\Component
         }
         return true;
     }
-    public function reload()
-    {
-        return $this->execute("reload","done");
-    }
 
     public function restart()
     {
-        return $this->execute("restart", "done");
+        `sudo tools/service/restart`;
+        return true;
     }
 
     public function isRunning()
     {
-        if ($this->state_ == null) {
-            $this->state_ = $this->execute("status", "is running");
+        if ($status = @json_decode(`sudo tools/service/status`)) {
+            return @$status->State->Running;
         }
-        return $this->state_;
+        return false;
     }
 
     public function log()
     {
-        return @file_get_contents("/opt/dmr/log/commutator.log") ?: "";
+        return `sudo tools/service/log`;
     }
 
     public function init()
