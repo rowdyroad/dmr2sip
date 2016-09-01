@@ -71,7 +71,7 @@ migrate-create:
 	$(EXEC) -it $(BACKEND) bash -c "cd /opt/backend && ./yii migrate/create --interactive=0 $(name)"
 
 prepare-front:
-	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && npm update && bower update --allow-root"
+	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && npm update && bower update --force-latest --allow-root"
 
 front:
 	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && gulp"
