@@ -14,14 +14,14 @@ PATH=/sbin:/bin:/usr/bin
 
 case "$1" in
   start)
-	cd /opt/dmr && make start-all
+	cd /opt/dmr && make start
 	;;
   restart)
-	cd /opt/dmr && make stop-all
-	cd /opt/dmr && make start-all
+	cd /opt/dmr && make stop
+	cd /opt/dmr && make start
 	;;
   stop)
-	cd /opt/dmr && make stop-all
+	cd /opt/dmr && make stop
 	;;
   status)
 	/usr/bin/docker ps

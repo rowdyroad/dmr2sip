@@ -11,7 +11,7 @@ DATABASE=$(PROJECT)-database
 SERVICE=$(PROJECT)-service
 SANDBOX=$(PROJECT)-sandbox
 
-all: wc start-wc service
+all: wc service
 
 docker-purge:
 	-docker rm $$(docker ps -q -f status=exited -f status=created -f status=restarting -f status=paused)
@@ -98,7 +98,7 @@ commutator: docker-purge
 	docker ps -f status=running | grep $(SANDBOX) || make sandbox
 	$(EXEC) -it $(SANDBOX) bash -c "cd /opt && make"
 
-service: service-image commutator start-service
+service: service-image commutator
 
 service-image:
 	$(BUILD) -t $(SERVICE)-image -f deploy/commutator/Dockerfile.service deploy/commutator
@@ -115,9 +115,9 @@ start-service: docker-purge start-db
 		--link $(DATABASE):mysql \
 		-t $(SERVICE)-image
 
-start-all: start-db start-wc start-service
+start: start-db start-wc start-service
 
-stop-all: stop-service stop-wc-frontend stop-wc-backend stop-db
+stop: stop-service stop-wc-frontend stop-wc-backend stop-db
 
 install:
 	sudo ln -fs $(PWD)/config/dmr2sip /etc/init.d/dmr2sip && \
