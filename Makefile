@@ -115,6 +115,10 @@ run-service: docker-purge run-db
 	$(RUN) -d --name $(SERVICE) \
 		-v $(PWD)/commutator/build:/opt/commutator/bin \
 		-v $(PWD)/commutator/config:/opt/commutator/etc \
-		--device /d4ev/snd \
+		--device /dev/snd \
 		--link $(DATABASE):mysql \
 		-t $(SERVICE)-image
+
+run-all: run-db run-wc run-service
+
+stop-all: stop-service stop-frontend stop-backend stop-db
