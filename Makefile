@@ -88,6 +88,9 @@ start-sandbox: docker-purge start-db
 	docker ps -f status=running | grep $(SANDBOX) || \
 	$(RUN) -d --name $(SANDBOX) \
 		-v $(PWD)/commutator:/opt \
+		-v $(PWD)/deploy/commutator/etc/asound.conf:/etc/asound.conf \
+		-v $(PWD)/deploy/commutator/etc/linphone.conf:/etc/linphone.conf \
+		--device /dev/snd \
 		--link $(DATABASE):mysql \
 		-t $(SANDBOX)-image
 
