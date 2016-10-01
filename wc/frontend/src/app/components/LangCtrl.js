@@ -1,0 +1,79 @@
+'use strict';
+
+angular.module('ac.controllers', ['pascalprecht.translate'])
+  .config(['$translateProvider', i18nConfig])
+  .controller('LangCtrl', ['$scope', '$translate', LangCtrl]);
+
+    // English, Español, 日本語, 中文, Deutsch, français, Italiano, Portugal, Русский язык, 한국어
+    // Note: Used on Header, Sidebar, Footer, Dashboard
+    // English:            EN-US
+    // Spanish:            Español ES-ES
+    // Chinese:            简体中文 ZH-CN
+    // Chinese:            繁体中文 ZH-TW
+    // French:             français FR-FR
+
+    // Not used:
+    // Portugal:         Portugal PT-BR
+    // Russian:            Русский язык RU-RU
+    // German:             Deutsch DE-DE
+    // Japanese:         日本語 JA-JP
+    // Italian:            Italiano IT-IT
+    // Korean:             한국어 KO-KR
+
+
+    function i18nConfig($translateProvider) {
+
+        $translateProvider.useStaticFilesLoader({
+            prefix: 'i18n/',
+            suffix: '.json'
+        });
+
+        $translateProvider.preferredLanguage('en');
+        $translateProvider.useSanitizeValueStrategy(null);
+    }
+
+    function LangCtrl($scope, $translate) {
+        $scope.lang = 'English';
+        $scope.setLang = setLang;
+        $scope.getFlag = getFlag;
+
+
+        function setLang (lang) {
+            switch (lang) {
+                case 'English':
+                    $translate.use('en');
+                    break;
+                case 'Español':
+                    $translate.use('es');
+                    break;
+                case '中文':
+                    $translate.use('zh');
+                    break;
+                case '日本語':
+                    $translate.use('ja');
+                    break;
+                case 'Portugal':
+                    $translate.use('pt');
+                    break;
+                case 'Русский язык':
+                    $translate.use('ru');
+                    break;
+            }
+            return $scope.lang = lang;
+        };
+
+        function getFlag() {
+            var lang;
+            lang = $scope.lang;
+            switch (lang) {
+                default:
+                case 'English':
+                    return 'flag-en';
+                case 'Русский язык':
+                    return 'flag-ru';
+
+
+            }
+        };
+
+    }

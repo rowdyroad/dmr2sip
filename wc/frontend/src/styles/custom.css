@@ -46,3 +46,17 @@
     .gridster-item {
         border:1px dashed silver;
     }
+
+    .flag {
+        width: 30px;
+        height: 30px;
+        background-size: contain;
+    }
+
+    .flag-en {
+        background-image: url('/images/flags/en.png');
+    }
+
+    .flag-ru {
+        background-image: url('/images/flags/ru.png');
+    }

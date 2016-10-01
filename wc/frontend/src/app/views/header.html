@@ -46,6 +46,19 @@
                     </li>
                 </ul>
             </li>
+
+
+            <li class="dropdown langs text-normal" data-ng-controller="LangCtrl" uib-dropdown is-open="status.isopenLang">
+                <a href="javascript:;" class="dropdown-toggle active-flag" uib-dropdown-toggle ng-disabled="disabled" md-button aria-label="lang">
+                    <div class="flag {{ getFlag() }}"></div>
+                </a>
+                <ul class="with-arrow pull-right list-langs dropdown-menu-scaleIn" role="menu" uib-dropdown-menu>
+                    <li data-ng-show="lang !== 'English' ">
+                        <a href="javascript:;" data-ng-click="setLang('English')"><div class="flag flag-en"></div> English</a></li>
+                    <li data-ng-show="lang !== 'Русский язык' ">
+                        <a href="javascript:;" data-ng-click="setLang('Русский язык')"><div class="flag flag-ru"></div> Русский язык</a></li>
+                </ul>
+            </li>
         </ul>
     </div>
 </header>
