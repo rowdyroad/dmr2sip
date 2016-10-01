@@ -1,20 +1,45 @@
 <div class="tl-icon btn-icon-round btn-icon btn-icon-thin btn-info">
     <i class="fa fa-phone"></i>
 </div>
-<div class="tl-content">
-    <h4 class="tl-tile text-primary">
-        <span>
-        	<a href="/points/{{item.route.source_point.point_id}}">{{ item.route.source_point.name }}</a> (<small>{{item.route.source_point.type}}</small>)
-        </span>
-        <i class="fa fa-arrow-right"></i>
-        <span>
-        	<a href="/points/{{item.route.destination_point.point_id}}">{{ item.route.destination_point.name }}</a> (<small>{{item.route.destination_point.type}}</small>)
-        </span>
-    </h4>
-    <p><span data-translate="Route"></span>: <a href="/routes/{{item.route.route_id}}">{{ item.route.name}}</a></p>
-    <hr/>
-	<span ng-repeat="(key, value) in item.source_number" ng-if="value.length > 0" style="font-size:10px;padding-right:10px">
-		<span data-translate="{{key}}"></span>: <b>{{value}}</b>
-	</span>
+<div class="tl-content" ng-init="item.show_info = false">
+    <div  ng-if="item.route">
+        <h4 class="tl-tile text-primary">
+            <span>
+            	<a href="/points/{{item.route.source_point.point_id}}">{{ item.route.source_point.name }}</a> (<small>{{item.route.source_point.type}}</small>)
+            </span>
+            <i class="fa fa-arrow-right"></i>
+            <span>
+            	<a href="/points/{{item.route.destination_point.point_id}}">{{ item.route.destination_point.name }}</a> (<small>{{item.route.destination_point.type}}</small>)
+            </span>
 
+        </h4>
+        <p><span data-translate="Route"></span>: <a href="/routes/{{item.route.route_id}}">{{ item.route.name}}</a></p>
+        <p ng-if="item.duration > 0">
+            {{item.duration}} <span data-translate="sec"></span>
+        </p>
+    </div>
+    <div ng-if="!item.route">
+        <h4 class="tl-tile text-primary">
+            <span>
+                <a href="/points/{{item.source.point_id}}">{{ item.source_point.name }}</a> (<small>{{item.source_point.type}}</small>)
+            </span>
+            <i class="fa fa-arrow-right"></i>
+            <span style="color:red">
+                <i class="zmdi zmdi-close"></i>
+            </span>
+        </h4>
+    </div>
+    <i class="zmdi zmdi-more" ng-click="item.show_info = !item.show_info"></i>
+    <div ng-if="item.show_info">
+        <hr style="margin-top:4px"/>
+    	<span ng-repeat="(key, value) in item.source" ng-if="value.length > 0" style="font-size:10px;padding-right:10px">
+    		<span data-translate="{{key}}"></span>: <b>{{value}}</b>
+    	</span>
+        <span ng-if="item.route">
+            <i class="fa fa-arrow-right"></i>
+            <span ng-repeat="(key, value) in item.destination" ng-if="value.length > 0" style="font-size:10px;padding-right:10px">
+                <span data-translate="{{key}}"></span>: <b>{{value}}</b>
+            </span>
+        </span>
+    </div>
 </div>

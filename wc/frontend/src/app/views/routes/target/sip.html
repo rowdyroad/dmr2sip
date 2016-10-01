@@ -1,6 +1,31 @@
 <md-input-container class="md-block"
+  ng-init="current.destination_number.from = current.destination_number.from || []">
+    <label data-translate="From number"></label>
+     <md-chips
+                ng-model="current.destination_number.from"
+                md-autocomplete-snap
+                md-transform-chip="transformChip($chip)">
+        <md-autocomplete
+            md-search-text="searchText"
+            md-items="item in querySearch(searchText)"
+            md-min-length="0"
+            md-no-cache="true"
+            md-item-text="item.name">
+          <span md-highlight-text="ctrl.searchText">{{item.id}}</span>
+        </md-autocomplete>
+        <md-chip-template ng-style="$chip.id && {'font-weight':'bold'}">
+          <span ng-if="$chip.id" ng-style="$chip.error && {'color':'red'}">
+            []<sup>{{$chip.id}}</sup>
+          </span>
+          <span ng-if="!$chip.id">
+            {{$chip.value}}
+          </span>
+        </md-chip-template>
+      </md-chips>
+</md-input-container>
+<md-input-container class="md-block"
   ng-init="current.destination_number.to = current.destination_number.to || []">
-    <label data-translate="Target number"></label>
+    <label data-translate="To number"></label>
      <md-chips
                 ng-model="current.destination_number.to"
                 md-autocomplete-snap
@@ -23,7 +48,6 @@
         </md-chip-template>
       </md-chips>
 </md-input-container>
-
 <!-- <md-input-container class="md-block">
     <label data-translate="DTMF Extension"></label>
     <input
