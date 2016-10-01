@@ -14,9 +14,11 @@ class Program : public PointHandler
                 Commutator::PointPtr source_;
                 Commutator::PointPtr destination_;
                 std::string number_;
+                Storage::CallEventPtr event_;
             public:
-                Link(const Commutator::Storage::Route& route, const std::string& number, const std::list<Commutator::PointPtr>& points)
+                Link(const Commutator::Storage::Route& route, const std::string& number, const std::list<Commutator::PointPtr>& points, const Storage::CallEventPtr& event)
                     : route_(route)
+                    , event_(event)
                 {
                     for (auto& p : points) {
                         if (p->getConfiguration().point_id == route.source_point_id) {
@@ -44,11 +46,11 @@ class Program : public PointHandler
                     }
                 }
 
-
                 const Commutator::Storage::Route& getRoute() const { return route_; }
                 const Commutator::PointPtr& getSource() const { return source_; }
                 const Commutator::PointPtr& getDestination() const { return destination_; }
                 const std::string& getNumber() const { return number_; }
+                const Storage::CallEventPtr& getCallEvent() const  { return event_; }
 
                 bool Connected() { return source_ && destination_; }
         };
@@ -163,7 +165,6 @@ class Program : public PointHandler
             for (auto& route : routes_) {
                 debugger_ << "\tRoute : " << route.name << "(" << route.route_id << ")" << std::endl
                           << "\tRoute: " << route.source_point_id << "(" << route.source_number_string << ") -> " << route.destination_point_id << "(" << route.destination_number_string << ")" << std::endl;
-
             }
         }
 
@@ -197,13 +198,15 @@ class Program : public PointHandler
                     return false;
                 }
             }
+            debugger_ << "Checking routes..." << std::endl;
+            auto event = storage_.createCallEvent(point->getConfiguration().point_id, number);
             bool link_created = false;
             for (auto route : routes_) {
                 debugger_ << "\tCHECK point: " << route.source_point_id << " number: " << route.source_number_string << std::endl;
                 std::string destination;
                 if (route.source_point_id == point->getConfiguration().point_id && checkSourceNumber(route, number, destination)) {
                     debugger_ << "\t\t destination:" << destination << std::endl;
-                    std::shared_ptr<Link> link(new Link(route, number, ready_points_));
+                    std::shared_ptr<Link> link(new Link(route, number, ready_points_, event));
                     if (link->Connected()) {
                         debugger_ << "\t\tLinked" << std::endl;
                         {
@@ -211,8 +214,8 @@ class Program : public PointHandler
                             linked_points_.insert(std::make_pair(route.source_point_id, link));
                             linked_points_.insert(std::make_pair(route.destination_point_id, link));
                         }
-                        storage_.addCallEvent(route.route_id, number);
                         link->getDestination()->Initiate(destination);
+                        link->getCallEvent()->setDestination(route.route_id, destination);
                         link_created = true;
                         break;
                     }
@@ -221,7 +224,7 @@ class Program : public PointHandler
             }
 
             if (!link_created) {
-                storage_.addCallEvent(0, number);
+                event->setResult("dropped");
             }
             return link_created;
         }
@@ -246,7 +249,9 @@ class Program : public PointHandler
                 debugger_ << "OnCallEnded: Phone mode is on: need to callback" << std::endl;
                 point->Callback();
             } else {
+
                 debugger_ << "OnCallEnded: Ending call now" << std::endl;
+                link->second->getCallEvent()->setResult("done");
                 debugger_ << "\tHanguping remote point";
                 (point == link->second->getSource().get()
                             ? link->second->getDestination()
@@ -260,6 +265,7 @@ class Program : public PointHandler
                 }
                 debugger_ << " Done" << std::endl;
                 debugger_ << "OnCallEnded: Call end successfully" << std::endl;
+
             }
         }
 

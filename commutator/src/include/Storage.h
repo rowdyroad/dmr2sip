@@ -53,7 +53,7 @@ std::string JSONAlwaysString(const JSON::Value& value)
 
 namespace Commutator {
 
-    class StorageException : public Exception 
+    class StorageException : public Exception
     {
         public:
             explicit StorageException(const std::string& message) noexcept
@@ -67,10 +67,61 @@ namespace Commutator {
     class Storage
     {
         private:
-            std::unique_ptr<mysqlpp::Connection> db_;
+            typedef  std::shared_ptr<mysqlpp::Connection> ConnectionPtr;
+
+            ConnectionPtr db_;
             std::mutex mutex_;
             Debug debugger_;
+
+            class CallEvent
+            {
+                private:
+                    ConnectionPtr db_;
+                    std::mutex& mutex_;
+
+                    size_t source_point_id_;
+                    std::string source_;
+                    std::string destination_;
+                    size_t event_id_;
+                    std::string result_;
+
+                public:
+                    CallEvent(ConnectionPtr& db, std::mutex& mutex, size_t source_point_id, const std::string& source)
+                        : db_(db)
+                        , mutex_(mutex)
+                        , source_point_id_(source_point_id)
+                        , source_(source)
+                    {
+                        std::lock_guard<std::mutex> lock(mutex_);
+                        auto query = db_->query("INSERT INTO events (source_point_id, source, type) ");
+                        query <<  " VALUES (" << (int)source_point_id << ", '" << source_ << "', 'call')";
+                        if (!query.execute()) {
+                            throw new std::exception();
+                        }
+                        this->event_id_ = query.insert_id();
+                    }
+
+                    bool setDestination(size_t route_id, const std::string& destination)
+                    {
+                        std::lock_guard<std::mutex> lock(mutex_);
+                        auto query = db_->query("UPDATE events SET ");
+                        query << "route_id = " << (int)route_id <<", destination = '" << destination << "' WHERE event_id = " << this->event_id_;
+                        return query.execute();
+                    }
+
+                    bool setResult(const std::string& result)
+                    {
+                        std::lock_guard<std::mutex> lock(mutex_);
+                        auto query = db_->query("UPDATE events SET ");
+                        query << "end_time = NOW(), result = '" << result << "' WHERE event_id = " << this->event_id_;
+                        return query.execute();
+                    }
+            };
+
         public:
+
+            typedef std::shared_ptr<CallEvent> CallEventPtr;
+
             struct Point {
                 enum Status {
                     psInvactive = 0,
@@ -244,12 +295,10 @@ namespace Commutator {
                 return std::move(routes);
             }
 
-            void addCallEvent(size_t route_id, const std::string& source_number)
+
+            CallEventPtr createCallEvent(size_t source_point_id, const std::string& source)
             {
-                std::lock_guard<std::mutex> lock(mutex_);
-                auto query = db_->query("INSERT INTO events (route_id, source_number,type)  VALUES(");
-                query << (int)route_id << ", '" << source_number << "','call')";
-                query.execute();
+                return CallEventPtr(new CallEvent(db_, mutex_, source_point_id, source));
             }
     };
 }
