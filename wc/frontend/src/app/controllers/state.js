@@ -9,13 +9,13 @@ angular
     controller: 'StateConfigurationCtrl'
   })
 })
-.controller('StateCtrl', function($scope, $http,$routeParams) {
+.controller('StateCtrl', function($scope, $http,$routeParams, $rootScope) {
 	function states()
     {
         setTimeout(function() {
             $http.get('/api/state/states',{ignoreLoadingBar: true}).success(function(data) {
                 $scope.state = data;
-                $scope.$broadcast('points:states', $scope.state.points);
+                $rootScope.$broadcast('points:states', $scope.state.points);
                 states();
             });
         },1000);

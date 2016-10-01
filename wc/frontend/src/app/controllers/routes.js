@@ -97,4 +97,17 @@ angular
 })
 .controller('RouteCtrl', function($scope, $http) {
   BaseController('/api/routes', 'route_id', $scope, $http);
+
+  $scope.$on('points:states', function(e, data) {
+    angular.forEach(data, function(state) {
+        angular.forEach($scope.items, function(route) {
+          if (route.source_point_id == state.point_id) {
+            route.source_point.status = state.status;
+          }
+          if (route.destination_point_id == state.point_id) {
+            route.destination_point.status = state.status;
+          }
+        });
+    });
+  });
 });

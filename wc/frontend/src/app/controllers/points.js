@@ -23,4 +23,13 @@ angular
 .controller('PointCtrl', function($scope, $http,auth) {
   auth.Protect();
   BaseController('/api/points', 'point_id', $scope, $http);
+  $scope.$on('points:states', function(e, data) {
+    angular.forEach(data, function(state) {
+        angular.forEach($scope.items, function(point) {
+          if (point.point_id == state.point_id) {
+            point.status = state.status;
+          }
+        });
+    });
+  });
 });
