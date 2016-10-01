@@ -1,3 +1,0 @@
-#!/bin/sh
-
-curl --silent --unix-socket /var/run/docker/docker.sock http:/containers/dmr2sip-service/json

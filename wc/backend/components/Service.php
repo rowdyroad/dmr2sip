@@ -4,27 +4,17 @@ use Yii;
 
 class Service extends \yii\base\Component
 {
-    var $service;
-    private $state_ = null;
-    private function execute($method, $waitfor = false)
-    {
-        $command = sprintf('sudo /etc/init.d/%s %s', $this->service, $method);
-        $ret = exec($command);
-        if ($waitfor) {
-            return stripos(exec($command), $waitfor) !== false;
-        }
-        return true;
-    }
+    public $service;
 
     public function restart()
     {
-        `sudo tools/service/restart`;
-        return true;
+       return \Yii::$app->docker->restart($this->service);
     }
 
     public function isRunning()
     {
-        if ($status = @json_decode(`sudo tools/service/status`)) {
+
+        if ($status = \Yii::$app->docker->status($this->service)) {
             return @$status->State->Running;
         }
         return false;
@@ -32,7 +22,7 @@ class Service extends \yii\base\Component
 
     public function log()
     {
-        return `sudo tools/service/log`;
+        return \Yii::$app->docker->log($this->service);
     }
 
     public function init()
