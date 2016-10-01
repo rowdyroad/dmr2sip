@@ -25,7 +25,9 @@ angular.module('ac', [
 
   'ac.controllers',
   'ac.services',
-  'ac.directives'
+  'ac.directives',
+  'pascalprecht.translate',
+  'ngCookies'
 
 ])
 .config(function($mdThemingProvider) {
@@ -55,7 +57,7 @@ angular.module('ac', [
             })
             .backgroundPalette('grey');
 })
-.config(function($httpProvider,$locationProvider,$sceProvider) {
+.config(function($httpProvider,$locationProvider,$sceProvider,$translateProvider) {
   $sceProvider.enabled(false);
   $locationProvider.html5Mode(true);
   $httpProvider.defaults.headers.common["X-Requested-With"] = 'XMLHttpRequest';
@@ -80,8 +82,39 @@ angular.module('ac', [
           return $q.reject(response);
         }
     }});
+
+     $translateProvider.useStaticFilesLoader({
+          prefix: 'i18n/',
+          suffix: '.json'
+      });
+
+      $translateProvider.
+      registerAvailableLanguageKeys(['en', 'ru'],
+      {
+          'en_*': 'en',
+          'ru_*': 'ru',
+          '*': 'en'
+      }).
+      determinePreferredLanguage();
+
 })
-.run(function($location, $route, $rootScope) {
+.run(function($location, $route, $rootScope, $translate) {
+
+    $rootScope.$on('$translateChangeSuccess', function(event, data) {
+        if (!localStorage.getItem('language')) {
+            localStorage.setItem('language', data.language);
+        }
+        $rootScope.language = localStorage.getItem('language');
+    });
+
+    $rootScope.setLanguage = function(lang)
+    {
+      localStorage.setItem('language', lang);
+      $translate.use(lang);
+    }
+
+
+
     var original = $location.path;
     $location.path = function (path, reload) {
         if (reload === false) {

@@ -30,8 +30,22 @@
                             </div>
                         </form>
                     </div>
-
                 </div>
+
+            </div>
+             <div class="dropdown" style="padding-top:1em;" uib-dropdown is-open="status.isopenLang">
+                    <a href="javascript:void(0);"
+                        class="dropdown-toggle active-flag"
+                        uib-dropdown-toggle ng-disabled="disabled"
+                        md-button aria-label="language">
+                            <div class="flag flag-{{language}}"></div>
+                    </a>
+                    <ul class="with-arrow list-langs dropdown-menu-scaleIn" role="menu" uib-dropdown-menu>
+                    <li data-ng-show="language !== 'en' ">
+                        <a href="javascript:void(0);" data-ng-click="setLanguage('en')"><div class="flag flag-en"></div> English</a></li>
+                    <li data-ng-show="language !== 'ru' ">
+                        <a href="javascript:void(0);" data-ng-click="setLanguage('ru')""><div class="flag flag-ru"></div> Русский</a></li>
+                </ul>
             </div>
         </div>
 

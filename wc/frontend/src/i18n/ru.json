@@ -1,8 +1,8 @@
 {
-    "Username": "Username",
-    "Password": "Password",
-    "Sign in": "Sign in",
-    "Element removing": "Element removing",
+    "Username": "Имя пользователя",
+    "Password": "Пароль",
+    "Sign in": "Войти",
+    "Element removing": "Удаление элемента",
     "Do you really want to remove current item?": "Do you really want to remove current item?",
     "Cancel": "Cancel",
     "Remove": "Remove",
