@@ -15,11 +15,6 @@ Prepare docker to work
     # usermod -aG docker <USER>
     # chmod 0777 /var/run/docker.sock #!!! hot fix (will be removed)
  ```
- 
-Change web console default port to 80 (not required)
-```sh
-    $ sed -E -i 's/\-p 8023\:80/-p 80:80/' ./Makefile 
-```
 
 Create all DMR2SIP components
 ```sh
