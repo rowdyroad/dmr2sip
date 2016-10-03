@@ -24,6 +24,10 @@ class SIP {
         LinphoneCall* call_;
         SIPHandler* handler_;
         Debug debugger_;
+        std::string identity_;
+        std::string current_identity_;
+        std::string address_;
+
     public:
 
         SIP(SIPHandler* handler, const std::string& config)
@@ -59,14 +63,17 @@ class SIP {
             linphone_core_destroy(lc_);
         }
 
-        void Connect(const std::string& host, uint16_t port, const std::string& username, const std::string& password)
+        void Connect(const std::string& host, uint16_t port, const std::string& username, const std::string& password, const std::string& identity = "")
         {
+            identity_ = identity.empty() ? username : identity;
+            current_identity_ = username;
+            address_ = host + ":" + std::to_string(port);
+
             LinphoneProxyConfig* proxy_cfg = linphone_proxy_config_new();
-            std::string address = host + ":" + std::to_string(port);
             LinphoneAuthInfo *info = linphone_auth_info_new(username.c_str(), NULL, password.c_str(),NULL,NULL,NULL);
             linphone_core_add_auth_info(lc_, info);
-            linphone_proxy_config_set_identity(proxy_cfg, ("sip:" + username + "@" + address).c_str());
-            linphone_proxy_config_set_server_addr(proxy_cfg, ("sip:" + address).c_str());
+            linphone_proxy_config_set_identity(proxy_cfg, ("sip:" + current_identity_ + "@" + address_).c_str());
+            linphone_proxy_config_set_server_addr(proxy_cfg, ("sip:" + address_).c_str());
             linphone_proxy_config_enable_register(proxy_cfg, true);
             linphone_core_add_proxy_config(lc_, proxy_cfg);
             linphone_core_set_default_proxy_config(lc_, proxy_cfg);
@@ -84,6 +91,23 @@ class SIP {
             if (call_) {
                 Hangup();
             }
+
+            changeIdentity(identity_);
+
+            call_ = linphone_core_invite(lc_, address.c_str());
+            if (call_) {
+                linphone_call_ref(call_);
+            }
+        }
+
+
+        void Call(const std::string& address, const std::string& from)
+        {
+            if (call_) {
+                Hangup();
+            }
+
+            changeIdentity(from);
 
             call_ = linphone_core_invite(lc_, address.c_str());
             if (call_) {
@@ -112,6 +136,22 @@ class SIP {
     	}
 
     private:
+
+        void changeIdentity(const std::string& identity)
+        {
+            if (current_identity_ == identity) {
+                debugger_ << "Identity is same as current. No need to change" << std::endl;
+            }
+            auto proxy_cfg = linphone_core_get_default_proxy_config(lc_); /* get default proxy config*/
+
+            debugger_ << "Change identity:" << current_identity_ << " -> " << identity << std::endl;
+
+            linphone_proxy_config_edit(proxy_cfg);
+            linphone_proxy_config_set_identity(proxy_cfg, ("sip:" + identity + "@" + address_).c_str());
+            linphone_proxy_config_done(proxy_cfg);
+
+            current_identity_ = identity;
+        }
 
         void flushCall()
         {

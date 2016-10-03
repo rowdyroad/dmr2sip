@@ -62,9 +62,9 @@ namespace Commutator {
                 , quit_(false)
                 , debugger_("sippoint")
             {
-                std::string username = point.configuration["authorization_username"].as_string();
+                std::string username = point.configuration["username"].as_string();
+                std::string authorization_username = point.configuration["authorization_username"].as_string();
                 std::string password = point.configuration["password"].as_string();
-
                 std::string host = point.configuration["host"].as_string();
 
 
@@ -74,10 +74,11 @@ namespace Commutator {
                 debugger_ << "Configuration: " << std::endl
                             << "\tAddress = " << host << std::endl
                             << "\tPort = " << port << std::endl
-                            << "\tAuthorization Username = " << username << std::endl
+                            << "\tUsername = " << username << std::endl
+                            << "\tAuthorization Username = " << authorization_username << std::endl
                             << "\tPassword = " << "*********" << std::endl;
                 sip_.reset(new SIP(this, config));
-                sip_->Connect(host, port, username, password);
+                sip_->Connect(host, port, authorization_username, password, username);
             }
 
             ~SIPPoint()
@@ -108,7 +109,12 @@ namespace Commutator {
             {
                 number_.reset(new Number(number));
                 std::unique_lock<std::mutex> lock(mutex_);
-                sip_->Call(number_->to);
+                if (number_->from.empty()) {
+                    sip_->Call(number_->to);
+                } else {
+                    sip_->Call(number_->to, number_->from);
+                }
+
             }
 
             void Hangup()
