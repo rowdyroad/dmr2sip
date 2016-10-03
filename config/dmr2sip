@@ -14,7 +14,7 @@ PATH=/sbin:/bin:/usr/bin
 
 case "$1" in
   start)
-	cd /opt/dmr && make start
+	cd /opt/dmr && make start > start.log
 	;;
   restart)
 	cd /opt/dmr && make stop

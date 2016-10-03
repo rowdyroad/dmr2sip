@@ -10,6 +10,7 @@ FRONTEND=$(PROJECT)-frontend
 DATABASE=$(PROJECT)-database
 SERVICE=$(PROJECT)-service
 SANDBOX=$(PROJECT)-sandbox
+DOCKER_GID=$(shell getent group docker | sed -E 's/docker:x:([0-9]+):.+/\1/')
 
 all: wc service
 
@@ -18,8 +19,10 @@ docker-purge:
 
 wc: wc-backend-image wc-frontend-image start-db start-wc-backend composer migrate start-wc-frontend prepare-front front
 
-wc-backend-image: 
-	$(BUILD) -t $(BACKEND)-image deploy/backend
+wc-backend-image:
+	$(BUILD) -t $(BACKEND)-image \
+		--build-arg DOCKER_GROUP=$(DOCKER_GID) \
+		deploy/backend
 
 wc-frontend-image:
 	$(BUILD) -t $(FRONTEND)-image deploy/frontend
@@ -33,6 +36,7 @@ start-db: docker-purge
 		-p 3306:3306 \
 		-e MYSQL_ROOT_PASSWORD=root \
 		-e MYSQL_DATABASE=db \
+		--restart always \
 		-t mysql \
 		--character-set-server=utf8mb4 \
 		--collation-server=utf8mb4_unicode_ci

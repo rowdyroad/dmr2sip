@@ -49,6 +49,10 @@ COPY etc/nginx.conf /etc/nginx/sites-available/default
 COPY etc/supervisord.conf /etc/supervisord.conf
 COPY etc/sudoers.d /etc/sudoers.d/
 
+ARG DOCKER_GROUP
+
+RUN groupadd -g $DOCKER_GROUP docker && usermod -aG docker www-data
+
 CMD ["/usr/bin/supervisord", "-n" ,"-c","/etc/supervisord.conf"]
 
 EXPOSE 80

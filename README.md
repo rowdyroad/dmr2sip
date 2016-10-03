@@ -12,8 +12,7 @@ Install the dependencies
 ```
 Prepare docker to work
 ```sh
-    # usermod -aG docker <USER>
-    # chmod 0777 /var/run/docker.sock #!!! hot fix (will be removed)
+    # usermod -aG docker <USER> (need to relogin)
  ```
 
 Create all DMR2SIP components
