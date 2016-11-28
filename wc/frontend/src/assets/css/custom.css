@@ -1,0 +1,107 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.logo {
+	padding-bottom: 4px;
+	width: 42px;
+}
+
+.topbar .logo {
+	width: 32px;
+}
+.title {
+	text-align: center;
+	color: #36404a
+}
+
+.side-menu {
+	height: 100%;
+}
+
+.logo {
+	font-weight: lighter;
+}
+
+.slimscrollleft {
+	position:relative;
+	overflow-x:hidden;
+	overflow-y: auto;
+	width:auto;
+}
+.profile-name {
+	font-size: 12px;
+}
+button {
+	cursor: pointer;
+}
+
+.cd-timeline-block:nth-child(odd) {
+	text-align: right;
+}
+.cd-timeline-block:nth-child(even) {
+	text-align: left;
+}
+
+
+.cd-timeline-block:nth-child(odd) .cd-date {
+	text-align: left;
+}
+
+.route-direction {
+	padding-left:4px;
+	padding-right: 4px;
+}
+
+.event > .cd-timeline-content{
+	padding: 1em;
+}
+
+.event-extend {
+	font-size:10px;
+}
+.event-extend-item {
+	padding-right:4px;
+}
+.event-param {
+	font-size:12px;
+}
+
+.events-more {
+	width:60px;
+	height:60px;
+	border-radius: 30px;
+	line-height: 12px;
+    padding-top: 15px;
+}
+
+.table-edit-icon {
+	color: #29b6f6;
+}
+.table-controls > i {
+	padding:0.4em;
+}
+.table-delete-icon {
+	color: #f05050;
+}
+
+table.table td {
+	padding:1em !important;
+}
+
+.form .row {
+	margin-bottom: 28px;
+}
+
+.form label {
+	font-size:12px;
+}
+
+.fa-circle.point-status-0 {
+	color:red;
+}
+.fa-circle.point-status-1 {
+	color:green;
+}
