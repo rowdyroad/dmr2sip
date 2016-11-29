@@ -32,6 +32,8 @@ const DMRView = (props) => (
             <UI.Col4 style={{padding:'1em'}}>
                 <UI.Property label="Sound Device Index">{props.device_index}</UI.Property>
             </UI.Col4>
+        </UI.Row>
+        <UI.Row>
             <UI.Col2 style={{padding:'1em'}}>
                 <UI.Property label="Device Host">{props.address}</UI.Property>
             </UI.Col2>

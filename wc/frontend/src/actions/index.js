@@ -29,7 +29,6 @@ export const RequestSuccess = (scope, response, options) => ({type: REQUEST_SUCC
 export const REQUEST_ERROR = 'REQUEST_ERROR';
 export const RequestError = (scope, error) => ({type: REQUEST_ERROR, scope:scope, error:error});
 
-
 export const OBJECT_MERGE = 'OBJECT_MERGE';
 export const ObjectMerge = (path, object) => ({type: OBJECT_MERGE, path: path, object:object});
 
@@ -39,7 +38,6 @@ export const ObjectRemove = (path) => ({type: OBJECT_REMOVE, path: path});
 export const OBJECT_SET	   = 'OBJECT_SET';
 export const ObjectSet = (path, object) => ({type: OBJECT_SET, path: path, object:object});
 
-
 export const LIST_ITEM_UPDATE = 'LIST_ITEM_UPDATE';
 export const ListItemUpdate = (path, object, pkAttribute) => ({type: LIST_ITEM_UPDATE, path: path, object: object, pkAttribute:pkAttribute});
 
@@ -48,7 +46,6 @@ export const ListItemRemove = (path, pkAttribute, pkValue) => ({type: LIST_ITEM_
 
 export const LIST_ITEM_ADD = 'List_ITEM_ADD';
 export const ListItemAdd = (path, object) => ({type: LIST_ITEM_ADD, path: path, object:object});
-
 
 const CreateRequest = (method, scope, request, options) => {
 	return (dispatch, getState) => {
@@ -62,7 +59,6 @@ const CreateRequest = (method, scope, request, options) => {
 			}
 		})
 		.catch((error) => {
-			console.log(error);
 			dispatch(RequestError(scope, error, request.request));
 			if (options && options.onError) {
 				dispatch(options.onError);

@@ -50,9 +50,10 @@ export const reducer = (state = initialState, action) =>
 			}
 
 			let list = state.getIn(path).map((item) => {
-				if (item[action.pkAttribute] === item[action.object[action.pkAttribute]]) {
+				if (item.get(action.pkAttribute) === action.object[action.pkAttribute]) {
 					return item.mergeDeep(fromJS(action.object));
 				}
+				return item;
 			});
 			return state.setIn(path, list);
 		}

@@ -116,8 +116,8 @@ class Events extends Component
 let mapState = (state) => {
 	return {
 			fetching: state.main.getIn(['events', 'fetching']),
-			data: state.main.getIn(['events','success']) ? state.main.getIn(['events','response','data']).toJS() : null,
-			meta: state.main.getIn(['events','success']) ? state.main.getIn(['events','response','_meta']).toJS() : null,
+			data: state.main.hasIn(['events','response','data']) ? state.main.getIn(['events','response','data']).toJS() : null,
+			meta: state.main.hasIn(['events','response','_meta']) ? state.main.getIn(['events','response','_meta']).toJS() : null,
 	}
 }
 
@@ -127,9 +127,15 @@ let mapDispatch = (dispatch) => {
       fetch: (page, append) => {
         dispatch(Actions.Fetch("events", {
         									url: "/api/events",
-        									params: {page: page},
-        									options: append ? {concat: 'data'} : null
-        								}));
+        									params: {page: page}
+        								},
+        								{
+        									concat: append ? 'data' : false
+        								}
+
+
+
+        								));
       }
     }
   }

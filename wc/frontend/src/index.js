@@ -24,7 +24,7 @@ import PointView from './pages/point/View';
 import PointUpdateForm from './pages/point/UpdateForm';
 import PointCreateForm from './pages/point/CreateForm';
 import Routes from './pages/Routes';
-import Users from './pages/Users';
+import Users from './pages/user/List';
 
 
 const store = createStore(combineReducers({main:reducer, form:formReducer}), window.devToolsExtension(), applyMiddleware(thunk));

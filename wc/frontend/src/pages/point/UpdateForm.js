@@ -22,7 +22,9 @@ let mapDispatch = (dispatch) => {
       },
       save: (data) => {
         data = data.toJS();
-        dispatch(Actions.Put("point", "/api/points/" + data.point_id, data));
+        dispatch(Actions.Put("point", "/api/points/" + data.point_id, data, {
+          onSuccess:Actions.ListItemUpdate(["points", "response", "data"], data, 'point_id')
+        }));
       },
       change: (object) => {
         dispatch(Actions.ObjectMerge("point", {response: object, dirty:true}));

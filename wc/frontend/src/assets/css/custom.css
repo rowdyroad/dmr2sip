@@ -105,3 +105,22 @@ table.table td {
 .fa-circle.point-status-1 {
 	color:green;
 }
+
+.point-item-status-0 {
+	background: #F78181;
+}
+.point-item-status-1 {
+	background: #81F781;
+}
+.point-item-status {
+	margin-left:auto;
+	margin-right:auto;
+	width:100px;
+	height:100px;
+	border-radius:50px;
+}
+.point-item-name, .point-item-type,.point-item-configuration {
+	white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}

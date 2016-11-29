@@ -36,6 +36,8 @@ const DMRView = (props) => (
             <UI.Col4 style={{padding:'1em'}}>
                 <UI.Property label="Sound Device Index">{props.device_index}</UI.Property>
             </UI.Col4>
+        </UI.Row>
+        <UI.Row>
             <UI.Col2 style={{padding:'1em'}}>
                 <UI.Property label="Device Host">{props.address}</UI.Property>
             </UI.Col2>
@@ -60,7 +62,7 @@ const PointView = (props) => (
         <UI.Row>
             <UI.Col10>
                 <h1>
-                    <i className={"fa fa-circle point-status-" + props.status}></i>&nbsp;{props.name}
+                    <i className={"fa fa-circle point-status-" + (props.status ? props.status : 0)} ></i>&nbsp;{props.name}
                     <small style={{ display:'block', fontSize:14, paddingLeft:40}}>{props.type}</small>
                 </h1>
             </UI.Col10>
