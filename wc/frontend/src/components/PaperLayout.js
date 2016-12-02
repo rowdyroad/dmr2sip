@@ -20,4 +20,4 @@ class PaperLayout extends Component
 	}
 }
 
-export default connect(state => { return state.toObject(); })(PaperLayout)
+export default connect(state => { return state.main.toJS(); })(PaperLayout)

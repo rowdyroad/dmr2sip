@@ -211,7 +211,9 @@ export const Grid = (props) => (
 							width={12 / (props.cols || 4)}
 							key={i}
 							style={{...props.style || {}, padding:'0.5em'}}>
-								{React.createElement(props.component, item)}
+								<Box>
+									{React.createElement(props.component, item)}
+								</Box>
 					</Col>;
 		})}
 	</Row>

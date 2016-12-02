@@ -44,10 +44,24 @@ export const ListItemUpdate = (path, object, pkAttribute) => ({type: LIST_ITEM_U
 export const LIST_ITEM_REMOVE = 'LIST_ITEM_REMOVE';
 export const ListItemRemove = (path, pkAttribute, pkValue) => ({type: LIST_ITEM_REMOVE, path: path, pkAttribute:pkAttribute, pkValue:pkValue});
 
-export const LIST_ITEM_ADD = 'List_ITEM_ADD';
+export const LIST_ITEM_ADD = 'LIST_ITEM_ADD';
 export const ListItemAdd = (path, object) => ({type: LIST_ITEM_ADD, path: path, object:object});
 
 const CreateRequest = (method, scope, request, options) => {
+
+	let dispatchAll = (dispatch, handler, what) => {
+		let action = typeof(handler) === "function" ? handler(what) : handler;
+		if (action) {
+			if (Array.isArray(action)) {
+				action.forEach((a) => {
+					dispatch(a);
+				})
+			} else {
+				dispatch(action);
+			}
+		}
+	}
+
 	return (dispatch, getState) => {
 		dispatch(RequestAction(scope, request));
 
@@ -55,13 +69,17 @@ const CreateRequest = (method, scope, request, options) => {
 		.then((response) => {
 			dispatch(RequestSuccess(scope, response, options));
 			if (options && options.onSuccess) {
-				dispatch(options.onSuccess);
+				dispatchAll(dispatch, options.onSuccess, response);
 			}
 		})
 		.catch((error) => {
-			dispatch(RequestError(scope, error, request.request));
-			if (options && options.onError) {
-				dispatch(options.onError);
+			if (typeof(error) === "object") {
+				throw error;
+			} else {
+				dispatch(RequestError(scope, error));
+				if (options && options.onError) {
+					dispatchAll(dispatch, options.onError, error);
+				}
 			}
 		});
 	}

@@ -38,7 +38,9 @@ let mapDispatch = (dispatch) => {
       },
       save: (data) => {
         dispatch(Actions.Post("point", "/api/points", data, {
-          onSuccess:Actions.ListItemAdd(["points","response","data"], data)
+          onSuccess:(data)=> {
+              return Actions.ListItemAdd(["points","response","data"], data)
+          }
         }));
       },
       clear: () => {

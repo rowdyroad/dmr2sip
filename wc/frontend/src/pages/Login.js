@@ -57,5 +57,5 @@ let mapDispatch = (dispatch) => {
   }
 }
 
-export default connect(state => { return state.toObject(); }, mapDispatch)(Login)
+export default connect(state => { return state.main.toJS(); }, mapDispatch)(Login)
 

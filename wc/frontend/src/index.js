@@ -15,6 +15,12 @@ import Request from './utils/Request';
 
 import { reducer as formReducer } from 'redux-form/immutable'
 
+import ListFetcher from './components/entry/ListFetcher';
+import Grid from './components/entry/Grid';
+import PointItem from './components/Point';
+
+import ItemFetcher from './components/entry/ItemFetcher';
+
 
 import Events from './pages/Events';
 import Points from './pages/point/List';
@@ -27,6 +33,7 @@ import Routes from './pages/Routes';
 import Users from './pages/user/List';
 
 
+
 const store = createStore(combineReducers({main:reducer, form:formReducer}), window.devToolsExtension(), applyMiddleware(thunk));
 
 const AuthConfig = {
@@ -37,10 +44,14 @@ const AuthConfig = {
       }
   },
   publicOnly: function(nextState, replace) {
-     if (store.getState().getIn(['user','success'])) {
+     if (store.getState().main.getIn(['user','success'])) {
         replace("/");
      }
   }
+}
+
+const Creator = (component, componentProps) => {
+  return (props)=> { return React.createElement(component, {...props, ...componentProps}) };
 }
 
 const startApp = () => {
@@ -51,14 +62,32 @@ const startApp = () => {
           <Route component={MainLayout} onEnter={AuthConfig.private}>
             <IndexRoute component={Events} name="Events"/>
             <Route path="/events" name="Events" component={Events} link={{icon:'ti-direction-alt', title:'Events', 'section':'Observation'}}/>
-            <Route path="/points" name="Points" link={{icon:'ti-desktop',title:'Points', 'section':'Integration'}}>
-              <IndexRoute component={Points} />
+
+            <Route path="/points" name="Points"
+                                  component={ListFetcher({
+                                                scope:'points',
+                                                apiUrl:'/api/points',
+                                                pkAttribute:'point_id'
+                                             })}
+                                  link={{icon:'ti-desktop',title:'Points', 'section':'Integration'}}>
+
+              <IndexRoute component={Creator(Grid, {cols:4, component:PointItem, newUrl:'/points/new'})}/>
+
               <Route path="new" name="New" component={PointCreateForm}/>
-              <Route path=":point_id" staticName={true} component={Point}>
+              <Route path=":point_id" staticName={true} component={ItemFetcher({
+                                                                      scope: 'point',
+                                                                      apiUrl:'/api/points',
+                                                                      pkAttribute:'point_id',
+                                                                      listUrl:'/points',
+                                                                      listScope:'points'
+                                                                    })}>
                 <IndexRoute component={PointView} />
                 <Route path="edit" name="Update" component={PointUpdateForm}/>
               </Route>
             </Route>
+
+
+
             <Route path="/routes" name="Routes" component={Routes} link={{icon:'ti-back-right',title:'Routes', 'section':'Integration'}}/>
             <Route path="/users" name="Users" component={Users} link={{icon:'ti-user',title:'Users', 'section':'Managment'}}/>
             <Route path="/service" name="Service" component={Users} link={{icon:'ti-settings',title:'Service', 'section':'Settings'}}/>

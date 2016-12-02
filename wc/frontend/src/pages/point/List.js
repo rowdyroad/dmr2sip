@@ -8,7 +8,7 @@ import * as UI from '../../components/UIKit'
 
 const Item = (props) => (
     <Link to={"/points/" + props.point_id} style={{textAlign:'center'}}>
-    {props.point_id}
+    #{props.point_id}
         <div className={"point-item-status point-item-status-" + (props.status ? props.status : 0)}></div>
         <h1 className="point-item-name">{props.name}</h1>
         <h4 className="point-item-type">{props.type}</h4>

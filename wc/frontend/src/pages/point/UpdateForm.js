@@ -6,10 +6,10 @@ import {browserHistory} from 'react-router'
 
 import Form from './Form';
 
-let mapData = (state) => {
+let mapData = (state, props) => {
     return {
-            initialValues: state.main.hasIn(['point','response']) ? state.main.getIn(['point','response']).toJS() : null,
-
+            initialValues: props.data,
+            data: state.form.hasIn(['point','values']) ? state.form.getIn(['point','values']).toJS() : null,
     }
 }
 
