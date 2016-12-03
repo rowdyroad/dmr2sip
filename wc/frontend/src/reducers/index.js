@@ -32,27 +32,18 @@ export const reducer = (state = initialState, action) =>
 											}}));
 		}
 		case Actions.OBJECT_REMOVE:
-		{
 			return state.deleteIn(typeof(action.path) === "string" ? action.path.split(".") : action.path);
-		}
-		break;
+
 
 		case Actions.OBJECT_SET:
-		{
 			return state.set(action.path, fromJS(action.object));
-		}
-		break;
+
 
 		case Actions.OBJECT_MERGE:
-		{
 			return state.mergeDeep(fromJS(PathToObject(action.path, action.object)));
-		}
-		break;
 
 		case Actions.REQUEST_ACTION:
-		{
 			return state.mergeDeep(Map([[action.scope, fromJS({fetching:true, success:null, request: action.request})]]));
-		}
 
 		case Actions.REQUEST_SUCCESS:
 		{
@@ -90,9 +81,7 @@ export const reducer = (state = initialState, action) =>
 		}
 
 		case Actions.REQUEST_ERROR:
-		{
 			return state.merge(Map([[action.scope, fromJS({success:false,fetching:false,  error:action.error})]]));
-		}
 
 		case  Actions.LIST_ITEM_UPDATE:
 		{
@@ -109,7 +98,7 @@ export const reducer = (state = initialState, action) =>
 			});
 			return state.setIn(path, list);
 		}
-		break;
+
 		case  Actions.LIST_ITEM_REMOVE:
 		{
 			let path = typeof(action.path) === "string" ? action.path.split(".") : action.path;
@@ -120,7 +109,6 @@ export const reducer = (state = initialState, action) =>
 				return item.get(action.pkAttribute) === action.pkValue;
 			}));
 		}
-		break;
 
 		case Actions.LIST_ITEM_ADD:
 		{
@@ -130,7 +118,7 @@ export const reducer = (state = initialState, action) =>
 			}
 			return state.setIn(path, state.getIn(path).push(fromJS(action.object)));
 		}
-		break;
+		default:
+			return state;
 	}
-	return state;
 }

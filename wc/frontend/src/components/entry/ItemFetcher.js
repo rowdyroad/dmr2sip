@@ -1,7 +1,7 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions';
-import {Router, browserHistory, Link} from 'react-router'
+import * as Actions from '../../actions'
+import {browserHistory} from 'react-router'
 
 class Item extends Component
 {
@@ -48,7 +48,7 @@ Item.propTypes = {
 
 export default (props) => {
   let mapState = (state) => {
-      return {
+   return {
                   ...props,
                   data: state.main.getIn([props.scope,'success']) ? state.main.getIn([props.scope,'response']).toJS() : null,
                   context: state.main.has(props.scope) ? state.main.get(props.scope).toJS() : null,

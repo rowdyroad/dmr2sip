@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import * as UI from '../UIKit'
 
 class Grid extends Component

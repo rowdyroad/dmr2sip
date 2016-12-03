@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
 import {Link} from 'react-router'
 import {default as ReactModal} from 'react-modal'
 import { Field } from 'redux-form/immutable'
@@ -75,73 +75,6 @@ export const Select = (props) => (
 		</select>
 	</div>
 )
-
-export class Form extends Component
-{
-	onSubmit = (e) => {
-		e.preventDefault();
-		if (this.props.onSubmit) {
-			return this.props.onSubmit();
-		}
-		return false;
-	}
-
-	wrap = (children) => {
-		return React.Children.map(children, (child) => {
-
-			if (!child || typeof(child) !== "object") {
-				return child;
-			}
-
-			let props = {...child.props};
-
-			if (props.onChange) {
-				let oldOnChange = props.onChange;
-				let scope = typeof(props.scope) === "string" ? props.scope.split(".") : props.scope;
-				props.onChange = (e) => {
-					let name = typeof(e.target.name) === "string" ? e.target.name.split(".") : e.target.name;
-					let object = {};
-					let obj = object;
-					for (var i in scope) {
-						obj[scope[i]] = {};
-						obj = obj[scope[i]];
-					}
-					for (var i = 0; i < name.length - 1; ++i) {
-						obj[name[i]] = {};
-						obj = obj[name[i]];
-					}
-					obj[name[name.length - 1]] = e.target.value;
-					oldOnChange(object);
-				}
-			}
-			if (props.children) {
-				props.children = this.wrap(props.children);
-			}
-
-			return React.cloneElement(child, props);
-		});
-	}
-
-	render = () => {
-		return (
-			<form role="form" onSubmit={this.onSubmit}>
-				{this.props.title ? <h5 style={{textAlign:'center'}}>{this.props.title}</h5> : null}
-				{this.props.error ? <div className="form-error">{this.props.error}</div> : null}
-				<div>{this.wrap(this.props.children)}</div>
-				{this.props.submitButton ? <Button type="submit" label="Submit" {...this.props.submitButton}/> : null}
-			</form>
-		)
-	}
-}
-
-
-export const FormScope = (props) => {
-	return (
-		<div>
-			{props.children}
-		</div>
-	)
-}
 
 export const Box = (props) => (
 	<div {...props} className={"card-box " + props.className || ""}>
@@ -239,18 +172,4 @@ export const Col11 = (props) => ( <div className="col-md-11" {...props}> {props.
 export const Col12 = (props) => ( <div className="col-md-12" {...props}> {props.children} </div>)
 
 
-export const ScopedSetChanged = (self, scope) => {
-	return (e) => {
-		scope = (scope || []).concat(e.target.name.split(".").slice(0, -1));
-		let name = e.target.name.split(".").slice(-1);
-		if (!scope.length) {
-			self.setState({[name]: e.target.value});
-			return;
-		}
-		let state = self.state,
-			last = state;
-		scope.map((e)=> { if (!last[e]) last[e] = {}; last = last[e]; });
-		last[name] = e.target.value;
-		self.setState({[scope[0]]: state[scope[0]]});
-	}
-}
+

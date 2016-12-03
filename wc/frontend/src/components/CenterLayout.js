@@ -1,6 +1,4 @@
-import React, { Component, PropTypes } from 'react';
-import { connect } from 'react-redux'
-import logo from '../images/logo.png';
+import React, { Component } from 'react'
 
 class CenterLayout extends Component
 {

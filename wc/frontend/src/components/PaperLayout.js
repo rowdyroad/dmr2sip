@@ -1,7 +1,7 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import logo from '../assets/images/logo-b.png';
-import CenterLayout from './CenterLayout';
+import logo from '../assets/images/logo-b.png'
+import CenterLayout from './CenterLayout'
 
 class PaperLayout extends Component
 {

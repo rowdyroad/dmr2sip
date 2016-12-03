@@ -1,41 +1,49 @@
 
-export default Request =  {
-	post: function(url, request, method)  {
-		 return new Promise((resolve, reject) => {
-		 	fetch(url, {
-		      method: method ? method : 'POST',
-		      credentials: 'same-origin',
-		      headers: {
-		        'Accept': 'application/json',
-		        'Content-Type': 'application/json'
-		      },
-		      body: JSON.stringify(request)
-		    }).then((response) => {
-		      if (response.ok) {
-		        return response.json().catch(() => {
-		        	if (resolve) {
-		        		resolve({});
-		        	}
-		        });
-		      } else {
-		     	if (reject) {
-		     		reject(response.status, response.statusText);
-		     	}
-		     }
-		    })
-		    .then((data) => {
-		    	if (resolve) {
-		    		resolve(data);
-		    	}
-		    })
-		});
+const createRequest = (url, request, method) =>  {
+	 return new Promise((resolve, reject) => {
+	 	fetch(url, {
+	      method: method,
+	      credentials: 'same-origin',
+	      headers: {
+	        'Accept': 'application/json',
+	        'Content-Type': 'application/json'
+	      },
+	      body: JSON.stringify(request)
+	    }).then((response) => {
+	      if (response.ok) {
+	        return response.json().catch(() => {
+	        	if (resolve) {
+	        		resolve({});
+	        	}
+	        });
+	      } else {
+	     	if (reject) {
+	     		reject(response.status, response.statusText);
+	     	}
+	     }
+	    })
+	    .then((data) => {
+	    	if (resolve) {
+	    		resolve(data);
+	    	}
+	    })
+	});
+}
+
+
+
+
+export default {
+	post: function(url, request)
+	{
+		return createRequest(url, request, 'POST');
 	},
 
 	put: function(url, request) {
-		return Request.post(url, request, 'PUT');
+		return createRequest(url, request, 'PUT');
 	},
 	delete: function(url, request) {
-		return Request.post(url, request, 'DELETE');
+		return createRequest(url, request, 'DELETE');
 	},
 	get: function(url, params) {
 		return new Promise((resolve,reject) => {

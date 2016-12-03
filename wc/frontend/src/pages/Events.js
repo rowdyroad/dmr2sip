@@ -1,7 +1,6 @@
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {Link} from 'react-router';
-import Request from '../utils/Request';
 import TimeAgo from 'react-timeago'
 import * as Actions from '../actions'
 import * as UI from '../components/UIKit'

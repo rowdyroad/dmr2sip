@@ -1,21 +1,21 @@
 import React, { Component } from 'react'
-import * as UI from '../../components/UIKit'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions';
-import {Router, browserHistory, Link} from 'react-router'
-import { Field, reduxForm, FormSection } from 'redux-form/immutable'
+import * as Actions from '../../actions'
+import {browserHistory} from 'react-router'
+import { reduxForm } from 'redux-form/immutable'
 
 
 export default (component, props) => {
 
 	let mapData = (state, ownProps) => {
 
-		let item = ownProps.data && ownProps.data[props.pkAttribute]
-					? ownProps.data : ( state.main.getIn([props.scope, 'success']) ? state.main.getIn([props.scope, 'response']).toJS() : null);
-
     	return {
-    		initialValues:item,
-    		data: state.form.hasIn([props.scope,'values']) ? state.form.getIn([props.scope,'values']).toJS() : item
+    		initialValues:ownProps.data,
+    		data: state.form.getIn([props.scope, 'submitSucceeded'])
+    			  ? state.main.getIn([props.scope, 'response']).toJS()
+    			  : (state.form.hasIn([props.scope, 'values'])
+    			  		? state.form.getIn([props.scope,'values']).toJS()
+    			  		: ownProps.data)
     	}
 	}
 
@@ -55,6 +55,9 @@ export default (component, props) => {
 				browserHistory.push(redirect);
 				return null;
 			}
+		}
+		componentWillUnmount = () => {
+			this.props.reset(props.scope);
 		}
 		render = () => {
 			return  React.createElement(component,{

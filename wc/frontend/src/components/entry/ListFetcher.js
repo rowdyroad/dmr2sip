@@ -1,7 +1,6 @@
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
-import * as Actions from '../../actions';
-import {browserHistory} from 'react-router'
+import * as Actions from '../../actions'
 
 
 export default (props) => {

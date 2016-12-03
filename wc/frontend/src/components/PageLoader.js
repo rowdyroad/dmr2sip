@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import Request from '../utils/Request';
+import Request from '../utils/Request'
 
 class PageLoader extends Component
 {

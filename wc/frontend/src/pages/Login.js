@@ -1,10 +1,8 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux'
 import PaperLayout from '../components/PaperLayout';
 import * as Actions from '../actions'
-import {Link} from 'react-router';
 import * as UI from '../components/UIKit'
-import Request from '../utils/Request'
 
 class Login extends Component
 {
@@ -22,7 +20,7 @@ class Login extends Component
 
   componentDidUpdate = (prevProps) =>
   {
-    if (this.props.user != prevProps.user) {
+    if (this.props.user !== prevProps.user) {
       this.context.router.replace(this.props.login_redirect ? this.props.login_redirect : "/");
     }
   }

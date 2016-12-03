@@ -1,11 +1,11 @@
-import React, { Component, PropTypes } from 'react';
-import {Link} from 'react-router';
+import React, { Component } from 'react'
+import {Link} from 'react-router'
 import { connect } from 'react-redux'
-import logo from '../assets/images/logo-w.png';
-import * as Actions from '../actions';
-import '../assets';
-import Request from '../utils/Request';
-import Breadcrumbs from 'react-breadcrumbs';
+import logo from '../assets/images/logo-w.png'
+import * as Actions from '../actions'
+import '../assets'
+import Request from '../utils/Request'
+import Breadcrumbs from 'react-breadcrumbs'
 
 class MainMenu extends Component
 {
@@ -23,12 +23,12 @@ class MainMenu extends Component
 
     render = () => {
         let menu = [];
-        for (var name in this.state.menu) {
+        Object.keys(this.state.menu).forEach((name) => {
             menu.push((<MainMenuSection key={name} name={name}></MainMenuSection>));
             this.state.menu[name].forEach((route) => {
                 menu.push((<MainMenuItem key={route.path} {...route}></MainMenuItem>))
             });
-        }
+        })
         return (<div id={this.props.id}>
                         <ul>
                            {menu}
@@ -101,11 +101,11 @@ class MainLayout extends Component
 	render = () => {
 		let isMobile = this.props.state.getIn(['viewport','width']) < 480;
 		return (
-        <div id="wrapper" className = {this.state.enlarged ? 'enlarged' : ''} >
+        <div id="wrapper" className={this.state.enlarged || isMobile ? 'enlarged' : ''} >
             <div className="topbar">
                 <div className="topbar-left">
                     <div className="text-center">
-                        <Link to="/" className="logo"><img src={logo} className="logo" alt="logo" /> {this.state.enlarged ? null : 'DMR2SIP'}</Link>
+                        <Link to="/" className="logo"><img src={logo} className="logo" alt="logo" /> {this.state.enlarged || isMobile ? null : 'DMR2SIP'}</Link>
                     </div>
                 </div>
                 <div className="navbar navbar-default" role="navigation">
@@ -119,7 +119,7 @@ class MainLayout extends Component
                             </div>
 
                             <ul className="nav navbar-nav navbar-right pull-right">
-                                <li className="dropdown top-menu-item-xs" className={this.state.profile_open ? 'open': ''}>
+                                <li className={"dropdown top-menu-item-xs " + (this.state.profile_open ? 'open' : '')}>
                                     <button onClick={this.toggleProfile}
                                         className="button-menu-mobile open-left waves-effect waves-light"
                                         data-toggle="dropdown"
@@ -127,7 +127,7 @@ class MainLayout extends Component
                                             <i className="fa fa-user"></i> <span className="profile-name">{this.props.state.getIn(['user','response','name'])}</span>
                                         </button>
                                     <ul className="dropdown-menu">
-                                        <li><a href="javascript:void(0)" onClick={this.logout}><i className="ti-power-off m-r-10 text-danger"></i> Logout</a></li>
+                                        <li><a href="" onClick={this.logout}><i className="ti-power-off m-r-10 text-danger"></i> Logout</a></li>
                                     </ul>
                                 </li>
                             </ul>

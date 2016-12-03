@@ -1,38 +1,23 @@
-import React from 'react';
-import {createStore, applyMiddleware,combineReducers} from 'redux';
-import {Provider} from 'react-redux';
+import React from 'react'
+import {createStore, applyMiddleware,combineReducers} from 'redux'
+import {Provider} from 'react-redux'
 import thunk from 'redux-thunk'
-import {render} from 'react-dom';
-import {reducer} from './reducers';
-import { Router, Route,  browserHistory, IndexRoute } from 'react-router';
-import App from './App';
-import NotFound from './pages/NotFound';
-import Login from './pages/Login';
-import * as Actions from './actions';
-import MainLayout from './components/MainLayout';
-import {loginRedirect} from './actions';
-import Request from './utils/Request';
+import {render} from 'react-dom'
+import {reducer} from './reducers'
+import { Router, Route,  browserHistory, IndexRoute } from 'react-router'
+import App from './App'
+import NotFound from './pages/NotFound'
+import Login from './pages/Login'
+import * as Actions from './actions'
+import MainLayout from './components/MainLayout'
+import Request from './utils/Request'
 
 import { reducer as formReducer } from 'redux-form/immutable'
 
-import ListFetcher from './components/entry/ListFetcher';
-import Grid from './components/entry/Grid';
-import ItemFetcher from './components/entry/ItemFetcher';
-import Form from './components/entry/Form';
-import PointForm from './components/PointForm';
+import {ItemFetcher, ListFetcher, Grid,Form} from './components/entry'
+import * as Point from './components/models/point'
 
-import PointItem from './components/Point';
-
-
-import Events from './pages/Events';
-import Points from './pages/point/List';
-import Point from './pages/point/Item';
-
-import PointView from './pages/point/View';
-// import PointUpdateForm from './pages/point/UpdateForm';
-// import PointCreateForm from './pages/point/CreateForm';
-import Routes from './pages/Routes';
-import Users from './pages/user/List';
+import Events from './pages/Events'
 
 
 
@@ -73,9 +58,9 @@ const startApp = () => {
                                              })}
                                   link={{icon:'ti-desktop',title:'Points', 'section':'Integration'}}>
 
-              <IndexRoute component={Creator(Grid, {cols:4, component:PointItem, newUrl:'/points/new'})}/>
+              <IndexRoute component={Creator(Grid, {cols:4, component:Point.Preview, newUrl:'/points/new'})}/>
 
-              <Route path="new" name="New" component={Form(PointForm, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id', closeUrl:'/points'})}/>
+              <Route path="new" name="New" component={Form(Point.Form, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id', closeUrl:'/points'})}/>
 
               <Route path=":point_id" staticName={true} component={ItemFetcher({
                                                                       scope: 'point',
@@ -84,17 +69,17 @@ const startApp = () => {
                                                                       listUrl:'/points',
                                                                       listScope:'points'
                                                                     })}>
-                <IndexRoute component={PointView} />
-                <Route path="edit" name="Update" component={Form(PointForm, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id',  closeUrl:'/points'})}/>
+                <IndexRoute component={Point.View} />
+                <Route path="edit" name="Update" component={Form(Point.Form, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id',  closeUrl:'/points'})}/>
               </Route>
             </Route>
 
 
 
-            <Route path="/routes" name="Routes" component={Routes} link={{icon:'ti-back-right',title:'Routes', 'section':'Integration'}}/>
-            <Route path="/users" name="Users" component={Users} link={{icon:'ti-user',title:'Users', 'section':'Managment'}}/>
-            <Route path="/service" name="Service" component={Users} link={{icon:'ti-settings',title:'Service', 'section':'Settings'}}/>
-            <Route path="/mixer" name="Mixer"  component={Users} link={{icon:'ti-volume',title:'Mixer', 'section':'Settings'}}/>
+            <Route path="/routes" name="Routes" link={{icon:'ti-back-right',title:'Routes', 'section':'Integration'}}/>
+            <Route path="/users" name="Users" link={{icon:'ti-user',title:'Users', 'section':'Managment'}}/>
+            <Route path="/service" name="Service" link={{icon:'ti-settings',title:'Service', 'section':'Settings'}}/>
+            <Route path="/mixer" name="Mixer"  link={{icon:'ti-volume',title:'Mixer', 'section':'Settings'}}/>
           </Route>
           <Route path="/login" component={Login} onEnter={AuthConfig.publicOnly}/>
       </Route>
