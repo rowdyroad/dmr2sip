@@ -80,7 +80,7 @@ const PointForm = (props) => (
           }
           <UI.Button type="submit" disabled={props.pristine || props.submitting} label="Submit"/>
           &nbsp;
-          { props.onClose ? <UI.Button type="button" color="white" onClick={props.onClose} label="Close"/> : null}
+          <UI.Button type="button" color="white" onClick={props.onClose} label="Close"/>
       </form>
     </UI.Box>
 )

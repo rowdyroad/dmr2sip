@@ -68,9 +68,9 @@ const PointView = (props) => {
                             </h1>
                         </UI.Col10>
                         <UI.Col2 style={{textAlign:'right'}}>
-                            <UI.Button to={'/points/' + props.data.point_id + '/edit'} icon="ti-pencil"/>
+                            <UI.Button to={'/points/' + props.data.point_id + '/update'} icon="ti-pencil"/>
                             &nbsp;
-                            {props.onRemove ? <UI.Button onClick={props.onRemove} color="danger" icon="ti-trash"/> : null}
+                            <UI.Button to={'/points/' + props.data.point_id + '/delete'} color="danger" icon="ti-trash"/>
                         </UI.Col2>
                     </UI.Row>
                     {props.data.type === 'dmr' ? <DMRView phone_mode={{}} {...props.data.configuration}/> : null}

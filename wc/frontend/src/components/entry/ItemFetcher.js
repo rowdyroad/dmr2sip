@@ -6,6 +6,7 @@ import {browserHistory} from 'react-router'
 class Item extends Component
 {
     componentWillMount = () => {
+        console.log('willmount');
         this.props.actions.fetch(this.props.params[this.props.pkAttribute])
     }
 

@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions'
-import {browserHistory} from 'react-router'
 import { reduxForm } from 'redux-form/immutable'
-
+import * as Utils from './Utils'
 
 export default (component, props) => {
 
@@ -39,7 +38,7 @@ export default (component, props) => {
 			    });
 		      },
 		      close: (data) => {
-		        dispatch(Actions.ObjectRemove(props.scope));
+		      	Utils.Redirect(props.closeRedirect, data);
 		      }
 		    }
 		}
@@ -49,11 +48,9 @@ export default (component, props) => {
 	class Proxy extends Component
 	{
 		componentWillUpdate = (next) => {
-			if (props.successRedirect && next.submitSucceeded) {
-				let match = props.successRedirect.match(/:(\w+)/);
-				let redirect = props.successRedirect.replace(":" + match[1], next.data[match[1]]);
-				browserHistory.push(redirect);
-				return null;
+			if (next.submitSucceeded) {
+				Utils.Redirect(props.successRedirect, next.data);
+				return;
 			}
 		}
 		componentWillUnmount = () => {
@@ -63,7 +60,7 @@ export default (component, props) => {
 			return  React.createElement(component,{
 								...this.props,
 				  			  	onSubmit:this.props.handleSubmit(this.props.actions.save),
-				                onClose:this.props.actions.close
+				                onClose:(e)=>{ this.props.actions.close(this.props.data) }
 			                  });
 		}
 	}
