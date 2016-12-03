@@ -1,74 +1,88 @@
 import React, { Component, PropTypes } from 'react'
 import * as UI from './UIKit'
+import { Field, reduxForm,FormSection } from 'redux-form/immutable'
 
 const SIPForm = (props) => (
     <UI.Area>
         <UI.Row>
             <UI.Col8>
-                <UI.Input label="SIP Host" name="host" value={props.host} onChange={props.onChange}/>
+                 <UI.RFInput label="SIP Host" name="host"/>
             </UI.Col8>
             <UI.Col4>
-                <UI.Input label="SIP Port" name="port" value={props.port} onChange={props.onChange}/>
+                <UI.RFInput label="SIP Port" name="port"/>
             </UI.Col4>
         </UI.Row>
         <UI.Row>
             <UI.Col6>
-                <UI.Input label="Username" name="authorization_username"  value={props.authorization_username} onChange={props.onChange}/>
+                 <UI.RFInput label="Username" name="authorization_username"/>
             </UI.Col6>
             <UI.Col6>
-                <UI.Input type="password" name="password" label="Password" value={props.password} onChange={props.onChange}/>
+                 <UI.RFInput label="Password" name="password"/>
             </UI.Col6>
         </UI.Row>
         <UI.Row>
             <UI.Col2>
-                <UI.Input label="Caller ID" name="username" value={props.username} onChange={props.onChange}/>
+                 <UI.RFInput label="Caller ID" name="username"/>
             </UI.Col2>
         </UI.Row>
     </UI.Area>
+)
+
+
+const DMRFormPhoneMode = (props) => (
+   <UI.Area>
+      <h6 className="header-title">Phone mode interruption</h6>
+        <UI.Row>
+            <UI.Col6>
+              <UI.RFInput label="Code" name="code"/>
+            </UI.Col6>
+            <UI.Col6>
+              <UI.RFInput label="Duration(ms)" name="duration"/>
+            </UI.Col6>
+        </UI.Row>
+  </UI.Area>
 )
 
 const DMRForm = (props) => (
     <UI.Area>
         <UI.Row>
             <UI.Col4>
-                <UI.Input label="Sound Device Index" name="device_index" value={props.device_index} onChange={props.onChange}/>
+                <UI.RFInput label="Device Index" name="device_index"/>
             </UI.Col4>
             <UI.Col4>
-                <UI.Input label="Device Host" name="address" value={props.address} onChange={props.onChange}/>
+                <UI.RFInput label="Device Host" name="address"/>
             </UI.Col4>
             <UI.Col4>
-                <UI.Input label="Device Port" name="port" value={props.port} onChange={props.onChange}/>
+                <UI.RFInput label="Device Port" name="port"/>
             </UI.Col4>
         </UI.Row>
-        <h6 className="header-title">Phone mode interruption</h6>
-        <UI.Row>
-            <UI.Col6>
-                <UI.Input label="Code" name="phone_mode.code" value={props.phone_mode ? props.phone_mode.code : ''} onChange={props.onChange}/>
-            </UI.Col6>
-            <UI.Col6>
-                <UI.Input label="Duration(ms)" name="phone_mode.duration" value={props.phone_mode ? props.phone_mode.duration : ''} onChange={props.onChange}/>
-            </UI.Col6>
-        </UI.Row>
+        <FormSection name="phone_mode">
+          <DMRFormPhoneMode/>
+        </FormSection>
     </UI.Area>
 )
 
 const PointForm = (props) => (
-    <UI.Form {...props}>
-        <UI.Select label="Type" name="type" value={props.data.type} onChange={props.actions.change}>
-            <option>-</option>
+    <UI.Box>
+      <form onSubmit={props.onSubmit}>
+          <UI.RFSelect label="Type" name="type">
+            <option></option>
             <option value="dmr">DMR</option>
             <option value="sip">SIP</option>
-        </UI.Select>
-        <UI.Input label="Name" name="name"  value={props.data.name} onChange={props.actions.change}/>
-        {props.data.type  === 'dmr'
-            ? <DMRForm {...props.data.configuration} scope="configuration" onChange={props.actions.change}/> : null }
-
-        {props.data.type === 'sip'
-            ? <SIPForm {...props.data.configuration} scope="configuration" onChange={props.actions.change}/> : null }
-        <UI.Button type="submit" disabled={props.saving || !props.dirty} onClick={props.onSubmit} icon ={props.saving ? "glyphicon glyphicon-refresh" : null} label="Save"/>
-        &nbsp;
-        { props.onClose ? <UI.Button type="button" color="white" disabled={props.saving} onClick={props.onClose} label="Close"/> : null}
-    </UI.Form>
+          </UI.RFSelect>
+          <UI.RFInput label="Name" name="name"/>
+          {props.data ?
+              <FormSection name="configuration">
+              {props.data.type === 'dmr' ? <DMRForm/> : null}
+              {props.data.type === 'sip' ? <SIPForm/> : null}
+              </FormSection>
+            : null
+          }
+          <UI.Button type="submit" disabled={props.pristine || props.submitting} label="Submit"/>
+          &nbsp;
+          { props.onClose ? <UI.Button type="button" color="white" onClick={props.onClose} label="Close"/> : null}
+      </form>
+    </UI.Box>
 )
 
 export default PointForm;

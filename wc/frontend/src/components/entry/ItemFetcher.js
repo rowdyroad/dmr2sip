@@ -5,7 +5,7 @@ import {Router, browserHistory, Link} from 'react-router'
 
 class Item extends Component
 {
-    componentWillMount = () =>{
+    componentWillMount = () => {
         this.props.actions.fetch(this.props.params[this.props.pkAttribute])
     }
 
@@ -25,9 +25,7 @@ class Item extends Component
     }
 
     render = () => {
-        if (!this.props.data) {
-            return null; //todo loader
-        }
+
         return (
                     <div>
                         {React.Children.map(this.props.children, (child)=> {

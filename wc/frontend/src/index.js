@@ -17,9 +17,11 @@ import { reducer as formReducer } from 'redux-form/immutable'
 
 import ListFetcher from './components/entry/ListFetcher';
 import Grid from './components/entry/Grid';
-import PointItem from './components/Point';
-
 import ItemFetcher from './components/entry/ItemFetcher';
+import Form from './components/entry/Form';
+import PointForm from './components/PointForm';
+
+import PointItem from './components/Point';
 
 
 import Events from './pages/Events';
@@ -27,8 +29,8 @@ import Points from './pages/point/List';
 import Point from './pages/point/Item';
 
 import PointView from './pages/point/View';
-import PointUpdateForm from './pages/point/UpdateForm';
-import PointCreateForm from './pages/point/CreateForm';
+// import PointUpdateForm from './pages/point/UpdateForm';
+// import PointCreateForm from './pages/point/CreateForm';
 import Routes from './pages/Routes';
 import Users from './pages/user/List';
 
@@ -73,7 +75,8 @@ const startApp = () => {
 
               <IndexRoute component={Creator(Grid, {cols:4, component:PointItem, newUrl:'/points/new'})}/>
 
-              <Route path="new" name="New" component={PointCreateForm}/>
+              <Route path="new" name="New" component={Form(PointForm, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id', closeUrl:'/points'})}/>
+
               <Route path=":point_id" staticName={true} component={ItemFetcher({
                                                                       scope: 'point',
                                                                       apiUrl:'/api/points',
@@ -82,7 +85,7 @@ const startApp = () => {
                                                                       listScope:'points'
                                                                     })}>
                 <IndexRoute component={PointView} />
-                <Route path="edit" name="Update" component={PointUpdateForm}/>
+                <Route path="edit" name="Update" component={Form(PointForm, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id',  closeUrl:'/points'})}/>
               </Route>
             </Route>
 

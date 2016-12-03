@@ -26,9 +26,6 @@ let mapDispatch = (dispatch) => {
           onSuccess:Actions.ListItemUpdate(["points", "response", "data"], data, 'point_id')
         }));
       },
-      change: (object) => {
-        dispatch(Actions.ObjectMerge("point", {response: object, dirty:true}));
-      },
       close: () => {
         browserHistory.replace("/points");
       }
