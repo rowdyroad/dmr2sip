@@ -105,9 +105,7 @@ export const reducer = (state = initialState, action) =>
 			if (!state.hasIn(path)) {
 				return state;
 			}
-			//console.log(action);
 			return state.setIn(path, state.getIn(path).filterNot((item) => {
-				//console.log(item.get(action.pkAttribute), action.pkValue);
 				return item.get(action.pkAttribute) === action.pkValue;
 			}));
 		}

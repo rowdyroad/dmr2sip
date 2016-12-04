@@ -1,19 +1,17 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import * as UI from '../UIKit'
+
 
 class Grid extends Component
 {
     componentWillMount = () => {
-        if (!this.props.data) {
-            this.props.actions.fetch()
-        }
+        this.props.actions.fetch();
     }
-
     render = () => {
-
         if (!this.props.data) {
             return null; //todo loader
         }
+
 
         return (
                     <div>
@@ -35,11 +33,5 @@ class Grid extends Component
     }
 }
 
-Grid.propTypes = {
-    cols: React.PropTypes.number.isRequired,
-    component: React.PropTypes.any.isRequired,
-    newUrl: React.PropTypes.string,
-    data: React.PropTypes.object
-}
 
 export default Grid;

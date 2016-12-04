@@ -18,7 +18,7 @@ export default (component, props) => {
     	}
 	}
 
-	let mapDispatch = (dispatch) => {
+	let mapDispatch = (dispatch, state) => {
 	  return {
 		    actions: {
 		      save: (data) => {
@@ -33,6 +33,9 @@ export default (component, props) => {
 			              return id ? Actions.ListItemUpdate([props.listScope, "response","data"], data, props.pkAttribute)
 			              			: Actions.ListItemAdd([props.listScope, "response","data"], data);
 			            }
+			          },
+			          onError:() => {
+			          	 reject();
 			          }
 			        }));
 			    });
@@ -48,7 +51,7 @@ export default (component, props) => {
 	class Proxy extends Component
 	{
 		componentWillUpdate = (next) => {
-			if (next.submitSucceeded) {
+			if (next.submitSucceeded && next.data[props.pkAttribute]) {
 				Utils.Redirect(props.successRedirect, next.data);
 				return;
 			}

@@ -65,12 +65,12 @@ const DMRForm = (props) => (
 const PointForm = (props) => (
     <UI.Box>
       <form onSubmit={props.onSubmit}>
+          <UI.RFInput label="Name" name="name"/>
           <UI.RFSelect label="Type" name="type">
             <option></option>
             <option value="dmr">DMR</option>
             <option value="sip">SIP</option>
           </UI.RFSelect>
-          <UI.RFInput label="Name" name="name"/>
           {props.data ?
               <FormSection name="configuration">
               {props.data.type === 'dmr' ? <DMRForm/> : null}

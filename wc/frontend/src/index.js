@@ -14,8 +14,9 @@ import Request from './utils/Request'
 
 import { reducer as formReducer } from 'redux-form/immutable'
 
-import {ItemFetcher, ListFetcher, Grid,Form, Delete, DeleteForm} from './components/entry'
+import {ItemFetcher, ListFetcher, Grid,Form, Delete, DeleteForm, Composer} from './components/entry'
 import * as Point from './components/models/point'
+import * as Rout from './components/models/route'
 
 import Events from './pages/Events'
 
@@ -37,8 +38,8 @@ const AuthConfig = {
   }
 }
 
-const Creator = (component, componentProps) => {
-  return (props)=> { return React.createElement(component, {...props, ...componentProps}) };
+const Creator = (component, scope, componentProps) => {
+  return (props)=> { return React.createElement(component, {...props, ...props[scope], ...componentProps}) };
 }
 
 const startApp = () => {
@@ -54,20 +55,16 @@ const startApp = () => {
                                   component={ListFetcher({ scope:'points', apiUrl:'/api/points', pkAttribute:'point_id' })}
                                   link={{icon:'ti-desktop',title:'Points', 'section':'Integration'}}>
 
-              <IndexRoute component={Creator(Grid, {cols:4, component:Point.Preview, newUrl:'/points/new'})}/>
+              <IndexRoute component={Creator(Grid, 'points', {cols:4, component:Point.Preview, newUrl:'/points/new'})}/>
 
               <Route path="new" name="New" component={Form(Point.Form, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id', closeRedirect:'/points'})}/>
 
-              <Route path=":point_id" staticName={true} component={ItemFetcher({ scope: 'point', apiUrl:'/api/points', pkAttribute:'point_id', listUrl:'/points', listScope:'points'})}>
+              <Route path=":point_id" staticName={true} component={ItemFetcher({ scope: 'point', apiUrl:'/api/points', pkAttribute:'point_id', listUrl:'/points', listScope:'points', autoFetch:true})}>
                 <IndexRoute component={Point.View} />
                 <Route path="update" name="Update" component={Form(Point.Form, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points/:point_id',  closeRedirect:'/points/:point_id'})}/>
                 <Route path="delete" name="Delete" component={Delete(DeleteForm, {scope:'point', pkAttribute:'point_id', listScope:'points', apiUrl:'/api/points', successRedirect:'/points',  closeRedirect:'/points/:point_id'})}/>
               </Route>
             </Route>
-
-
-
-            <Route path="/routes" name="Routes" link={{icon:'ti-back-right',title:'Routes', 'section':'Integration'}}/>
             <Route path="/users" name="Users" link={{icon:'ti-user',title:'Users', 'section':'Managment'}}/>
             <Route path="/service" name="Service" link={{icon:'ti-settings',title:'Service', 'section':'Settings'}}/>
             <Route path="/mixer" name="Mixer"  link={{icon:'ti-volume',title:'Mixer', 'section':'Settings'}}/>

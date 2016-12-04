@@ -2,12 +2,63 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions'
 import {browserHistory} from 'react-router'
+import {fromJS} from 'immutable'
 
-class Item extends Component
+export default (props) => {
+
+
+  let mapState = (state) => {
+   let retState =  {
+                  ...props,
+                  data: state.main.getIn([props.scope,'success']) ? state.main.getIn([props.scope,'response']).toJS() : null,
+                  context: state.main.has(props.scope) ? state.main.get(props.scope).toJS() : null
+              }
+
+    return props.map ? {[props.map] : retState} : retState;
+  }
+
+  let mapDispatch = (dispatch) => {
+
+    let retState = {
+      actions: {
+        fetch: (id) => {
+          dispatch(Actions.Fetch(props.scope, props.apiUrl + "/" + id, {
+            onSuccess:(data) => {
+              return props.listScope ? Actions.ListItemUpdate([props.listScope,"response","data"], data, props.pkAttribute) : false
+            }
+          }));
+        },
+        setState:(state) => {
+          dispatch(Actions.ObjectMerge(props.scope, state))
+        },
+        close: () => {
+          debugger;
+          browserHistory.replace(props.listUrl || "/");
+        },
+        notFound: () => {
+          debugger;
+          browserHistory.replace(props.listUrl || "/");
+        },
+        error: (error) => {
+          debugger;
+          browserHistory.replace(props.notFoundUrl || "/");
+        }
+      }
+    }
+
+    return props.map ? {[props.map] : retState} : retState;
+  }
+
+  let mapMerge = (a,b,c) => {
+    return {...c, ...fromJS(a).mergeDeep(fromJS(b)).toJS()}
+  }
+
+  class ItemProxy extends Component
 {
     componentWillMount = () => {
-        console.log('willmount');
-        this.props.actions.fetch(this.props.params[this.props.pkAttribute])
+        if (this.props.autoFetch) {
+          this.props.actions.fetch(this.props.params[this.props.pkAttribute])
+        }
     }
 
     componentWillUpdate = (next) => {
@@ -28,7 +79,7 @@ class Item extends Component
     render = () => {
 
         return (
-                    <div>
+                    <div id={"item-fetcher_" + this.props.scope}>
                         {React.Children.map(this.props.children, (child)=> {
                           return React.cloneElement(child, {...this.props, ...child.props});
                         })}
@@ -37,56 +88,6 @@ class Item extends Component
     }
 }
 
-Item.propTypes = {
-    pkAttribute:React.PropTypes.string.isRequired,
-    actions: React.PropTypes.shape({
-      fetch:React.PropTypes.func.isRequired,
-      setState: React.PropTypes.func.isRequired
-    }),
-    children: React.PropTypes.any.isRequired
-}
 
-
-export default (props) => {
-  let mapState = (state) => {
-   return {
-                  ...props,
-                  data: state.main.getIn([props.scope,'success']) ? state.main.getIn([props.scope,'response']).toJS() : null,
-                  context: state.main.has(props.scope) ? state.main.get(props.scope).toJS() : null,
-              }
-  }
-
-  let mapDispatch = (dispatch) => {
-
-    return {
-      actions: {
-        fetch: (id) => {
-          dispatch(Actions.Fetch(props.scope, props.apiUrl + "/" + id, {
-            onSuccess:(data) => {
-              return props.listScope ? Actions.ListItemUpdate([props.listScope,"response","data"], data, props.pkAttribute) : false
-            }
-          }));
-        },
-        delete:(data) => {
-          dispatch(Actions.Delete(props.scope, props.apiUrl + "/" + data[props.pkAttribute], {}, {
-              onSuccess:props.listScope ? Actions.ListItemRemove([props.listScope,"response","data"], props.pkAttribute, data[props.pkAttribute]) : false
-          }));
-        },
-        setState:(state) => {
-          dispatch(Actions.ObjectMerge(props.scope, state))
-        },
-        close: () => {
-          browserHistory.replace(props.listUrl || "/");
-        },
-        notFound: () => {
-          browserHistory.replace(props.listUrl || "/");
-        },
-        error: (error) => {
-          browserHistory.replace(props.notFoundUrl || "/");
-        }
-      }
-    }
-  }
-
- return connect(mapState, mapDispatch)(Item)
+ return connect(mapState, mapDispatch, props.map ? mapMerge : null)(ItemProxy)
 }
