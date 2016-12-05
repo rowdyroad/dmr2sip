@@ -91,7 +91,7 @@ class MainLayout extends Component
     }
 
     shouldComponentUpdate = (nextProps, nextState) => {
-        if (!nextProps.state.getIn(['user','success'])) {
+        if (!nextProps.state.getIn(['login','success'])) {
             this.context.router.replace("/login");
             return false;
         }
@@ -124,7 +124,7 @@ class MainLayout extends Component
                                         className="button-menu-mobile open-left waves-effect waves-light"
                                         data-toggle="dropdown"
                                         aria-expanded="true">
-                                            <i className="fa fa-user"></i> <span className="profile-name">{this.props.state.getIn(['user','response','name'])}</span>
+                                            <i className="fa fa-user"></i> <span className="profile-name">{this.props.state.getIn(['login','response','name'])}</span>
                                         </button>
                                     <ul className="dropdown-menu">
                                         <li><a href="" onClick={this.logout}><i className="ti-power-off m-r-10 text-danger"></i> Logout</a></li>
@@ -171,7 +171,7 @@ let mapDispatch = (dispatch) => {
   return {
     actions: {
       logout: () => {
-        dispatch(Actions.Post("user", "/api/user/logout", {}, {remove:true}));
+        dispatch(Actions.ObjectRemove('login'))
       }
     }
   }

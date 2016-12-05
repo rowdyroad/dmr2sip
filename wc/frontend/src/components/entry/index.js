@@ -5,5 +5,6 @@ import ListFetcher from './ListFetcher'
 import Delete from './Delete'
 import DeleteForm from './DeleteForm'
 import Composer from './Composer'
+import Creator from './Creator'
 
-export { Form, Grid, ItemFetcher, ListFetcher, Delete,DeleteForm, Composer}
+export { Form, Grid, ItemFetcher, ListFetcher, Delete,DeleteForm, Composer, Creator}

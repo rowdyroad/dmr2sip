@@ -32,16 +32,16 @@ export default (props) => {
           dispatch(Actions.ObjectMerge(props.scope, state))
         },
         close: () => {
-          debugger;
           browserHistory.replace(props.listUrl || "/");
         },
         notFound: () => {
-          debugger;
           browserHistory.replace(props.listUrl || "/");
         },
         error: (error) => {
-          debugger;
           browserHistory.replace(props.notFoundUrl || "/");
+        },
+        clear: () => {
+          dispatch(Actions.ObjectRemove(props.scope));
         }
       }
     }
@@ -74,6 +74,10 @@ export default (props) => {
       if (!next.context && this.props.context) {
         this.props.actions.error(404);
       }
+    }
+
+    componentWillUnmount = () => {
+      this.props.actions.clear();
     }
 
     render = () => {

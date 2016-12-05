@@ -43,7 +43,8 @@ export const reducer = (state = initialState, action) =>
 			return state.mergeDeep(fromJS(PathToObject(action.path, action.object)));
 
 		case Actions.REQUEST_ACTION:
-			return state.mergeDeep(Map([[action.scope, fromJS({fetching:true, success:null, request: action.request})]]));
+			return state.mergeDeep(Map([[action.scope, fromJS({requesting:true, success:null, error:null, [action.state]:false, request: action.request})]]));
+
 
 		case Actions.REQUEST_SUCCESS:
 		{
@@ -53,7 +54,8 @@ export const reducer = (state = initialState, action) =>
 				}
 			}
 
-			let ret = fromJS({fetching:false, success:true, response:action.response});
+			let ret = state.get(action.scope).mergeDeep(fromJS({requesting:false, success:true, [action.state]:true, response:action.response}));
+
 			if (action.options) {
 				if (action.options.set) {
 					return state.set(action.scope, ret);
@@ -72,7 +74,6 @@ export const reducer = (state = initialState, action) =>
 									return a.get(action.options.pkAttribute) === b.get(action.options.pkAttribute)});
 							}));
 						}
-
 						ret = ret.setIn(scope, state.getIn(state_scope).concat(ret.getIn(scope)));
 					}
 				}
@@ -81,7 +82,7 @@ export const reducer = (state = initialState, action) =>
 		}
 
 		case Actions.REQUEST_ERROR:
-			return state.merge(Map([[action.scope, fromJS({success:false,fetching:false,  error:action.error})]]));
+			return state.merge(Map([[action.scope, state.get(action.scope).mergeDeep(fromJS({success:false,requesting:false, [action.state]:false,  error:action.error}))]]));
 
 		case  Actions.LIST_ITEM_UPDATE:
 		{

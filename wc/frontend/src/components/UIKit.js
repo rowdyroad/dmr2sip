@@ -14,6 +14,18 @@ export const RFInput = (props) => (
 	</div>
 )
 
+export const RFTextarea = (props) => (
+	<div className="form-group">
+		{props.label ? <label className="control-label">{props.label}</label> : null}
+		<Field
+				className="form-control"
+				component="textarea"
+				{...props}
+				/>
+	</div>
+)
+
+
 export const RFSelect = (props) => (
 	<div className="form-group">
 		{props.label ? <label className="control-label">{props.label}</label> : null}
@@ -83,7 +95,7 @@ export const Box = (props) => (
 )
 
 export const Property = (props) => (
-	<div>
+	<div style={{marginBottom:'1em'}}>
 		<label>{props.label}</label>
 		<div>{props.children}</div>
 	</div>
@@ -144,9 +156,8 @@ export const Grid = (props) => (
 							width={12 / (props.cols || 4)}
 							key={i}
 							style={{...props.style || {}, padding:'0.5em'}}>
-								<Box>
-									{React.createElement(props.component, item)}
-								</Box>
+								{props.plain ? React.createElement(props.component, item) :
+										<Box>{React.createElement(props.component, item)}</Box>}
 					</Col>;
 		})}
 	</Row>

@@ -21,13 +21,13 @@ export const VIEWPORT_RESIZE 	= 'VIEWPORT_RESIZE';
 export const ViewportResize 	= (width, height) => ({ type: VIEWPORT_RESIZE, width: width, height:height});
 
 export const REQUEST_ACTION = 'REQUEST_ACTION';
-export const RequestAction = (scope, request) => ({type: REQUEST_ACTION, scope:scope, request:request});
+export const RequestAction = (scope, request, options, state) => ({type: REQUEST_ACTION, scope:scope, request:request, state: state, options: options});
 
 export const REQUEST_SUCCESS = 'REQUEST_SUCCESS';
-export const RequestSuccess = (scope, response, options) => ({type: REQUEST_SUCCESS, scope:scope, response:response, options: options});
+export const RequestSuccess = (scope, response, options, state) => ({type: REQUEST_SUCCESS, scope:scope, response:response, state: state, options: options});
 
 export const REQUEST_ERROR = 'REQUEST_ERROR';
-export const RequestError = (scope, error) => ({type: REQUEST_ERROR, scope:scope, error:error});
+export const RequestError = (scope, error, state) => ({type: REQUEST_ERROR, scope:scope, error:error, state: state});
 
 export const OBJECT_MERGE = 'OBJECT_MERGE';
 export const ObjectMerge = (path, object) => ({type: OBJECT_MERGE, path: path, object:object});
@@ -47,39 +47,18 @@ export const ListItemRemove = (path, pkAttribute, pkValue) => ({type: LIST_ITEM_
 export const LIST_ITEM_ADD = 'LIST_ITEM_ADD';
 export const ListItemAdd = (path, object) => ({type: LIST_ITEM_ADD, path: path, object:object});
 
-const CreateRequest = (method, scope, request, options) => {
-
-	let dispatchAll = (dispatch, handler, what) => {
-		let action = typeof(handler) === "function" ? handler(what) : handler;
-		if (action) {
-			if (Array.isArray(action)) {
-				action.forEach((a) => {
-					dispatch(a);
-				})
-			} else {
-				dispatch(action);
-			}
-		}
-	}
-
+const CreateRequest = (method, scope, request, options, state) => {
 	return (dispatch, getState) => {
-		dispatch(RequestAction(scope, request));
-
-		method(request.url, request.params)
+		dispatch(RequestAction(scope, request, null, state));
+		return method(request.url, request.params)
 		.then((response) => {
-			dispatch(RequestSuccess(scope, response, options));
-			if (options && options.onSuccess) {
-				dispatchAll(dispatch, options.onSuccess, response);
-			}
+			dispatch(RequestSuccess(scope, response, options, state));
 		})
 		.catch((error) => {
 			if (typeof(error) === "object") {
 				throw error;
 			} else {
-				dispatch(RequestError(scope, error));
-				if (options && options.onError) {
-					dispatchAll(dispatch, options.onError, error);
-				}
+				dispatch(RequestError(scope, error, state));
 			}
 		});
 	}
@@ -89,7 +68,8 @@ export const Fetch = (scope, request, options) => {
 	if (typeof(request) === "string") {
 		request = {url: request};
 	}
-	return CreateRequest(Request.get, scope, request, options);
+	request.method = 'GET';
+	return CreateRequest(Request.get, scope, request, options, 'fetched');
 }
 
 export const Post = (scope, request, options, aOptions) => {
@@ -97,7 +77,8 @@ export const Post = (scope, request, options, aOptions) => {
 		request = {url: request, params:options};
 		options = aOptions;
 	}
-	return CreateRequest(Request.post, scope, request, options);
+	request.method = 'POST';
+	return CreateRequest(Request.post, scope, request, options, 'submitted');
 }
 
 export const Put = (scope, request, options, aOptions) => {
@@ -105,7 +86,8 @@ export const Put = (scope, request, options, aOptions) => {
 		request = {url: request, params:options};
 		options = aOptions;
 	}
-	return CreateRequest(Request.put, scope, request, options);
+	request.method = 'PUT';
+	return CreateRequest(Request.put, scope, request, options, 'submitted');
 }
 
 export const Delete = (scope, request, options, aOptions) => {
@@ -113,5 +95,6 @@ export const Delete = (scope, request, options, aOptions) => {
 		request = {url: request, params:options};
 		options = aOptions;
 	}
-	return CreateRequest(Request.delete, scope, request, options);
+	request.method = 'DELETE';
+	return CreateRequest(Request.delete, scope, request, options, 'deleted');
 }

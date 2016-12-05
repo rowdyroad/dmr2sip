@@ -3,57 +3,22 @@ import { connect } from 'react-redux'
 import PaperLayout from '../components/PaperLayout';
 import * as Actions from '../actions'
 import * as UI from '../components/UIKit'
-
+import { reduxForm } from 'redux-form/immutable'
 class Login extends Component
 {
-  state = {
-    data:{}
-  }
-
-  static contextTypes = {
-    router: React.PropTypes.object.isRequired
-  }
-
-  onChange = (data) => {
-    this.setState({data: {...this.state.data, ...data}});
-  }
-
-  componentDidUpdate = (prevProps) =>
-  {
-    if (this.props.user !== prevProps.user) {
-      this.context.router.replace(this.props.login_redirect ? this.props.login_redirect : "/");
-    }
-  }
-
-  onSubmit = () => {
-    this.props.actions.login(this.state.data);
-  }
-
   render = () => {
+    console.log(this.props);
     return (
             <PaperLayout>
-              <UI.Form    title="Authorization"
-                          error={this.state.error}
-                          loading={this.state.loading}
-                          onSubmit={this.onSubmit}
-                          submitButton={{label:"Login", "color":"primary"}}>
-                <UI.Input name="username" label="Username" type="text" onChange={this.onChange}></UI.Input>
-                <UI.Input name="password" label="Password" type="password" onChange={this.onChange}></UI.Input>
-              </UI.Form>
+             <form onSubmit={this.props.onSubmit}>
+                {this.props.error == 422 ? <div style={{color:'red'}}>Incorrect login/password</div> : null}
+                <UI.RFInput label="Username" name="username"/>
+                <UI.RFInput label="Password" type="password" name="password"/>
+                <UI.Button type="submit" disabled={this.props.pristine || this.props.submitting} label="Submit"/>
+              </form>
             </PaperLayout>
           );
   }
 }
 
-let mapDispatch = (dispatch) => {
-  return {
-    actions: {
-      login: (user) => {
-        dispatch(Actions.Post('user', '/api/user/login', user));
-      }
-    }
-  }
-}
-
-export default connect(state => { return state.main.toJS(); }, mapDispatch)(Login)
-
+export default Login;

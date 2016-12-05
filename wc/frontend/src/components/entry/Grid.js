@@ -24,6 +24,7 @@ class Grid extends Component
                         <UI.Grid cols={this.props.cols}
                                  items={this.props.data.data}
                                  component={this.props.component}
+                                 plain={this.props.plain}
                                  />
                         {this.props.data._meta.currentPage < this.props.data._meta.pageCount ?
                             <UI.Button label="More" type="button" onClick={()=>{this.props.actions.fetch(this.props.data._meta.currentPage + 1,true)}}/>

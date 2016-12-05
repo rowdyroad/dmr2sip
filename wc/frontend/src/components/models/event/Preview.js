@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import {Link} from 'react-router';
 import TimeAgo from 'react-timeago'
-import * as Actions from '../actions'
-import * as UI from '../components/UIKit'
+import * as UI from '../../UIKit'
 class Event extends Component
 {
 	state = {
@@ -74,74 +72,7 @@ class Event extends Component
 					</div>
 				)
 	}
-
 }
 
-class Events extends Component
-{
-	componentWillMount = () => {
-		this.props.actions.fetch(1);
-	}
 
-	more = () =>
-	{
-		this.props.actions.fetch(this.props.meta.currentPage + 1, true);
-	}
-
-	render = () => {
-
-		if (!this.props.data) {
-			return null; //!todo: add loader and error handling
-		}
-		return (
-					<div>
-						<div id="cd-timeline" className="cd-container">
-							{this.props.data.map((event) => (
-								<Event key={event.event_id} {...event}></Event>
-							))}
-						</div>
-						{this.props.fetching ? <div>Loading</div> : null}
-						{this.props.meta.currentPage < this.props.meta.pageCount ?
-							<div style={{textAlign:'center'}}>
-								<UI.Button onClick={this.more} label="More"/>
-							</div>
-						: null
-						}
-					</div>
-		)
-	}
-}
-
-let mapState = (state) => {
-	return {
-			fetching: state.main.getIn(['events', 'fetching']),
-			data: state.main.hasIn(['events','response','data']) ? state.main.getIn(['events','response','data']).toJS() : null,
-			meta: state.main.hasIn(['events','response','_meta']) ? state.main.getIn(['events','response','_meta']).toJS() : null,
-	}
-}
-
-let mapDispatch = (dispatch) => {
-  return {
-    actions: {
-      fetch: (page, append) => {
-        dispatch(Actions.Fetch("events", {
-        									url: "/api/events",
-        									params: {page: page}
-        								},
-        								{
-        									concat: append ? 'data' : false
-        								}
-
-
-
-        								));
-      }
-    }
-  }
-}
-
-export default connect(mapState, mapDispatch)(Events)
-
-
-
-
+export default Event;
