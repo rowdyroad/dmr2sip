@@ -51,7 +51,7 @@ COPY etc/sudoers.d /etc/sudoers.d/
 
 ARG DOCKER_GROUP
 
-RUN groupadd -g $DOCKER_GROUP docker && usermod -aG docker www-data
+RUN (groupadd -g $DOCKER_GROUP docker && usermod -aG docker www-data) || true
 
 CMD ["/usr/bin/supervisord", "-n" ,"-c","/etc/supervisord.conf"]
 

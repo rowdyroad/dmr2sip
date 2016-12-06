@@ -15,7 +15,7 @@ DOCKER_GID=$(shell getent group docker | sed -E 's/docker:x:([0-9]+):.+/\1/')
 all: wc service
 
 docker-purge:
-	-docker rm $$(docker ps -q -f status=exited -f status=created -f status=restarting -f status=paused)
+	-docker rm $$(docker ps -q -f status=exited -f status=created -f status=restarting -f status=paused) -f
 
 wc: wc-backend-image wc-frontend-image start-db start-wc-backend composer migrate start-wc-frontend prepare-front front
 
