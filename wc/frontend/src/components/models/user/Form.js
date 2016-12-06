@@ -8,7 +8,7 @@ export default (props) => (
       		<UI.Col2 >
       			<div>Username</div>
       			<h3>{props.data && props.data.username}</h3>
-      			{props.is_admin ? <div>Full Access</div>: <div>Restricted Access</div>}
+      			{props.data && props.data.is_admin ? <div>Full Access</div> : <div>Restricted Access</div>}
       		</UI.Col2>
       		<UI.Col10>
 	      	  <UI.RFInput label="Name" name="name"/>

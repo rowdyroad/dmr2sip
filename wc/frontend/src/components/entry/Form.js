@@ -1,19 +1,17 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import * as Actions from '../../actions'
-import { reduxForm,SubmissionError,setSubmitSucceeded } from 'redux-form/immutable'
+import { reduxForm,SubmissionError,setSubmitSucceeded,isDirty} from 'redux-form/immutable'
 import * as Utils from './Utils'
-
+import {Map, fromJS} from 'immutable'
 export default (component, props) => {
 
 	let mapData = (state, ownProps) => {
 		return {
     		initialValues:ownProps.data,
-    		data: state.main.getIn([props.scope, 'success'])
-    			  ? state.main.getIn([props.scope, 'response']).toJS()
-    			  : (state.form.hasIn([props.scope, 'values'])
-    			  		? state.form.getIn([props.scope,'values']).toJS()
-    			  		: ownProps.data),
+    		data: (ownProps.data ? fromJS(ownProps.data) : Map())
+    				.mergeDeep(state.form.getIn([props.scope, 'values'], Map()))
+    				.mergeDeep(state.main.getIn([props.scope, 'response'], Map())).toJS(),
     		context: ownProps.context || state.main.has(props.scope) ? state.main.get(props.scope).toJS() : null,
     		submitted: state.main.getIn([props.scope, 'submitted']),
     		success: state.main.getIn([props.scope, 'success'])

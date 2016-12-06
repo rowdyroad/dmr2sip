@@ -100,10 +100,10 @@ table.table td {
 }
 
 .fa-circle.point-status-0 {
-	color:red;
+	color:#F78181;
 }
 .fa-circle.point-status-1 {
-	color:green;
+	color:#81F781;
 }
 
 .point-item-status-0 {

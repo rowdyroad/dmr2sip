@@ -14,6 +14,37 @@ export const RFInput = (props) => (
 	</div>
 )
 
+export const RFRadio = (props) => (
+	<div className="form-inline">
+		<div className="form-group">
+			<Field
+					className="form-control"
+					component="input"
+					type="radio"
+					{...props}
+					style={{...props.style ||{}, marginTop:-3}}
+					/>
+			<label style={{fontWeight:'normal',paddingLeft:4}}>{props.label}</label>
+		</div>
+	</div>
+)
+
+export const RFCheckbox = (props) => (
+	<div className="form-inline">
+		<div className="form-group">
+			<Field
+					className="form-control"
+					component="input"
+					type="checkbox"
+					{...props}
+					style={{...props.style ||{}, marginTop:-3}}
+					/>
+			<label style={{fontWeight:'normal',paddingLeft:4}}>{props.label}</label>
+		</div>
+	</div>
+)
+
+
 export const RFTextarea = (props) => (
 	<div className="form-group">
 		{props.label ? <label className="control-label">{props.label}</label> : null}
@@ -151,13 +182,14 @@ export const ProgressBar = (props) => (
 
 export const Grid = (props) => (
 	<Row>
-		{(props.items || []).map((item,i) => {
+		{(props.data || []).map((item,i) => {
+			if (!item) return item;
 			return <Col
 							width={12 / (props.cols || 4)}
 							key={i}
-							style={{...props.style || {}, padding:'0.5em'}}>
-								{props.plain ? React.createElement(props.component, item) :
-										<Box>{React.createElement(props.component, item)}</Box>}
+							style={{...(props.style || {}), padding:'0.5em'}}>
+								{props.plain ? React.createElement(props.component, {...props, ...item}) :
+										<Box>{React.createElement(props.component, {...props, ...item})}</Box>}
 					</Col>;
 		})}
 	</Row>
@@ -166,21 +198,24 @@ export const Grid = (props) => (
 
 export const Col = (props) => (
 	<div className={"col-md-" + props.width} {...props}>
-		{props.children}
+		{React.Children.map(props.children, (item) => {
+			if (!React.isValidElement(item)) return item;
+			return React.cloneElement(item, item.props);
+		})}
 	</div>
 )
-export const Col1 = (props) => ( <div className="col-md-1" {...props}> {props.children} </div>)
-export const Col2 = (props) => ( <div className="col-md-2" {...props}> {props.children} </div>)
-export const Col3 = (props) => ( <div className="col-md-3" {...props}> {props.children} </div>)
-export const Col4 = (props) => ( <div className="col-md-4" {...props}> {props.children} </div>)
-export const Col5 = (props) => ( <div className="col-md-5" {...props}> {props.children} </div>)
-export const Col6 = (props) => ( <div className="col-md-6" {...props}> {props.children} </div>)
-export const Col7 = (props) => ( <div className="col-md-7" {...props}> {props.children} </div>)
-export const Col8 = (props) => ( <div className="col-md-8" {...props}> {props.children} </div>)
-export const Col9 = (props) => ( <div className="col-md-9" {...props}> {props.children} </div>)
-export const Col10 = (props) => ( <div className="col-md-10" {...props}> {props.children} </div>)
-export const Col11 = (props) => ( <div className="col-md-11" {...props}> {props.children} </div>)
-export const Col12 = (props) => ( <div className="col-md-12" {...props}> {props.children} </div>)
+export const Col1 = (props) => ( <Col {...props} width={1}>{props.children}</Col>)
+export const Col2 = (props) => ( <Col {...props} width={2}>{props.children}</Col>)
+export const Col3 = (props) => ( <Col {...props} width={3}>{props.children}</Col>)
+export const Col4 = (props) => ( <Col {...props} width={4}>{props.children}</Col>)
+export const Col5 = (props) => ( <Col {...props} width={5}>{props.children}</Col>)
+export const Col6 = (props) => ( <Col {...props} width={6}>{props.children}</Col>)
+export const Col7 = (props) => ( <Col {...props} width={7}>{props.children}</Col>)
+export const Col8 = (props) => ( <Col {...props} width={8}>{props.children}</Col>)
+export const Col9 = (props) => ( <Col {...props} width={9}>{props.children}</Col>)
+export const Col10 = (props) => ( <Col {...props} width={10}>{props.children}</Col>)
+export const Col11 = (props) => ( <Col {...props} width={11}>{props.children}</Col>)
+export const Col12 = (props) => ( <Col {...props} width={12}>{props.children}</Col>)
 
 
 

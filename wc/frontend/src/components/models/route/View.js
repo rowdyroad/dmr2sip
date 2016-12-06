@@ -23,13 +23,17 @@ export default (props) => {
 	                </UI.Col2>
 	            </UI.Row>
 	            <UI.Row>
-	            	<UI.Col2>
-	            		{props.data.source_point ? <Point {...props.data.source_point}/> : deleted}
-	            	</UI.Col2>
-					<UI.Col1><i className="route-direction fa fa-arrow-right"></i></UI.Col1>
-	            	<UI.Col2>
-	            		{props.data.destination_point ? <Point {...props.data.destination_point}/> : deleted}
-	            	</UI.Col2>
+	            	<UI.Col3>
+	            		<UI.Box>
+	            			{props.data.source_point ? <Point {...props.data.source_point}/> : deleted}
+	            		</UI.Box>
+	            	</UI.Col3>
+					<UI.Col1 style={{textAlign:'center',fontSize:40, paddingTop:120}}><i className="route-direction fa fa-arrow-right"></i></UI.Col1>
+	            	<UI.Col3>
+	            		<UI.Box>
+	            			{props.data.destination_point ? <Point {...props.data.destination_point}/> : deleted}
+	            		</UI.Box>
+	            	</UI.Col3>
 	            </UI.Row>
 
 	            <UI.Row>
