@@ -72,6 +72,18 @@ class MainLayout extends Component
         profile_open:false
     }
 
+    fetchStatesTimer:null
+
+    componentWillMount = () => {
+        this.fetchStatesTimer = setInterval(()=> {
+            this.props.actions.fetchStates();
+        },1000);
+    }
+
+    componentWillUnmount = () => {
+        clearInterval(this.fetchStatesTimer);
+    }
+
     toogleMenu = () => {
         this.setState({enlarged: !this.state.enlarged});
     }
@@ -117,7 +129,9 @@ class MainLayout extends Component
                                 </button>
                                 <span className="clearfix"></span>
                             </div>
-
+                            <ul className="nav navbar-nav">
+                                <li><i className={"fa fa-circle point-status-" + (this.props.states.service ? 1 : 0)}></i></li>
+                            </ul>
                             <ul className="nav navbar-nav navbar-right pull-right">
                                 <li className={"dropdown top-menu-item-xs " + (this.state.profile_open ? 'open' : '')}>
                                     <button onClick={this.toggleProfile}
@@ -166,10 +180,18 @@ class MainLayout extends Component
     }
 }
 
-
+let mapState = (state) => {
+   return {
+            state: state.main,
+            states: state.main.getIn(['states','fetched']) ? state.main.getIn(['states','response']).toJS() : {}
+    }
+}
 let mapDispatch = (dispatch) => {
   return {
     actions: {
+      fetchStates:()=>{
+        dispatch(Actions.Fetch('states', '/api/state/states'));
+      },
       logout: () => {
         dispatch(Actions.ObjectRemove('login'))
       }
@@ -177,4 +199,9 @@ let mapDispatch = (dispatch) => {
   }
 }
 
-export default connect(state => { return {state: state.main} }, mapDispatch)(MainLayout)
+export default connect(mapState, mapDispatch)(MainLayout)
+
+
+
+
+

@@ -9,6 +9,7 @@ export default (props) => {
                         data: state.main.getIn([props.scope,'response','data'])
                              ? state.main.getIn([props.scope,'response']).toJS()
                              : null,
+                        success: state.main.getIn([props.scope, 'success']) && state.main.getIn([props.scope, 'fetched']),
                         error: state.main.hasIn([props.scope,'error'])
                                 ? state.main.getIn([props.scope, 'error']) : null
                         }

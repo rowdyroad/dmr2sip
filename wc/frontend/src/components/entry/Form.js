@@ -9,9 +9,9 @@ export default (component, props) => {
 	let mapData = (state, ownProps) => {
 		return {
     		initialValues:ownProps.data,
-    		data: (ownProps.data ? fromJS(ownProps.data) : Map())
-    				.mergeDeep(state.form.getIn([props.scope, 'values'], Map()))
-    				.mergeDeep(state.main.getIn([props.scope, 'response'], Map())).toJS(),
+    		data: (state.main.getIn([props.scope, 'submitted'])
+    				? state.main.getIn([props.scope, 'response'], Map())
+    				: state.form.getIn([props.scope, 'values'], Map())).toJS(),
     		context: ownProps.context || state.main.has(props.scope) ? state.main.get(props.scope).toJS() : null,
     		submitted: state.main.getIn([props.scope, 'submitted']),
     		success: state.main.getIn([props.scope, 'success'])

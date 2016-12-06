@@ -3,7 +3,7 @@ import * as UI from '../../UIKit'
 import {Creator, Grid } from '../../entry'
 
 import {FormSection} from 'redux-form'
-
+import {fromJS} from 'immutable'
 
 const Point = (props) => (
 	<UI.Row style={{cursor:'pointer', background: props.input.value == props.point_id ? 'rgba(95, 190, 170, 0.30)' : ''}} onClick={()=> { props.input.onChange(props.point_id)}}>
@@ -84,7 +84,6 @@ class Form extends Component {
 
 
 	render = () => {
-		console.log(this.props.data);
 		let source = null;
 		if (this.props.data && this.props.data.source_point_id && this.props.points.data) {
 			let source_point = null;
@@ -118,17 +117,27 @@ class Form extends Component {
 			}
 		}
 
+		let source_points = fromJS(this.props.points).toJS();
+		if (this.props.data.source_point && source_points.success) {
+			source_points.data.data = source_points.data.data.filter((item)=>{ return item.point_id !== this.props.data.source_point.point_id;});
+			source_points.data.data.unshift(this.props.data.source_point);
+		}
+		let destination_points = fromJS(this.props.points).toJS();
+		if (this.props.data.destination_point && destination_points.success) {
+			destination_points.data.data = destination_points.data.data.filter((item)=>{ return item.point_id !== this.props.data.destination_point.point_id;});
+			destination_points.data.data.unshift(this.props.data.destination_point);
+		}
 	    return (<UI.Box>
 	      <form onSubmit={this.props.onSubmit}>
 	          <UI.RFInput label="Name" name="name"/>
 	          <UI.Row>
 	          	<UI.Col4>
-	          		<UI.RFInput label="Source Point" name="source_point_id" component={Points} data={this.props.points}/>
+	          		<UI.RFInput label="Source Point" name="source_point_id" component={Points} data={source_points}/>
 	          		{source ? source : null	}
 	          	</UI.Col4>
 	          	<UI.Col1 style={{textAlign:'center',fontSize:40, paddingTop:120}}><i className="route-direction fa fa-arrow-right"></i></UI.Col1>
 	          	<UI.Col4>
-	          		<UI.RFInput label="Destination Point" name="destination_point_id" component={Points} data={this.props.points}/>
+	          		<UI.RFInput label="Destination Point" name="destination_point_id" component={Points} data={destination_points}/>
 	          		{destination ? destination : null	}
 	          	</UI.Col4>
 	          </UI.Row>
