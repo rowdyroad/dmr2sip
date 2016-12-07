@@ -10,14 +10,4 @@ class PointController extends ActiveController
     ];
     public $modelClass = 'app\models\Point';
 
-    public function actions()
-    {
-        return array_diff_key(parent::actions(), ['index'=>null]);
-    }
-
-    public function actionIndex()
-    {
-        $model = $this->modelClass;
-        return  $model::find()->all();
-    }
 }

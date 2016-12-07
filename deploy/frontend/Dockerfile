@@ -15,7 +15,6 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
 RUN curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
 	apt-get install -y nodejs
 
-RUN npm install -g gulp-cli bower
 
 COPY etc/nginx.conf /etc/nginx/sites-available/default
 
