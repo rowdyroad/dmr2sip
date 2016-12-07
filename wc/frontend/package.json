@@ -70,7 +70,6 @@
     "build": "node scripts/build.js",
     "test": "jest --watch --env=jsdom"
   },
-  "proxy": "http://192.168.56.101:8022",
   "jest": {
     "moduleFileExtensions": [
       "jsx",

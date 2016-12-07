@@ -177,6 +177,7 @@ function onProxyError(proxy) {
     );
     console.log();
 
+
     // And immediately send the proper error response to the client.
     // Otherwise, the request will eventually timeout with ERR_EMPTY_RESPONSE on the client side.
     if (res.writeHead && !res.headersSent) {
@@ -192,6 +193,16 @@ function addMiddleware(devServer) {
   // `proxy` lets you to specify a fallback server during development.
   // Every unrecognized request will be forwarded to it.
   var proxy = require(paths.appPackageJson).proxy;
+
+  if (config.inotifyNotSupported) {
+    devServer.use(function(req, res, next) {
+            compiler.run(function(err) {
+              if(err) throw err;
+              next();
+            });
+    });
+  }
+
   devServer.use(historyApiFallback({
     // Paths with dots should still use the history fallback.
     // See https://github.com/facebookincubator/create-react-app/issues/387.
@@ -237,6 +248,7 @@ function addMiddleware(devServer) {
       })
     );
   }
+
   // Finally, by now we have certainly resolved the URL.
   // It may be /index.html, so let the dev server try serving it again.
   devServer.use(devServer.middleware);
@@ -287,6 +299,7 @@ function runDevServer(port, protocol) {
 
   // Our custom middleware proxies requests to /index.html or a remote API.
   addMiddleware(devServer);
+
 
   // Launch WebpackDevServer.
   devServer.listen(port, (err, result) => {

@@ -11,6 +11,8 @@ var env = require('./env');
 // It is focused on developer experience and fast rebuilds.
 // The production configuration is different and lives in a separate file.
 module.exports = {
+  // This makes watch recompile on each page refresh. Needs when we have no inotify support (virtual box shared directory, for example)
+  inotifyNotSupported:true,
   // This makes the bundle appear split into separate modules in the devtools.
   // We don't use source maps here because they can be confusing:
   // https://github.com/facebookincubator/create-react-app/issues/343#issuecomment-237241875
