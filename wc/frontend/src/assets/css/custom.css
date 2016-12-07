@@ -124,3 +124,20 @@ table.table td {
     text-overflow: ellipsis;
     overflow: hidden;
 }
+
+.loading-content {
+	padding: 4em;
+    border: 1px solid rgba(0,0,0,0.3);
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+.no-content {
+	padding: 4em;
+    border: 1px solid rgba(0,0,0,0.3);
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}

@@ -179,21 +179,36 @@ export const ProgressBar = (props) => (
 	</div>
 )
 
-
-export const Grid = (props) => (
-	<Row>
-		{(props.data || []).map((item,i) => {
-			if (!item) return item;
-			return <Col
-							width={12 / (props.cols || 4)}
-							key={i}
-							style={{...(props.style || {}), padding:'0.5em'}}>
-								{props.plain ? React.createElement(props.component, {...props, ...item}) :
-										<Box>{React.createElement(props.component, {...props, ...item})}</Box>}
-					</Col>;
-		})}
-	</Row>
+export const NoContent = (props) => (
+	<div className="no-content">There is no any data here</div>
 )
+
+export const LoadingContent = (props) => (
+	<div className="loading-content">Loading...</div>
+)
+
+
+export const Grid = (props) => {
+
+	if (!props.data) {
+		return props.loadingComponent ? React.createElement(props.loadingComponent, props) : <LoadingContent {...props}/>
+	} else if (!props.data.length) {
+		return props.noContentComponent ? React.createElement(props.noContentComponent, props) : <NoContent {...props}/>
+	}
+
+	return  (<Row>
+				{props.data.map((item,i) => {
+					if (!item) return item;
+					return <Col
+									width={12 / (props.cols || 4)}
+									key={i}
+									style={{...(props.style || {}), padding:'0.5em'}}>
+										{props.plain ? React.createElement(props.component, {...props, ...item}) :
+												<Box>{React.createElement(props.component, {...props, ...item})}</Box>}
+							</Col>;
+				})}
+			</Row>)
+}
 
 
 export const Col = (props) => (

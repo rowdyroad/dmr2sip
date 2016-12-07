@@ -19,6 +19,11 @@ class Events extends Component
 		if (!this.props.data) {
 			return null; //!todo: add loader and error handling
 		}
+
+		if (!this.props.data.length) {
+			return <UI.NoContent/>
+		}
+
 		return (
 					<div>
 						<div id="cd-timeline" className="cd-container">
@@ -26,7 +31,6 @@ class Events extends Component
 								return React.createElement(this.props.component, {...event, key: event.event_id});
 							})}
 						</div>
-						{this.props.fetching ? <div>Loading</div> : null}
 						{this.props.data._meta.currentPage < this.props.data._meta.pageCount ?
 							<div style={{textAlign:'center'}}>
 								<UI.Button onClick={this.more} label="More"/>
