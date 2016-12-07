@@ -17,7 +17,7 @@ all: wc service
 docker-purge:
 	-docker rm $$(docker ps -q -f status=exited -f status=created -f status=restarting -f status=paused) -f
 
-wc: wc-backend-image wc-frontend-image start-db start-wc-backend composer migrate start-wc-frontend prepare-front front
+wc: wc-backend-image wc-frontend-image start-db start-wc-backend composer migrate start-wc-frontend front-prepare front
 
 wc-backend-image:
 	$(BUILD) -t $(BACKEND)-image \
@@ -74,11 +74,14 @@ migrate:
 migrate-create:
 	$(EXEC) -it $(BACKEND) bash -c "cd /opt/backend && ./yii migrate/create --interactive=0 $(name)"
 
-prepare-front:
-	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && npm update && bower update --force-latest --allow-root"
+front-prepare:
+	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && npm update"
 
 front:
-	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && gulp"
+	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && npm run build"
+
+front-watch:
+	$(EXEC) -it $(FRONTEND) bash -c "cd /opt/frontend && npm start"
 
 composer:
 	$(EXEC) -it $(BACKEND) bash -c "cd /opt/backend && composer update"
