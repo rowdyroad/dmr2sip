@@ -12,9 +12,8 @@ RUN \
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN curl -sL https://deb.nodesource.com/setup_4.x | bash - && \
-	apt-get install -y nodejs
-
+RUN curl -sL https://deb.nodesource.com/setup_7.x | bash - && \
+    apt-get install -y nodejs
 
 COPY etc/nginx.conf /etc/nginx/sites-available/default
 
