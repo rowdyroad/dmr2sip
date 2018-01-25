@@ -1,7 +1,6 @@
 # DMR2SIP
-[OT Solutions](https://otsolutions.ru)
 
-S/H components to integrate DMR radio stations and SIP software.
+Integrate DMR radio stations with SIP software.
 
 ### Installation
 
